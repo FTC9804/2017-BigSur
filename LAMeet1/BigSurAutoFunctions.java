@@ -1,5 +1,5 @@
 /*Code written by Steve, Etienne, & Marcus Fri. 2 Dec. 2016
-*
+* updated with new functions code
 *
 Etienne Lunetta
 *   -Sunday, December 4, 2016: 1:54 AM
@@ -84,7 +84,7 @@ public class BigSurAutoFunctions extends Functions {
         sleep (2525);
 
 
-        shootAndLift (22,3050,.95,.95);
+        shootAndLift (12,3050,.95,.95);
 
 
         intake.setPower(0);

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
  * Created by MarcusLeher on 05/12/2016.
+ * added more functions
  */
 
 
@@ -166,7 +167,7 @@ public abstract class Functions extends LinearOpMode {
         gyro.calibrate();
         while (gyro.isCalibrating())
         {
-            sleep(138);
+            sleep(100);
         }
     }
 
@@ -236,7 +237,14 @@ public abstract class Functions extends LinearOpMode {
         shooter = hardwareMap.dcMotor.get("m5");
         intake = hardwareMap.dcMotor.get("m6");
         elevator = hardwareMap.dcMotor.get("m7");
+        whiteLineSensor1= hardwareMap.opticalDistanceSensor.get("ods1");
+        whiteLineSensor2= hardwareMap.opticalDistanceSensor.get("ods2");
+        colorSensor = hardwareMap.colorSensor.get("colorSensor");
 
+        whiteLineSensor1.enableLed(true);
+        whiteLineSensor2.enableLed(true);
+
+        colorSensor.enableLed(false);
 
         turret = hardwareMap.servo.get("s1");
 
@@ -255,6 +263,7 @@ public abstract class Functions extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.get("gyro");
+
     }
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed)
