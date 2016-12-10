@@ -53,8 +53,18 @@ public class BigSurAutoFunctions extends Functions {
         telemetry.addData("drive 1 done. shooting", telemetryVariable);
         telemetry.update();
 
-        //launch elevator and shooting protocol to launch particles
-        shootAndLift(6, 3050, .95, .95);
+        try {
+
+            //launch elevator and shooting protocol to launch particles
+            shootAndLift(6, 3050, .95, .95);
+
+        } catch (InterruptedException e) {
+
+            throwingException= true;
+
+            telemetry.addData("IndexOutOfBoundsException: " , throwingException);
+
+        }
 
         telemetry.addData("shooting done.  stop shooting", telemetryVariable);
         telemetry.update();
@@ -83,11 +93,14 @@ public class BigSurAutoFunctions extends Functions {
         telemetry.addData("spin move", telemetryVariable);
         telemetry.update();
 
+
         //90º clockwise to put ourselves in a line with beacons
         spinMove(0);
 
         telemetry.addData("drive to white line", telemetryVariable);
         telemetry.update();
+
+        drive(24, .5, 0);
 
         //function travelling infinite distance until white line is reached
         // *******ADD TIME CONSTRAINT ON THIS ACTION********
