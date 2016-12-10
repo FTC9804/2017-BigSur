@@ -97,6 +97,8 @@ public abstract class Functions extends LinearOpMode {
 
     double timeTwo;
 
+    double timeRunningLoop;
+
     ModernRoboticsI2cGyro gyro;
 
     double currentHeading;
@@ -107,12 +109,23 @@ public abstract class Functions extends LinearOpMode {
 
     double gyroGain=.005;
 
+    double rpmGain = .00015;
+
     double speedCorrection;
 
     double turnSpeed;
 
     int telemetryVariable = 0;
 
+    double [] movingWeightedAverage = {0, 0, 0, 0, 0};
+
+    int loopCounter = 0;
+
+    double movingAverage;
+
+    double rpmError = 0;
+
+    boolean throwingException=false;
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -280,78 +293,62 @@ public abstract class Functions extends LinearOpMode {
         colorSensor.enableLed(false);
 
 
+
     }
 
-    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed)
+
+    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
     {
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
+        timeRunningLoop = this.getRuntime();
 
-        while (this.opModeIsActive() && (timeTwo-timeOne<time)) {
+        while (this.opModeIsActive() && (this.getRuntime() - timeRunningLoop < time)) {
+            loopCounter++;
             timeTwo = this.getRuntime();
             encoderClicksTwo = shooter.getCurrentPosition();
             telemetry.addData("Time Two", timeTwo);
             telemetry.addData("Time Difference", timeTwo - timeOne);
-            if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
+            if (timeTwo - timeOne >= 0.05) {//if timeTwo and timeOne are more than .1 sec apart
+
                 timeTwo = this.getRuntime();//set time Two to curret runtime
+
                 encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
+
                 rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
-                averageRpmArray[arrayCount] = rpm; //Set position arrayCount of averageRpmArray to current rpm
+
                 timeOne = this.getRuntime(); //set timeOne to current run time
                 encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
-                arrayCount++;//increment arrayCount by 1
+
+
+                for (int i = 0; i < 5; i++) {
+                    movingWeightedAverage[i] = movingWeightedAverage[i + 1];
+                }
+                movingWeightedAverage[5] = rpm;
             }
 
-            if (arrayCount == 5) //if arrayCount equals 5
-            {
-                for (int i = 0; i < 5; i++) { //loop 5 times
-                    totalRpm += averageRpmArray[i]; //increment totalRpm by the value at position i of averageRpmArray
-                }
-                avgRpm = (int) totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
+            if (loopCounter > 5) {
                 baseWeight = .1; //Set base weight to .1
                 for (int i = 0; i < 5; i++) { //Loop 5 times
-                    weightedAvg += (int) averageRpmArray[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
+                    totalRpm += (int) movingWeightedAverage[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
                     baseWeight += .05; //Increment base weight by .05
                 }
-                tempWeightedAvg = weightedAvg;
-                telemetry.addData("rpm",rpm);
-                telemetry.addData("avgrpm", avgRpm);
-                telemetry.addData("weightedrpm" , weightedAvg);
-                arrayCount = 0;
-                averageRpmArray[0] = 0;
-                averageRpmArray[1] = 0;
-                averageRpmArray[2] = 0;
-                averageRpmArray[3] = 0;
-                averageRpmArray[4] = 0;
-                totalRpm = 0;
-                weightedAvg = 0;
-            }
+                movingAverage = totalRpm / 5.0;
+                rpmError = targetRPM - movingAverage;
+                shooterSpeed += rpmError * rpmGain;
 
-            //telemetry for rpm and averages
-            telemetry.addData("WeightedRPM: ", tempWeightedAvg);
-            telemetry.addData("RPM : ", rpm);
-            telemetry.addData("AvgRPM : ", avgRpm);
-
-            if ((rpm > (targetRPM + (targetRPM * .03)))
-                || (rpm < (targetRPM - (targetRPM * .03)))) {
-                if (avgRpm < targetRPM) {
-                    shooterSpeed += .0001;
+                shooter.setPower(shooterSpeed);
+                if (avgRpm > targetRPM - 200) {
+                    elevator.setPower(elevatorSpeed);
+                    intake.setPower(intakeSpeed);
                 } else {
-                    shooterSpeed -= .0001;
+                    elevator.setPower(0);
+                    intake.setPower(0);
                 }
+                telemetry.addData ("Moving weighted rpm avg:", movingAverage);
+                telemetry.update();
             }
-            shooter.setPower(shooterSpeed);
-            if (rpm>targetRPM-200) {
-                elevator.setPower(elevatorSpeed);
-                intake.setPower(intakeSpeed);
-            }
-            else
-            {
-                elevator.setPower(0);
-                intake.setPower(0);
-            }
-            telemetry.update();
         }
 
         stopShooting();
@@ -434,6 +431,15 @@ public abstract class Functions extends LinearOpMode {
             batterySideBeacon.setPosition(batterySideBeaconPosition);
         }
 
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 2)
+        {
+            timeTwo = this.getRuntime();
+
+            batterySideBeacon.setPosition(0);
+        }
         batterySideBeacon.setPosition(.5);
     }
 }
