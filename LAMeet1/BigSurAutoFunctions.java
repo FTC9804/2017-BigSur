@@ -38,48 +38,93 @@ public class BigSurAutoFunctions extends Functions {
         //wait for the code to start to begin the autonomous program
         waitForStart();
 
+        telemetry.addData("Code Starting.  Gyro beginning to calibrate", telemetryVariable);
+        telemetry.update();
+
         //calibrate gyro after waitForStart to prevent gyro drift from announcers talking
         calibrateGyro();
 
+        telemetry.addData("Calibration complete. starting drive 1", telemetryVariable);
+        telemetry.update();
+
         //drive initially forward to get into shooting range
-        drive (21,.5,0);
+        drive(21, .5, 0);
+
+        telemetry.addData("drive 1 done. shooting", telemetryVariable);
+        telemetry.update();
 
         //launch elevator and shooting protocol to launch particles
-        shootAndLift (12,3050,.95,.95);
+        shootAndLift(6, 3050, .95, .95);
+
+        telemetry.addData("shooting done.  stop shooting", telemetryVariable);
+        telemetry.update();
 
         //stop shooting motors to conserve battery power for remainder of auto and teleop
         stopShooting();
 
+        telemetry.addData("starting drive 2", telemetryVariable);
+        telemetry.update();
+
         //drive more to place ourselves farther from the corner vortex
-        drive (11,.5,0);
+        drive(11, .5, 0);
+
+        telemetry.addData("starting spin", telemetryVariable);
+        telemetry.update();
 
         //spin move counter clockwise
         spinMove(90);
 
+        telemetry.addData("starting drive", telemetryVariable);
+        telemetry.update();
+
         //drive to align with first beacon
         drive(54, .5, 90);
 
+        telemetry.addData("spin move", telemetryVariable);
+        telemetry.update();
+
         //90º clockwise to put ourselves in a line with beacons
         spinMove(0);
+
+        telemetry.addData("drive to white line", telemetryVariable);
+        telemetry.update();
 
         //function travelling infinite distance until white line is reached
         // *******ADD TIME CONSTRAINT ON THIS ACTION********
         driveToWhiteLine();
 
+        telemetry.addData("find and press beacon",telemetryVariable);
+        telemetry.update();
+
         //activate beacon pressers for the first beacon
         // **************RETRACT BEACON PRESSERS**********
         findAndPressBeacon();
 
+        telemetry.addData("drive to white line",telemetryVariable);
+        telemetry.update();
+
         //drive until second line is reached
         driveToWhiteLine();
+
+        telemetry.addData("find and press beacon", telemetryVariable);
+        telemetry.update();
 
         //press second beacon to get lots of points
         findAndPressBeacon();
 
+        telemetry.addData("spin move", telemetryVariable);
+        telemetry.update();
+
         //spin move to face ball in the center
         spinMove(-135);
 
+        telemetry.addData("drive", telemetryVariable);
+        telemetry.update();
+
         drive(100, .5, 0);
+
+        telemetry.addData("end code",telemetryVariable);
+        telemetry.update();
 
         stopDriving();
         //END CODE
