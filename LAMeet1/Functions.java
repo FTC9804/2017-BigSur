@@ -179,6 +179,13 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
+    public void stopShooting ()
+    {
+        intake.setPower(0);
+        shooter.setPower(0);
+        elevator.setPower(0);
+    }
+
     public void spinMove (double desiredHeading)
     {
         initialHeading = gyro.getIntegratedZValue();

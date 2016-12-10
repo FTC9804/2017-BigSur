@@ -35,16 +35,7 @@ Etienne Lunetta
 *
 */
 
-
-
-
 package org.firstinspires.ftc.teamcode;
-
-
-
-
-
-
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -58,13 +49,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import android.graphics.Color;
-
-
-
-
-
-
-
 
 @Autonomous(name = "BigSurAutoFunctions", group = "Auto")
 //@Disabled
@@ -83,14 +67,9 @@ public class BigSurAutoFunctions extends Functions {
 
         sleep (2525);
 
-
         shootAndLift (12,3050,.95,.95);
 
-
-        intake.setPower(0);
-        shooter.setPower(0);
-        elevator.setPower(0);
-        weightedAvg = 0;
+        stopShooting();
 
         drive (11,.5,0);
 
