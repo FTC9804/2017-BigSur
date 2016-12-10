@@ -3,8 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 /**
- * Created by MarcusLeher on 05/12/2016.
- * added more functions
+ *
+ * Created by Programmers of FTC Team 9804 Bomb Squad
+ *
  */
 
 
@@ -110,6 +111,9 @@ public abstract class Functions extends LinearOpMode {
 
     double turnSpeed;
 
+// F U N C T I O N S   F O R   A U T O   &   T E L E O P
+
+
     public void drive (double distance, double speed, double targetHeading)
     {
         currentHeading = gyro.getIntegratedZValue();
@@ -163,7 +167,8 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
-    public void calibrateGyro () throws InterruptedException {
+    public void calibrateGyro () throws InterruptedException
+    {
         gyro.calibrate();
         while (gyro.isCalibrating())
         {
@@ -234,24 +239,23 @@ public abstract class Functions extends LinearOpMode {
         stopDriving();
     }
 
-
     public void Configure ()
     {
         rightMotor1 = hardwareMap.dcMotor.get("m1");//port 1 on robot and in the hardwaremap
         rightMotor2 = hardwareMap.dcMotor.get("m2");
         leftMotor1 = hardwareMap.dcMotor.get("m3");
         leftMotor2 = hardwareMap.dcMotor.get("m4");
+        leftMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
+
         shooter = hardwareMap.dcMotor.get("m5");
+
         intake = hardwareMap.dcMotor.get("m6");
+        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
         elevator = hardwareMap.dcMotor.get("m7");
-        whiteLineSensor1= hardwareMap.opticalDistanceSensor.get("ods1");
-        whiteLineSensor2= hardwareMap.opticalDistanceSensor.get("ods2");
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
-
-        whiteLineSensor1.enableLed(true);
-        whiteLineSensor2.enableLed(true);
-
-        colorSensor.enableLed(false);
 
         turret = hardwareMap.servo.get("s1");
 
@@ -262,14 +266,16 @@ public abstract class Functions extends LinearOpMode {
         portSideBeacon.setPosition(portSideBeaconPositionInitial);
         turret.setPosition(turretSpeed);
 
-
-        leftMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
-
         gyro = (ModernRoboticsI2cGyro) hardwareMap.get("gyro");
+
+        whiteLineSensor1= hardwareMap.opticalDistanceSensor.get("ods1");
+        whiteLineSensor2= hardwareMap.opticalDistanceSensor.get("ods2");
+        whiteLineSensor1.enableLed(true);
+        whiteLineSensor2.enableLed(true);
+
+        colorSensor = hardwareMap.colorSensor.get("colorSensor");
+        colorSensor.enableLed(false);
+
 
     }
 
@@ -320,7 +326,8 @@ public abstract class Functions extends LinearOpMode {
             telemetry.addData("WeightedRPM: ", tempWeightedAvg);
             telemetry.addData("RPM : ", rpm);
             telemetry.addData("AvgRPM : ", avgRpm);
-            if ((rpm > (targetRPM + (targetRPM * .03))) || (rpm < (targetRPM - (targetRPM * .03)))) {
+            if ((rpm > (targetRPM + (targetRPM * .03)))
+                || (rpm < (targetRPM - (targetRPM * .03)))) {
                 if (avgRpm < targetRPM) {
                     shooterSpeed += .0001;
                 } else {
@@ -341,7 +348,8 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
-    public void driveToWhiteLine () {
+    public void driveToWhiteLine ()
+    {
         wls1light = false;
         wls2light = false;
         stopDriving();
@@ -350,8 +358,15 @@ public abstract class Functions extends LinearOpMode {
         leftMotor2.setPower(.15);
         rightMotor2.setPower(.15);
 
+        timeOne = this.getRuntime;
+        timeTwo = this.getRuntime;
+
         //Keep the motor(s) at .15 while op mode is active and not enough white light has been detected on a motor's ods
         do {
+
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime;
+
             //If enough white light has been detected, set the ods boolean to true
             if (whiteLineSensor1.getLightDetected() >= whiteThreshold) {
                 wls1light = true;
@@ -380,12 +395,16 @@ public abstract class Functions extends LinearOpMode {
             }
 
         }
-        while ((wls1light == false || wls2light == false) && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
+        while ( (wls1light == false
+                || wls2light == false)
+                && this.opModeIsActive()
+                && (timeTwo-timeOne < 10) );  //Repeat do loop until both odss have detected enough white light
 
     }
 
     public void findAndPressBeacon ()
     {
+
         while (colorSensor.blue()<.3)
         {
             leftMotor1.setPower(.4);
@@ -393,12 +412,17 @@ public abstract class Functions extends LinearOpMode {
             rightMotor1.setPower(.4);
             rightMotor2.setPower(.4);
         }
+
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (timeTwo - timeOne < 2) {
+
+        while (timeTwo - timeOne < 2)
+        {
             timeTwo = this.getRuntime();
+
             batterySideBeacon.setPosition(batterySideBeaconPosition);
         }
+
         batterySideBeacon.setPosition(.5);
     }
 }
