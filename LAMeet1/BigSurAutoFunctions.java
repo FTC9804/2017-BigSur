@@ -1,11 +1,9 @@
 /*Code written by Steve, Etienne, & Marcus Fri. 2 Dec. 2016
 * updated with new functions code
-*
-Etienne Lunetta
-*   -Sunday, December 4, 2016: 1:54 AM
+
+*   -Sunday, December 9, 2016: Late Afternoon --> introducing new code with functions
 *
 * FTC Team 9804 Bomb Squad
-* Made by the programmers of FTC Team 9804 Bomb Squad
 *
 * Version 1: creates code for full movement
 *   Choose RED/BLUE alliance
@@ -18,20 +16,6 @@ Etienne Lunetta
 *   Check for line, beacon 2 operation
 *   120º
 *   FWD to knock off ball
-*
-*   EDITED SUNDAY, DECEMBER 4th, 2016
-*       -Start
-*       Drive forward 2 feet
-*
-* //
-*  Steve Cox 10-28-16: Reflecting Data of TestBot
-* +++++++++++++++++++++++++++++++TestBot Configuration Info+++++++++++++++++++++++++++++++
-*
-* SN            NAME                    PORT            CONFIG. NAME
-* not yet available
-* NOTE ABOUT THE CODE:
-*  Every time you update a name/type or add a new motor/servo/sensor/etc,
-*  add a line like the above template in order to have code organization.
 *
 */
 
@@ -50,47 +34,63 @@ import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import android.graphics.Color;
 
-@Autonomous(name = "BigSurAutoFunctions", group = "Auto")
+@Autonomous(name = "BigSurAutoFunctions", group = "AutoWithFunctions")
 //@Disabled
 public class BigSurAutoFunctions extends Functions {
 
     public void runOpMode() throws InterruptedException {
         //motor configurations in the hardware map
 
+        //original configuration for motors, servos, and sensors
         Configure();
 
+        //wait for the code to start to begin the autonomous program
         waitForStart();
 
+        //calibrate gyro after waitForStart to prevent gyro drift from announcers talking
         calibrateGyro();
 
+        //drive initially forward to get into shooting range
         drive (21,.5,0);
 
-        sleep (2525);
-
+        //launch elevator and shooting protocol to launch particles
         shootAndLift (12,3050,.95,.95);
 
+        //stop shooting motors to conserve battery power for remainder of auto and teleop
         stopShooting();
 
+        //drive more to place ourselves farther from the corner vortex
         drive (11,.5,0);
 
+        //spin move counter clockwise
         spinMove(90);
 
+        //drive to align with first beacon
         drive(54, .5, 90);
 
+        //90º clockwise to put ourselves in a line with beacons
         spinMove(0);
 
+        //function travelling infinite distance until white line is reached
+        // *******ADD TIME CONSTRAINT ON THIS ACTION********
         driveToWhiteLine();
 
+        //activate beacon pressers for the first beacon
+        // **************RETRACT BEACON PRESSERS**********
         findAndPressBeacon();
 
-        drive (30, .5, 0);
-
+        //drive until second line is reached
         driveToWhiteLine();
 
+        //press second beacon to get lots of points
         findAndPressBeacon();
 
+        //spin move to face ball in the center
         spinMove(-135);
 
         drive(100, .5, 0);
+
+        stopDriving();
+        //END CODE
     }
 }
