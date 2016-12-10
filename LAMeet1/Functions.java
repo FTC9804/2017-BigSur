@@ -111,6 +111,9 @@ public abstract class Functions extends LinearOpMode {
 
     double turnSpeed;
 
+    int telemetryVariable = 0;
+
+
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
 
@@ -281,9 +284,11 @@ public abstract class Functions extends LinearOpMode {
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed)
     {
+
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (this.opModeIsActive() && this.getRuntime()<time) {
+
+        while (this.opModeIsActive() && (timeTwo-timeOne<time)) {
             timeTwo = this.getRuntime();
             encoderClicksTwo = shooter.getCurrentPosition();
             telemetry.addData("Time Two", timeTwo);
@@ -322,10 +327,12 @@ public abstract class Functions extends LinearOpMode {
                 totalRpm = 0;
                 weightedAvg = 0;
             }
+
             //telemetry for rpm and averages
             telemetry.addData("WeightedRPM: ", tempWeightedAvg);
             telemetry.addData("RPM : ", rpm);
             telemetry.addData("AvgRPM : ", avgRpm);
+
             if ((rpm > (targetRPM + (targetRPM * .03)))
                 || (rpm < (targetRPM - (targetRPM * .03)))) {
                 if (avgRpm < targetRPM) {
@@ -344,7 +351,11 @@ public abstract class Functions extends LinearOpMode {
                 elevator.setPower(0);
                 intake.setPower(0);
             }
+            telemetry.update();
         }
+
+        stopShooting();
+
 
     }
 
@@ -358,14 +369,14 @@ public abstract class Functions extends LinearOpMode {
         leftMotor2.setPower(.15);
         rightMotor2.setPower(.15);
 
-        timeOne = this.getRuntime;
-        timeTwo = this.getRuntime;
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
 
         //Keep the motor(s) at .15 while op mode is active and not enough white light has been detected on a motor's ods
         do {
 
             //updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime;
+            timeTwo = this.getRuntime();
 
             //If enough white light has been detected, set the ods boolean to true
             if (whiteLineSensor1.getLightDetected() >= whiteThreshold) {
