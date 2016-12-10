@@ -6,16 +6,6 @@
 * FTC Team 9804 Bomb Squad
 *
 * Version 1: creates code for full movement
-*   Choose RED/BLUE alliance
-*   Forward with intake
-*   Shoot all balls
-*   90º
-*   FWD
-*   90º
-*   Check for line, beacon 1 operation
-*   Check for line, beacon 2 operation
-*   120º
-*   FWD to knock off ball
 *
 */
 
@@ -39,7 +29,8 @@ import android.graphics.Color;
 public class BigSurAutoFunctions extends Functions {
 
     public void runOpMode() throws InterruptedException {
-        //motor configurations in the hardware map
+
+        //motor configurations located in the hardware map
 
         //original configuration for motors, servos, and sensors
         Configure();
