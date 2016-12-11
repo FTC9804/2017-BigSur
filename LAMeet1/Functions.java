@@ -359,7 +359,7 @@ public abstract class Functions extends LinearOpMode {
     public void startShooting (double power)
     {
         shooter.setPower(power);
-        sleep(2000);
+        sleep(5000);
     }
 
     public void driveToWhiteLine ()

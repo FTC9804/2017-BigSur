@@ -33,7 +33,8 @@ public class Shooter extends Functions {
         //motor configurations located in the hardware map
 
         //original configuration for motors, servos, and sensors
-        Configure();
+        shooter = hardwareMap.dcMotor.get("m5");
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //wait for the code to start to begin the autonomous program
         waitForStart();
