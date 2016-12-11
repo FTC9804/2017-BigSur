@@ -55,7 +55,7 @@ public abstract class Functions extends LinearOpMode {
 
 
     //shooter variables;
-    double shooterPower = 0.4;    //constant power applied to the shooter
+    double shooterPower = 0.32;    //constant power applied to the shooter
 
     double turretSpeed=.5;
 
@@ -352,7 +352,7 @@ public abstract class Functions extends LinearOpMode {
                 }
             }
         }
-        
+
         stopShooting();
     }
 
