@@ -130,8 +130,31 @@ public abstract class Functions extends LinearOpMode {
 
     int mode = 0;
 
+    double blueValue;
+    double whiteValue1;
+    double whiteValue2;
+
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
+
+    public void checkAutoAlliance ()
+    {
+
+    }
+
+    public void workshopWhiteLineBlueBeaconTesting ()
+    {
+        while (this.opModeIsActive()) {
+            blueValue = colorSensor.blue();
+            telemetry.addData("Blue Value = ", blueValue);
+            whiteValue1 = whiteLineSensor1.getLightDetected();
+            whiteValue2 = whiteLineSensor2.getLightDetected();
+            telemetry.addData("WhiteValue1 = ", whiteValue1);
+            telemetry.addData("WhiteValue2 = ", whiteValue2);
+            telemetry.addData("WhiteThreshold", whiteThreshold);
+            telemetry.update();
+        }
+    }
 
     public void drive (double distance, double speed, double targetHeading)
     {
@@ -210,6 +233,12 @@ public abstract class Functions extends LinearOpMode {
 
     public void spinMove (double desiredHeading)
     {
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         initialHeading = gyro.getIntegratedZValue();
         if (desiredHeading>0)
         {
@@ -217,12 +246,17 @@ public abstract class Functions extends LinearOpMode {
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
+
                 if (turnSpeed < 0.2) {
                     turnSpeed = 0.2;
                 }
                 if (turnSpeed > .95) {
                     turnSpeed = .95;
                 }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
 
                 rightMotor1.setPower(turnSpeed);
                 rightMotor2.setPower(turnSpeed);
@@ -236,6 +270,7 @@ public abstract class Functions extends LinearOpMode {
         else
         {
             do {
+
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
@@ -245,6 +280,10 @@ public abstract class Functions extends LinearOpMode {
                 if (turnSpeed < -.95) {
                     turnSpeed = -.95;
                 }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
 
                 rightMotor1.setPower(turnSpeed);
                 rightMotor2.setPower(turnSpeed);
@@ -299,7 +338,6 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
-
     public void shootAndLiftTestingOptions ( double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
     {
 
@@ -307,6 +345,30 @@ public abstract class Functions extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
+
+        telemetry.addData("Input Gain (A,B,X,Y)", telemetryVariable);
+        telemetry.update();
+        while (!gamepad1.a&&!gamepad1.b&&!gamepad1.x&&!gamepad1.y) {
+
+
+            //distance in INCHES from the center of the vortex basket (red or blue).
+            if (gamepad1.a) {
+                rpmGain = .000005;
+            }
+            if (gamepad1.b) {
+                rpmGain = .000001;
+            }
+            if (gamepad1.x) {
+                rpmGain = .0000015;
+            }
+            if (gamepad1.y) {
+                rpmGain = .000002;
+            }
+        }
+
+        telemetry.clearAll();
+        telemetry.addData("Input RPM", telemetryVariable);
+        telemetry.update();
 
         while (!gamepad1.dpad_up&&!gamepad1.dpad_down&&!gamepad1.dpad_left&&!gamepad1.dpad_right) {
 
@@ -325,6 +387,12 @@ public abstract class Functions extends LinearOpMode {
                 targetRPM=3200; //far shot
             }
         }
+
+        telemetry.clearAll();
+        telemetry.addData("Gain = ", rpmGain);
+        telemetry.addData("TargetRPM = ", targetRPM);
+        telemetry.update();
+
 
         while (this.opModeIsActive()) {
 
@@ -438,11 +506,19 @@ public abstract class Functions extends LinearOpMode {
     public void startShooting (double power)
     {
         shooter.setPower(power);
-        sleep(5000);
+        sleep(2000);
     }
 
     public void driveToWhiteLine ()
     {
+
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
         wls1light = false;
         wls2light = false;
         stopDriving();
@@ -498,6 +574,14 @@ public abstract class Functions extends LinearOpMode {
     public void findAndPressBeacon ()
     {
 
+
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
         while (colorSensor.blue()<.3)
         {
             leftMotor1.setPower(.4);
@@ -526,5 +610,6 @@ public abstract class Functions extends LinearOpMode {
             batterySideBeacon.setPosition(0);
         }
         batterySideBeacon.setPosition(.5);
+
     }
 }
