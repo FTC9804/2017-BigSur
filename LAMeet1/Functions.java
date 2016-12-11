@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.util.Range;
-
 import android.graphics.Color;
 
 
@@ -128,6 +127,8 @@ public abstract class Functions extends LinearOpMode {
     double rpmError = 0;
 
     boolean throwingException=false;
+
+    int mode = 0;
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -298,6 +299,84 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
+
+    public void shootAndLiftTestingOptions ( double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
+    {
+
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        timeRunningLoop = this.getRuntime();
+
+        while (!gamepad1.dpad_up&&!gamepad1.dpad_down&&!gamepad1.dpad_left&&!gamepad1.dpad_right) {
+
+
+            //distance in INCHES from the center of the vortex basket (red or blue).
+            if (gamepad1.dpad_up) {
+                targetRPM=2600;
+            }
+            if (gamepad1.dpad_right) {
+                targetRPM=2800; //close-mid shot
+            }
+            if (gamepad1.dpad_down) {
+                targetRPM=3000; //far-mid shot
+            }
+            if (gamepad1.dpad_left) {
+                targetRPM=3200; //far shot
+            }
+        }
+
+        while (this.opModeIsActive()) {
+
+
+            loopCounter++;
+            timeTwo = this.getRuntime();
+            encoderClicksTwo = shooter.getCurrentPosition();
+            telemetry.addData("Time Two", timeTwo);
+            telemetry.addData("Time Difference", timeTwo - timeOne);
+            if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
+
+                timeTwo = this.getRuntime();//set time Two to curret runtime
+
+                encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
+
+                rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
+
+                timeOne = this.getRuntime(); //set timeOne to current run time
+                encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
+
+
+                for (int i = 0; i < 4; i++) {
+                    movingWeightedAverage[i] = movingWeightedAverage[i + 1];
+                }
+                movingWeightedAverage[4] = rpm;
+                if (loopCounter > 5) {
+                    baseWeight = .1; //Set base weight to .1
+                    for (int i = 0; i < 5; i++) { //Loop 5 times
+                        totalRpm += (int) movingWeightedAverage[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
+                        baseWeight += .05; //Increment base weight by .05
+                    }
+                    movingAverage = totalRpm;
+                    rpmError = targetRPM - movingAverage;
+                    shooterPower += rpmError * rpmGain;
+                    Range.clip(shooterPower, .2, .5);
+                    shooter.setPower(shooterPower);
+                    if (movingAverage > targetRPM - 200) {
+                        elevator.setPower(elevatorSpeed);
+                        intake.setPower(intakeSpeed);
+                    } else {
+                        elevator.setPower(0);
+                        intake.setPower(0);
+                    }
+                    telemetry.addData("Moving weighted rpm avg:", movingAverage);
+                    telemetry.addData("Power", shooterPower);
+                    telemetry.update();
+                }
+            }
+        }
+
+        stopShooting();
+    }
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
     {

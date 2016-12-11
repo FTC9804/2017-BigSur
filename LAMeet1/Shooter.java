@@ -44,7 +44,7 @@ public class Shooter extends Functions {
         try {
 
             //launch elevator and shooting protocol to launch particles
-            shootAndLift(6, 2600, .95, .95);
+            shootAndLiftTestingOptions( 2600, .95, .95);
 
         } catch (InterruptedException e) {
 
