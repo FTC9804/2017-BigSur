@@ -19,6 +19,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.robotcore.util.Range;
+
 import android.graphics.Color;
 
 
@@ -53,7 +55,7 @@ public abstract class Functions extends LinearOpMode {
 
 
     //shooter variables;
-    double shooterSpeed = 0.5;    //constant power applied to the shooter
+    double shooterPower = 0.4;    //constant power applied to the shooter
 
     double turretSpeed=.5;
 
@@ -109,7 +111,7 @@ public abstract class Functions extends LinearOpMode {
 
     double gyroGain=.005;
 
-    double rpmGain = .00015;
+    double rpmGain = .000002;
 
     double speedCorrection;
 
@@ -178,8 +180,6 @@ public abstract class Functions extends LinearOpMode {
 
         }
         stopDriving();
-        shooter.setPower(.5);
-
 
     }
 
@@ -261,15 +261,17 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2 = hardwareMap.dcMotor.get("m2");
         leftMotor1 = hardwareMap.dcMotor.get("m3");
         leftMotor2 = hardwareMap.dcMotor.get("m4");
-        leftMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         shooter = hardwareMap.dcMotor.get("m5");
 
         intake = hardwareMap.dcMotor.get("m6");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         elevator = hardwareMap.dcMotor.get("m7");
 
@@ -310,7 +312,7 @@ public abstract class Functions extends LinearOpMode {
             encoderClicksTwo = shooter.getCurrentPosition();
             telemetry.addData("Time Two", timeTwo);
             telemetry.addData("Time Difference", timeTwo - timeOne);
-            if (timeTwo - timeOne >= 0.05) {//if timeTwo and timeOne are more than .1 sec apart
+            if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
 
                 timeTwo = this.getRuntime();//set time Two to curret runtime
 
@@ -322,38 +324,42 @@ public abstract class Functions extends LinearOpMode {
                 encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
 
 
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 4; i++) {
                     movingWeightedAverage[i] = movingWeightedAverage[i + 1];
                 }
-                movingWeightedAverage[5] = rpm;
-            }
-
-            if (loopCounter > 5) {
-                baseWeight = .1; //Set base weight to .1
-                for (int i = 0; i < 5; i++) { //Loop 5 times
-                    totalRpm += (int) movingWeightedAverage[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
-                    baseWeight += .05; //Increment base weight by .05
+                movingWeightedAverage[4] = rpm;
+                if (loopCounter > 5) {
+                    baseWeight = .1; //Set base weight to .1
+                    for (int i = 0; i < 5; i++) { //Loop 5 times
+                        totalRpm += (int) movingWeightedAverage[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
+                        baseWeight += .05; //Increment base weight by .05
+                    }
+                    movingAverage = totalRpm;
+                    rpmError = targetRPM - movingAverage;
+                    shooterPower += rpmError * rpmGain;
+                    Range.clip(shooterPower, .2, .5);
+                    shooter.setPower(shooterPower);
+                    if (movingAverage > targetRPM - 200) {
+                        elevator.setPower(elevatorSpeed);
+                        intake.setPower(intakeSpeed);
+                    } else {
+                        elevator.setPower(0);
+                        intake.setPower(0);
+                    }
+                    telemetry.addData("Moving weighted rpm avg:", movingAverage);
+                    telemetry.addData("Power", shooterPower);
+                    telemetry.update();
                 }
-                movingAverage = totalRpm / 5.0;
-                rpmError = targetRPM - movingAverage;
-                shooterSpeed += rpmError * rpmGain;
-
-                shooter.setPower(shooterSpeed);
-                if (avgRpm > targetRPM - 200) {
-                    elevator.setPower(elevatorSpeed);
-                    intake.setPower(intakeSpeed);
-                } else {
-                    elevator.setPower(0);
-                    intake.setPower(0);
-                }
-                telemetry.addData ("Moving weighted rpm avg:", movingAverage);
-                telemetry.update();
             }
         }
-
+        
         stopShooting();
+    }
 
-
+    public void startShooting (double power)
+    {
+        shooter.setPower(power);
+        sleep(2000);
     }
 
     public void driveToWhiteLine ()

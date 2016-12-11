@@ -53,6 +53,8 @@ public class BigSurAutoFunctions extends Functions {
         telemetry.addData("drive 1 done. shooting", telemetryVariable);
         telemetry.update();
 
+        startShooting(.4);
+
         try {
 
             //launch elevator and shooting protocol to launch particles
