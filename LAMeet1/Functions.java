@@ -619,4 +619,63 @@ public abstract class Functions extends LinearOpMode {
         batterySideBeacon.setPosition(.5);
 
     }
+
+    public void shoot(double power)
+    {
+        timeRunningLoop = this.getRuntime();
+        do{
+
+            //set the shooter to power
+            shooter.setPower(power);
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+
+            //sleep function to allow the shooter to get up to speed
+            while (timeTwo-timeOne < 2)
+            {
+                timeTwo = this.getRuntime();
+            }
+
+            intake.setPower(0.95); //cut off at 95% speed
+
+            //sleep function to let the first ball pass through (1.5 seconds)
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+            while (timeTwo-timeOne < 1.5)
+            {
+                timeTwo = this.getRuntime();
+                elevator.setPower(0.95); //cut off at 95% speed
+            }
+
+            //stop shooting the balls
+            elevator.setPower(0);
+
+            //let the shooter get back up to speed
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+            while (timeTwo-timeOne < 1)
+            {
+                timeTwo = this.getRuntime();
+            }
+
+            //shoot again
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+            while (timeTwo-timeOne < 1.5)
+            {
+                timeTwo = this.getRuntime();
+                elevator.setPower(0.95); //cut off at 95% speed
+            }
+
+            //stop the elevator again
+            elevator.setPower(0);
+
+        }while(
+                this.opModeIsActive()
+                && this.getRuntime() - timeRunningLoop < 7
+                );
+
+        stopShooting();
+
+    }
 }
