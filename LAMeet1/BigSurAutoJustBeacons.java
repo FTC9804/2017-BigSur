@@ -1,11 +1,11 @@
 /*Code written by Steve, Etienne, & Marcus Fri. 2 Dec. 2016
 * updated with new functions code
 
-*   -Friday December 16, 2016: Night --> introducing new code with functions, excluding shooting commands and cat ball
+*   -Friday December 16, 2016: Afternoon --> introducing new code with functions, excluding shooting commands and cat ball
 *
 * FTC Team 9804 Bomb Squad
 *
-* Version 1: creates code for full movement
+* Version 1: creates code for full movement, BLUE only
 *
 */
 
@@ -14,7 +14,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "BigSurAutoFunctionsNoShooting", group = "AutoWithFunctions")
+@Autonomous(name = "Just Beacons, BLUE", group = "AutoWithFunctions")
 //@Disabled
 public class BigSurAutoJustBeacons extends Functions {
 
