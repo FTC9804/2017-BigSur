@@ -38,13 +38,7 @@ public class BigSurAutoJustBeacons extends Functions {
         telemetry.update();
 
         //drive initially forward to get into shooting range
-        drive(21, .5, 0);
-
-        telemetry.addData("starting drive 2", telemetryVariable);
-        telemetry.update();
-
-        //drive more to place ourselves farther from the corner vortex
-        drive(11, .5, 0);
+        drive(32, .5, 0);
 
         telemetry.addData("starting spin", telemetryVariable);
         telemetry.update();
@@ -61,14 +55,11 @@ public class BigSurAutoJustBeacons extends Functions {
         telemetry.addData("spin move", telemetryVariable);
         telemetry.update();
 
-
         //90º clockwise to put ourselves in a line with beacons
         spinMove(0);
 
         telemetry.addData("drive to white line", telemetryVariable);
         telemetry.update();
-
-        drive(24, .5, 0);
 
         //function travelling infinite distance until white line is reached
         driveToWhiteLine();
@@ -77,7 +68,7 @@ public class BigSurAutoJustBeacons extends Functions {
         telemetry.update();
 
         //activate beacon pressers for the first beacon
-        findAndPressBeacon();
+        findAndPressBlueBeacon();
 
         telemetry.addData("drive to white line",telemetryVariable);
         telemetry.update();
@@ -89,19 +80,8 @@ public class BigSurAutoJustBeacons extends Functions {
         telemetry.update();
 
         //press second beacon to get lots of points
-        findAndPressBeacon();
-/*
-        telemetry.addData("spin move", telemetryVariable);
-        telemetry.update();
+        findAndPressBlueBeacon();
 
-        //spin move to face ball in the center
-        spinMove(-135);
-
-        telemetry.addData("drive", telemetryVariable);
-        telemetry.update();
-
-        drive(100, .5, 0);
-*/
         telemetry.addData("end code", telemetryVariable);
         telemetry.update();
 
