@@ -52,9 +52,11 @@ public abstract class Functions extends LinearOpMode {
 
 
     double batterySideBeaconPositionInitial = 0.5;
-    double batterySideBeaconPosition = 1;
+    double batterySideBeaconPositionExtend = 1;
+    double batterySideBeaconPositionRetract = 0;
     double portSideBeaconPositionInitial = 0.5;
-    double portSideBeaconPosition = 1;
+    double portSideBeaconPositionExtend = 1;
+    double portSideBeaconPositionRetract = 0;
 
 
     //shooter variables;
@@ -602,7 +604,7 @@ public abstract class Functions extends LinearOpMode {
         {
             timeTwo = this.getRuntime();
 
-            batterySideBeacon.setPosition(batterySideBeaconPosition);
+            batterySideBeacon.setPosition(batterySideBeaconPositionExtend);
         }
 
         timeOne = this.getRuntime();
@@ -612,7 +614,7 @@ public abstract class Functions extends LinearOpMode {
         {
             timeTwo = this.getRuntime();
 
-            batterySideBeacon.setPosition(0);
+            batterySideBeacon.setPosition(batterySideBeaconPositionRetract);
         }
         batterySideBeacon.setPosition(.5);
 
