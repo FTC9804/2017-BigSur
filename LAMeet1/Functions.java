@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
  *
  * Created by Programmers of FTC Team 9804 Bomb Squad
  *
+ * edited on Fri. Dec. 16, '16
+ *      Adjusting code for tournament on sunday
+ *
  */
 
 
@@ -240,7 +243,7 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         initialHeading = gyro.getIntegratedZValue();
-        if (desiredHeading>0)
+        if (desiredHeading>initialHeading)
         {
             do{
                 currentHeading= gyro.getIntegratedZValue();
