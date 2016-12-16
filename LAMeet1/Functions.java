@@ -588,10 +588,10 @@ public abstract class Functions extends LinearOpMode {
 
         while (colorSensor.blue()<.3)
         {
-            leftMotor1.setPower(.4);
-            leftMotor2.setPower(.4);
-            rightMotor1.setPower(.4);
-            rightMotor2.setPower(.4);
+            leftMotor1.setPower(.25);
+            leftMotor2.setPower(.25);
+            rightMotor1.setPower(.25);
+            rightMotor2.setPower(.25);
         }
 
         timeOne = this.getRuntime();
