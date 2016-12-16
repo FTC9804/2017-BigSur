@@ -573,9 +573,10 @@ public abstract class Functions extends LinearOpMode {
                 && this.opModeIsActive()
                 && (timeTwo-timeOne < 10) );  //Repeat do loop until both odss have detected enough white light
 
+              stopDriving();
     }
 
-    public void findAndPressBeacon ()
+    public void findAndPressBlueBeacon ()
     {
 
 
