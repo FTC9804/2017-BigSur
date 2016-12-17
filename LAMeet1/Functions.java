@@ -167,8 +167,17 @@ public abstract class Functions extends LinearOpMode {
 
             }
             if (!allianceNotSelected) {
-                telemetry.addData("Confirm your color choice, are we red?", weAreRed);
+                telemetry.addData("Confirm your color choice", telemetryVariable);
+
+                if (weAreRed) {
+                    telemetry.addData("We are RED", telemetryVariable);
+                }
+                else {
+                    telemetry.addData("We are BLUE", telemetryVariable);
+                }
+
                 telemetry.addData("Y is correct.  A is incorrect", telemetryVariable);
+
                 if (gamepad1.y){
                     choiceNotSelected = false;
                 }
