@@ -48,7 +48,7 @@ public abstract class Functions extends LinearOpMode {
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
-    final static double GEAR_RATIO = 18 / 24;     //Gear ratio used in Big Sur in 24/18, so in code we multiply by 18/24
+    final static double GEAR_RATIO = 0.75;     //Gear ratio used in Big Sur in 24/18, so in code we multiply by 18/24
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
 
@@ -313,8 +313,8 @@ public abstract class Functions extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed < 0.2) {
-                    turnSpeed = 0.2;
+                if (turnSpeed < 0.3) {
+                    turnSpeed = 0.3;
                 }
                 if (turnSpeed > .95) {
                     turnSpeed = .95;
@@ -340,8 +340,8 @@ public abstract class Functions extends LinearOpMode {
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
-                if (turnSpeed > -0.2) {
-                    turnSpeed = -0.2;
+                if (turnSpeed > -0.3) {
+                    turnSpeed = -0.3;
                 }
                 if (turnSpeed < -.95) {
                     turnSpeed = -.95;
@@ -351,12 +351,12 @@ public abstract class Functions extends LinearOpMode {
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
-                rightMotor1.setPower(-turnSpeed);
-                rightMotor2.setPower(-turnSpeed);
-                leftMotor1.setPower(turnSpeed);
-                leftMotor2.setPower(turnSpeed);
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(-turnSpeed);
+                leftMotor2.setPower(-turnSpeed);
             }
-        while ((Math.abs(currentHeading-initialHeading))<-desiredHeading);
+        while (Math.abs(currentHeading-initialHeading)<=-Math.abs(headingError));
         }
         stopDriving();
     }
@@ -834,6 +834,19 @@ public abstract class Functions extends LinearOpMode {
 
         stopShooting();
 
+    }
+
+    public void stopDrivingAndPause () {
+
+        stopDriving();
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+        }
     }
 
 
