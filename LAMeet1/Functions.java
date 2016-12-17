@@ -331,7 +331,7 @@ public abstract class Functions extends LinearOpMode {
 
 
             }
-            while ((currentHeading-initialHeading)<desiredHeading);
+            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more positive number
         }
         else
         {
@@ -351,12 +351,12 @@ public abstract class Functions extends LinearOpMode {
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
             }
-        while (Math.abs(currentHeading-initialHeading)<=-Math.abs(headingError));
+        while (currentHeading > desiredHeading); //for counter-clockwise heading you are going to a more negative number
         }
         stopDriving();
     }

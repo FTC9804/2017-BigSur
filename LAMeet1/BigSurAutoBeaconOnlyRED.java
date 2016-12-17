@@ -43,19 +43,19 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         telemetry.addData("starting spin", telemetryVariable);
         telemetry.update();
 
-        //spin move clockwise
-        spinMove(-90);
+        //spin move counter-clockwise
+        spinMove(90);
 
         telemetry.addData("starting drive", telemetryVariable);
         telemetry.update();
 
         //drive to align with first beacon
-        drive(54, .5, -90);
+        drive(54, .5, 90);
 
         telemetry.addData("spin move", telemetryVariable);
         telemetry.update();
 
-        //90º counter clockwise to put ourselves in a line with beacons
+        //90º clockwise to put ourselves in a line with beacons
         spinMove(0);
 
         telemetry.addData("drive to white line", telemetryVariable);

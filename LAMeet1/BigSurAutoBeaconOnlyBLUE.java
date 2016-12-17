@@ -42,65 +42,37 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         drive(32, .5, 0);
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("starting spin", telemetryVariable);
         telemetry.update();
 
-        //spin move counter clockwise
-        spinMove(90);
+        //spin move clockwise
+        spinMove(-90);
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("starting drive", telemetryVariable);
         telemetry.update();
 
         //drive to align with first beacon
-        drive(54, .5, 90);
+        drive(54, .5, -90);
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("spin move", telemetryVariable);
         telemetry.update();
 
-        //90º clockwise to put ourselves in a line with beacons
+        //90º counter clockwise to put ourselves in a line with beacons
         spinMove(0);
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("drive to white line", telemetryVariable);
@@ -110,14 +82,7 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         driveToWhiteLine();
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("find and press beacon",telemetryVariable);
@@ -127,14 +92,7 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         findAndPressBlueBeacon();
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("drive to white line",telemetryVariable);
@@ -144,14 +102,7 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         driveToWhiteLine();
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
+        stopDrivingAndPause();
 
 
         telemetry.addData("find and press beacon", telemetryVariable);
@@ -161,15 +112,7 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         findAndPressBlueBeacon();
 
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            stopDriving();
-        }
-
+        stopDrivingAndPause();
 
         telemetry.addData("end code", telemetryVariable);
         telemetry.update();
