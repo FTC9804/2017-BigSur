@@ -14,7 +14,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "Any Alliance Beacon Only", group = "AutoWithFunctions")
+@Autonomous(name = "Any Alliance, Beacon Only", group = "AutoWithFunctions")
 //@Disabled
 public class BigSurAutoBeaconOnlyAnyColor extends Functions {
 
