@@ -306,7 +306,7 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         initialHeading = gyro.getIntegratedZValue();
-        if (desiredHeading>initialHeading)
+        if (desiredHeading < initialHeading)
         {
             do{
                 currentHeading= gyro.getIntegratedZValue();
@@ -331,7 +331,7 @@ public abstract class Functions extends LinearOpMode {
 
 
             }
-            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more positive number
+            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
         }
         else
         {
@@ -356,7 +356,7 @@ public abstract class Functions extends LinearOpMode {
                 leftMotor1.setPower(turnSpeed);
                 leftMotor2.setPower(turnSpeed);
             }
-        while (currentHeading > desiredHeading); //for counter-clockwise heading you are going to a more negative number
+        while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
         }
         stopDriving();
     }
