@@ -48,7 +48,7 @@ public abstract class Functions extends LinearOpMode {
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
-    final static double GEAR_RATIO = 24 / 18;     //Gear ratio used in the test bot
+    final static double GEAR_RATIO = 18 / 24;     //Gear ratio used in Big Sur in 24/18, so in code we multiply by 18/24
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
 
@@ -656,6 +656,64 @@ public abstract class Functions extends LinearOpMode {
         portSideBeacon.setPosition(.5);
 
     }
+
+    public void findAndPressRedBeacon ()
+    {
+
+
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        while (bcolor.red()<2.5)
+        {
+            telemetry.addData("bcolor RED value:", bcolor.red());
+            telemetry.update();
+            leftMotor1.setPower(.25);
+            leftMotor2.setPower(.25);
+            rightMotor1.setPower(.25);
+            rightMotor2.setPower(.25);
+        }
+
+        stopDriving();
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+
+            batterySideBeacon.setPosition(batterySideBeaconPositionExtend);
+        }
+
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+
+            batterySideBeacon.setPosition(.4);  //let servo push against beacon for a second, so slightly harder than rest position
+        }
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+
+            batterySideBeacon.setPosition(batterySideBeaconPositionRetract);
+        }
+        batterySideBeacon.setPosition(.5);
+
+    }
+
 
     public void shoot(double power)
     {
