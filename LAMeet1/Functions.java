@@ -345,9 +345,9 @@ public abstract class Functions extends LinearOpMode {
         whiteLineSensorLeft.enableLed(true);
 
         pcolor = hardwareMap.colorSensor.get("pcolor");     //I2C port 1
-        pcolor.setI2cAddress(I2cAddr.create7bit(0x3c));     //7 bit address needed b/c multiple color sensors
+        pcolor.setI2cAddress(I2cAddr.create7bit(0x1e));     //7 bit address needed b/c multiple color sensors
         bcolor = hardwareMap.colorSensor.get("bcolor");     //I2C port 2
-        bcolor.setI2cAddress(I2cAddr.create7bit(0x4c));
+        bcolor.setI2cAddress(I2cAddr.create7bit(0x26));     //CONVERSION FROM 8 BIT TO HEXADECIMAL
         pcolor.enableLed(false);
         bcolor.enableLed(false);
 
@@ -550,17 +550,17 @@ public abstract class Functions extends LinearOpMode {
         //Keep the motor(s) at .15 while op mode is active and not enough white light has been detected on a motor's ods
         do {
 
-            telemetry.addData("White Value 1: ", whiteLineSensorRight.getLightDetected());
-            telemetry.addData("White Value 2: ", whiteLineSensorLeft.getLightDetected());
+            telemetry.addData("White Value 1: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value 2: ", whiteLineSensorLeft.getRawLightDetected());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
             timeTwo = this.getRuntime();
 
             //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorRight.getLightDetected() >= whiteThreshold) {
+            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
                 wlsRightlight = true;
             }
-            if (whiteLineSensorLeft.getLightDetected() >= whiteThreshold) {
+            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
                 wlsLeftlight = true;
             }
 
@@ -702,4 +702,5 @@ public abstract class Functions extends LinearOpMode {
         stopShooting();
 
     }
+
 }
