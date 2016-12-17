@@ -142,12 +142,65 @@ public abstract class Functions extends LinearOpMode {
     double whiteValueRight;
     double whiteValueLeft;
 
+    boolean choiceNotSelected = true;
+    boolean allianceNotSelected = true;
+    boolean weAreRed;
+
+
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
 
     public void checkAutoAlliance ()
     {
+        while (choiceNotSelected)   {
+            if (allianceNotSelected){
+                telemetry.addData("Choose Alliance Color", telemetryVariable);
+                telemetry.update();
+                if (gamepad1.x) {
+                    weAreRed = false;
+                    allianceNotSelected = false;
+                }
+                if (gamepad1.b) {
+                    weAreRed = true;
+                    allianceNotSelected = false;
+                }
 
+            }
+            if (!allianceNotSelected) {
+                telemetry.addData("Confirm your color choice, are we red?", weAreRed);
+                telemetry.addData("Y is correct.  A is incorrect", telemetryVariable);
+                if (gamepad1.y){
+                    choiceNotSelected = false;
+                }
+                if (gamepad1.a) {
+                    allianceNotSelected = true;
+                }
+            }
+        }
+    }
+
+    public void beaconTurnOne ()
+    {
+        if (weAreRed)
+        {
+            spinMove(-90);
+        }
+        else
+        {
+            spinMove (90);
+        }
+    }
+
+    public int driveTwo ()
+    {
+        if (weAreRed)
+        {
+            return -90;
+        }
+        else
+        {
+            return 90;
+        }
     }
 
     public void workshopWhiteLineBlueBeaconTesting ()
@@ -714,6 +767,15 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
+    public void findAndPressBeacon ()
+    {
+        if (weAreRed) {
+            findAndPressRedBeacon();
+        }
+        else {
+            findAndPressBlueBeacon();
+        }
+    }
 
     public void shoot(double power)
     {
@@ -773,5 +835,7 @@ public abstract class Functions extends LinearOpMode {
         stopShooting();
 
     }
+
+
 
 }
