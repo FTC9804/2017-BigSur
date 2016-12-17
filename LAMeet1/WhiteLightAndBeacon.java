@@ -14,7 +14,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "BigSurAutoFunctionsNoShooting", group = "AutoWithFunctions")
+@Autonomous(name = "WhiteLightBeaconTesting", group = "AutoWithFunctions")
 //@Disabled
 public class WhiteLightAndBeacon extends Functions {
 

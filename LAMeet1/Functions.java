@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.util.Range;
 import android.graphics.Color;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 
 
 
@@ -55,8 +56,8 @@ public abstract class Functions extends LinearOpMode {
     double batterySideBeaconPositionExtend = 1;
     double batterySideBeaconPositionRetract = 0;
     double portSideBeaconPositionInitial = 0.5;
-    double portSideBeaconPositionExtend = 1;
-    double portSideBeaconPositionRetract = 0;
+    double portSideBeaconPositionExtend = 0;
+    double portSideBeaconPositionRetract = 1;
 
 
     //shooter variables;
@@ -69,14 +70,15 @@ public abstract class Functions extends LinearOpMode {
     double ROTATIONS=0;
     double COUNTS=0;
 
-    ColorSensor colorSensor;
+    ColorSensor pcolor;
+    ColorSensor bcolor;
 
-    OpticalDistanceSensor whiteLineSensor1;
-    OpticalDistanceSensor whiteLineSensor2;
+    OpticalDistanceSensor whiteLineSensorRight;
+    OpticalDistanceSensor whiteLineSensorLeft;
 
-    double whiteThreshold = .8;
-    boolean wls1light = false;
-    boolean wls2light = false;
+    double whiteThreshold = .2;
+    boolean wlsRightlight = false;
+    boolean wlsLeftlight = false;
 
     //rpm variables
     //shooter variables
@@ -137,8 +139,8 @@ public abstract class Functions extends LinearOpMode {
     int mode = 0;
 
     double blueValue;
-    double whiteValue1;
-    double whiteValue2;
+    double whiteValueRight;
+    double whiteValueLeft;
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -151,13 +153,18 @@ public abstract class Functions extends LinearOpMode {
     public void workshopWhiteLineBlueBeaconTesting ()
     {
         while (this.opModeIsActive()) {
-            blueValue = colorSensor.blue();
-            telemetry.addData("Blue Value = ", blueValue);
-            whiteValue1 = whiteLineSensor1.getLightDetected();
-            whiteValue2 = whiteLineSensor2.getLightDetected();
-            telemetry.addData("WhiteValue1 = ", whiteValue1);
-            telemetry.addData("WhiteValue2 = ", whiteValue2);
+
+            telemetry.addData("Blue Value, pcolor = ", pcolor.blue());
+            telemetry.addData("Blue Value, bcolor = ", bcolor.blue());
+
+            telemetry.addData("WhiteValueRight RAW = ",whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("WhiteValueLeft RAW = ", whiteLineSensorLeft.getRawLightDetected());
+
+            telemetry.addData("WhiteValueRight STD = ",whiteLineSensorRight.getLightDetected());
+            telemetry.addData("WhiteValueLeft STD = ", whiteLineSensorLeft.getLightDetected());
+
             telemetry.addData("WhiteThreshold", whiteThreshold);
+
             telemetry.update();
         }
     }
@@ -264,10 +271,10 @@ public abstract class Functions extends LinearOpMode {
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
 
 
             }
@@ -291,10 +298,10 @@ public abstract class Functions extends LinearOpMode {
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
             }
         while ((Math.abs(currentHeading-initialHeading))<-desiredHeading);
         }
@@ -330,15 +337,19 @@ public abstract class Functions extends LinearOpMode {
         portSideBeacon.setPosition(portSideBeaconPositionInitial);
         turret.setPosition(turretSpeed);
 
-        gyro = (ModernRoboticsI2cGyro) hardwareMap.get("gyro");
+        gyro = (ModernRoboticsI2cGyro) hardwareMap.get("gyro"); //I2C port 0
 
-        whiteLineSensor1= hardwareMap.opticalDistanceSensor.get("ods1");
-        whiteLineSensor2= hardwareMap.opticalDistanceSensor.get("ods2");
-        whiteLineSensor1.enableLed(true);
-        whiteLineSensor2.enableLed(true);
+        whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods1");    //Analog import port 0
+        whiteLineSensorLeft= hardwareMap.opticalDistanceSensor.get("ods2");     //Analog import port 4
+        whiteLineSensorRight.enableLed(true);
+        whiteLineSensorLeft.enableLed(true);
 
-        colorSensor = hardwareMap.colorSensor.get("colorSensor");
-        colorSensor.enableLed(false);
+        pcolor = hardwareMap.colorSensor.get("pcolor");     //I2C port 1
+        pcolor.setI2cAddress(I2cAddr.create7bit(0x3c));     //7 bit address needed b/c multiple color sensors
+        bcolor = hardwareMap.colorSensor.get("bcolor");     //I2C port 2
+        bcolor.setI2cAddress(I2cAddr.create7bit(0x4c));
+        pcolor.enableLed(false);
+        bcolor.enableLed(false);
 
 
 
@@ -525,8 +536,8 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        wls1light = false;
-        wls2light = false;
+        wlsRightlight = false;
+        wlsLeftlight = false;
         stopDriving();
         leftMotor1.setPower(.15);
         rightMotor1.setPower(.15);
@@ -539,19 +550,22 @@ public abstract class Functions extends LinearOpMode {
         //Keep the motor(s) at .15 while op mode is active and not enough white light has been detected on a motor's ods
         do {
 
+            telemetry.addData("White Value 1: ", whiteLineSensorRight.getLightDetected());
+            telemetry.addData("White Value 2: ", whiteLineSensorLeft.getLightDetected());
+            telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
             timeTwo = this.getRuntime();
 
             //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensor1.getLightDetected() >= whiteThreshold) {
-                wls1light = true;
+            if (whiteLineSensorRight.getLightDetected() >= whiteThreshold) {
+                wlsRightlight = true;
             }
-            if (whiteLineSensor2.getLightDetected() >= whiteThreshold) {
-                wls2light = true;
+            if (whiteLineSensorLeft.getLightDetected() >= whiteThreshold) {
+                wlsLeftlight = true;
             }
 
             //If enough white light has not been detected, keep the power of the motor at .15; else set it to 0
-            if (wls1light == false) {
+            if (wlsRightlight == false) {
                 rightMotor1.setPower(.15);
                 rightMotor2.setPower(.15);
             } else {
@@ -561,7 +575,7 @@ public abstract class Functions extends LinearOpMode {
 
 
             //If enough white light has not been detected, keep the power of the motor at .15; else set it to 0
-            if (wls2light == false) {
+            if (wlsLeftlight == false) {
                 leftMotor1.setPower(.15);
                 leftMotor2.setPower(.15);
             } else {
@@ -570,12 +584,20 @@ public abstract class Functions extends LinearOpMode {
             }
 
         }
-        while ( (wls1light == false
-                || wls2light == false)
+        while ( (wlsRightlight == false
+                || wlsLeftlight == false)
                 && this.opModeIsActive()
-                && (timeTwo-timeOne < 10) );  //Repeat do loop until both odss have detected enough white light
+                && (timeTwo-timeOne < 30) );  //Repeat do loop until both odss have detected enough white light
 
               stopDriving();
+            timeOne = this.getRuntime();
+            timeTwo = this.getRuntime();
+            while (timeTwo-timeOne < 2)
+            {
+                timeTwo = this.getRuntime();
+            }
+
+
     }
 
     public void findAndPressBlueBeacon ()
@@ -589,12 +611,14 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        while (colorSensor.blue()<.3)
+        while (pcolor.blue()<2.5)
         {
-            leftMotor1.setPower(.25);
-            leftMotor2.setPower(.25);
-            rightMotor1.setPower(.25);
-            rightMotor2.setPower(.25);
+            telemetry.addData("pcolor Blue value:", pcolor.blue());
+            telemetry.update();
+            leftMotor1.setPower(.15);
+            leftMotor2.setPower(.15);
+            rightMotor1.setPower(.15);
+            rightMotor2.setPower(.15);
         }
 
         timeOne = this.getRuntime();
@@ -604,7 +628,7 @@ public abstract class Functions extends LinearOpMode {
         {
             timeTwo = this.getRuntime();
 
-            batterySideBeacon.setPosition(batterySideBeaconPositionExtend);
+            portSideBeacon.setPosition(portSideBeaconPositionExtend);
         }
 
         timeOne = this.getRuntime();
@@ -614,9 +638,9 @@ public abstract class Functions extends LinearOpMode {
         {
             timeTwo = this.getRuntime();
 
-            batterySideBeacon.setPosition(batterySideBeaconPositionRetract);
+            portSideBeacon.setPosition(portSideBeaconPositionRetract);
         }
-        batterySideBeacon.setPosition(.5);
+        portSideBeacon.setPosition(.5);
 
     }
 
