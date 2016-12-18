@@ -118,6 +118,8 @@ public abstract class Functions extends LinearOpMode {
 
     double gyroGain=.005;
 
+    double straightGyroGain = .005;
+
     double rpmGain = .000002;
 
     double speedCorrection;
@@ -268,14 +270,18 @@ public abstract class Functions extends LinearOpMode {
 
         while (leftMotor1.isBusy() && leftMotor2.isBusy() && rightMotor1.isBusy() && rightMotor2.isBusy()) {
 
+
+
             currentHeading = gyro.getIntegratedZValue();
+            telemetry.addData("Current Heading = ", currentHeading);
+            telemetry.update();
             headingError = targetHeading - currentHeading;
-            speedCorrection = headingError * gyroGain;
-            //power of motors as .5
-            leftMotor1.setPower(speed-speedCorrection);
-            leftMotor2.setPower(speed-speedCorrection);
-            rightMotor1.setPower(speed+speedCorrection);
-            rightMotor2.setPower(speed+speedCorrection);
+            speedCorrection = headingError * straightGyroGain;
+            //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED
+            leftMotor1.setPower(speed+speedCorrection);
+            leftMotor2.setPower(speed+speedCorrection);
+            rightMotor1.setPower(speed-speedCorrection);
+            rightMotor2.setPower(speed-speedCorrection);
 
         }
         stopDriving();
@@ -322,17 +328,18 @@ public abstract class Functions extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed < 0.3) {
-                    turnSpeed = 0.3;
+                if (turnSpeed > -0.2) {
+                    turnSpeed = -0.2;
                 }
-                if (turnSpeed > .95) {
-                    turnSpeed = .95;
+                if (turnSpeed < -.95) {
+                    turnSpeed = -.95;
                 }
 
                 telemetry.addData("Current Heading:",currentHeading);
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
+                //MAKES NO SENSE JUST TRYING
                 rightMotor1.setPower(-turnSpeed);
                 rightMotor2.setPower(-turnSpeed);
                 leftMotor1.setPower(turnSpeed);
@@ -349,17 +356,20 @@ public abstract class Functions extends LinearOpMode {
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
-                if (turnSpeed > -0.3) {
-                    turnSpeed = -0.3;
+
+                if (turnSpeed < 0.2) {
+                    turnSpeed = 0.2;
                 }
-                if (turnSpeed < -.95) {
-                    turnSpeed = -.95;
+                if (turnSpeed > .95) {
+                    turnSpeed = .95;
                 }
 
                 telemetry.addData("Current Heading:",currentHeading);
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
+
+                //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
                 rightMotor1.setPower(-turnSpeed);
                 rightMotor2.setPower(-turnSpeed);
                 leftMotor1.setPower(turnSpeed);
@@ -601,10 +611,10 @@ public abstract class Functions extends LinearOpMode {
         wlsRightlight = false;
         wlsLeftlight = false;
         stopDriving();
-        leftMotor1.setPower(.25);
-        rightMotor1.setPower(.25);
-        leftMotor2.setPower(.25);
-        rightMotor2.setPower(.25);
+        leftMotor1.setPower(.35);
+        rightMotor1.setPower(.35);
+        leftMotor2.setPower(.35);
+        rightMotor2.setPower(.35);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -628,8 +638,8 @@ public abstract class Functions extends LinearOpMode {
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
             if (wlsRightlight == false) {
-                rightMotor1.setPower(.25);
-                rightMotor2.setPower(.25);
+                rightMotor1.setPower(.35);
+                rightMotor2.setPower(.35);
             } else {
                 rightMotor1.setPower(0);
                 rightMotor2.setPower(0);
@@ -638,8 +648,8 @@ public abstract class Functions extends LinearOpMode {
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
             if (wlsLeftlight == false) {
-                leftMotor1.setPower(.25);
-                leftMotor2.setPower(.25);
+                leftMotor1.setPower(.35);
+                leftMotor2.setPower(.35);
             } else {
                 leftMotor1.setPower(0);
                 leftMotor2.setPower(0);
@@ -673,66 +683,9 @@ public abstract class Functions extends LinearOpMode {
         rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        while (pcolor.blue()<2.5)
+        while (bcolor.blue()<2.5)
         {
-            telemetry.addData("pcolor Blue value:", pcolor.blue());
-            telemetry.update();
-            leftMotor1.setPower(.25);
-            leftMotor2.setPower(.25);
-            rightMotor1.setPower(.25);
-            rightMotor2.setPower(.25);
-        }
-
-        stopDriving();
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-
-            portSideBeacon.setPosition(portSideBeaconPositionExtend);
-        }
-
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-
-            portSideBeacon.setPosition(.6);  //let servo push against beacon for a second, so slightly harder than rest position
-        }
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        while (timeTwo - timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-
-            portSideBeacon.setPosition(portSideBeaconPositionRetract);
-        }
-        portSideBeacon.setPosition(.5);
-
-    }
-
-    public void findAndPressRedBeacon ()
-    {
-
-
-
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-        while (bcolor.red()<2.5)
-        {
-            telemetry.addData("bcolor RED value:", bcolor.red());
+            telemetry.addData("bcolor Blue value:", bcolor.blue());
             telemetry.update();
             leftMotor1.setPower(.25);
             leftMotor2.setPower(.25);
@@ -773,6 +726,63 @@ public abstract class Functions extends LinearOpMode {
             batterySideBeacon.setPosition(batterySideBeaconPositionRetract);
         }
         batterySideBeacon.setPosition(.5);
+
+    }
+
+    public void findAndPressRedBeacon ()
+    {
+
+
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        while (pcolor.red()<2.5)
+        {
+            telemetry.addData("pcolor RED value:", pcolor.red());
+            telemetry.update();
+            leftMotor1.setPower(.25);
+            leftMotor2.setPower(.25);
+            rightMotor1.setPower(.25);
+            rightMotor2.setPower(.25);
+        }
+
+        stopDriving();
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+
+            portSideBeacon.setPosition(portSideBeaconPositionExtend);
+        }
+
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+
+            portSideBeacon.setPosition(.6);  //let servo push against beacon for a second, so slightly harder than rest position
+        }
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1)
+        {
+            timeTwo = this.getRuntime();
+
+            portSideBeacon.setPosition(portSideBeaconPositionRetract);
+        }
+        portSideBeacon.setPosition(.5);
 
     }
 

@@ -40,11 +40,15 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         //drive initially forward to get into shooting range
         drive(32, .5, 0);
 
+        stopDrivingAndPause();
+
         telemetry.addData("starting spin", telemetryVariable);
         telemetry.update();
 
         //spin move counter-clockwise
         spinMove(90);
+
+        stopDrivingAndPause();
 
         telemetry.addData("starting drive", telemetryVariable);
         telemetry.update();
@@ -52,11 +56,15 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         //drive to align with first beacon
         drive(54, .5, 90);
 
+        stopDrivingAndPause();
+
         telemetry.addData("spin move", telemetryVariable);
         telemetry.update();
 
         //90º clockwise to put ourselves in a line with beacons
         spinMove(0);
+
+        stopDrivingAndPause();
 
         telemetry.addData("drive to white line", telemetryVariable);
         telemetry.update();
@@ -64,11 +72,15 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         //function travelling infinite distance until white line is reached
         driveToWhiteLine();
 
+        stopDrivingAndPause();
+
         telemetry.addData("find and press beacon",telemetryVariable);
         telemetry.update();
 
         //activate beacon pressers for the first beacon
         findAndPressRedBeacon();
+
+        stopDrivingAndPause();
 
         telemetry.addData("drive to white line",telemetryVariable);
         telemetry.update();
@@ -76,11 +88,15 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         //drive until second line is reached
         driveToWhiteLine();
 
+        stopDrivingAndPause();
+
         telemetry.addData("find and press beacon", telemetryVariable);
         telemetry.update();
 
         //press second beacon to get lots of points
         findAndPressRedBeacon();
+
+        stopDrivingAndPause();
 
         telemetry.addData("end code", telemetryVariable);
         telemetry.update();
