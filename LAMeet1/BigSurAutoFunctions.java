@@ -25,7 +25,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import android.graphics.Color;
 
 @Autonomous(name = "BigSurAutoFunctions", group = "AutoWithFunctions")
-//@Disabled
+@Disabled
 public class BigSurAutoFunctions extends Functions {
 
     public void runOpMode() throws InterruptedException {
@@ -53,7 +53,6 @@ public class BigSurAutoFunctions extends Functions {
         telemetry.addData("drive 1 done. shooting", telemetryVariable);
         telemetry.update();
 
-        startShooting(.32);
 
         try {
 

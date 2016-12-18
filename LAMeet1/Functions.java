@@ -288,6 +288,58 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
+    public void driveBack (double distance, double speed, double targetHeading) {
+
+        currentHeading = gyro.getIntegratedZValue();
+        INCHES_TO_MOVE = -distance;
+        ROTATIONS = -distance / (Math.PI * WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+        //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+        //gives the target position for the motors to run to using the math from earlier in the code
+        leftMotor1.setTargetPosition((int) COUNTS);
+        leftMotor2.setTargetPosition((int) COUNTS);
+        rightMotor1.setTargetPosition((int) COUNTS);
+        rightMotor2.setTargetPosition((int) COUNTS);
+
+
+        //set the motor mode to the "RUN_TO_POSITION" mode in order to allow the motor to continue moving until the desired encoder value is reached
+        leftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (leftMotor1.isBusy() && leftMotor2.isBusy() && rightMotor1.isBusy() && rightMotor2.isBusy()) {
+
+
+            currentHeading = gyro.getIntegratedZValue();
+            telemetry.addData("Current Heading = ", currentHeading);
+            telemetry.update();
+            headingError = targetHeading - currentHeading;
+            speedCorrection = headingError * straightGyroGain;
+            //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED
+            leftMotor1.setPower(speed + speedCorrection);
+            leftMotor2.setPower(speed + speedCorrection);
+            rightMotor1.setPower(speed - speedCorrection);
+            rightMotor2.setPower(speed - speedCorrection);
+
+        }
+        stopDriving();
+    }
+
     public void calibrateGyro () throws InterruptedException
     {
         gyro.calibrate();
@@ -606,10 +658,10 @@ public abstract class Functions extends LinearOpMode {
         wlsRightlight = false;
         wlsLeftlight = false;
         stopDriving();
-        leftMotor1.setPower(.35);
-        rightMotor1.setPower(.35);
-        leftMotor2.setPower(.35);
-        rightMotor2.setPower(.35);
+        leftMotor1.setPower(.3);
+        rightMotor1.setPower(.3);
+        leftMotor2.setPower(.3);
+        rightMotor2.setPower(.3);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -633,8 +685,8 @@ public abstract class Functions extends LinearOpMode {
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
             if (wlsRightlight == false) {
-                rightMotor1.setPower(.35);
-                rightMotor2.setPower(.35);
+                rightMotor1.setPower(.3);
+                rightMotor2.setPower(.3);
             } else {
                 rightMotor1.setPower(0);
                 rightMotor2.setPower(0);
@@ -643,8 +695,8 @@ public abstract class Functions extends LinearOpMode {
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
             if (wlsLeftlight == false) {
-                leftMotor1.setPower(.35);
-                leftMotor2.setPower(.35);
+                leftMotor1.setPower(.3);
+                leftMotor2.setPower(.3);
             } else {
                 leftMotor1.setPower(0);
                 leftMotor2.setPower(0);
@@ -666,6 +718,8 @@ public abstract class Functions extends LinearOpMode {
 
 
     }
+
+
 
     public void findAndPressBlueBeacon ()
     {

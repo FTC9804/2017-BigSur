@@ -25,7 +25,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import android.graphics.Color;
 
 @Autonomous(name = "Shooter", group = "AutoWithFunctions")
-//@Disabled
+@Disabled
 public class Shooter extends Functions {
 
     public void runOpMode() throws InterruptedException {
@@ -39,7 +39,7 @@ public class Shooter extends Functions {
         //wait for the code to start to begin the autonomous program
         waitForStart();
 
-        startShooting(.32);
+       // startShooting(.32);
 
         try {
 

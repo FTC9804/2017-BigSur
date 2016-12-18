@@ -15,7 +15,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@Autonomous(name = "BLUE Beacon Only", group = "AutoWithFunctions")
+@Autonomous(name = "BLUE Beacon Only Diag", group = "AutoWithFunctions")
 //@Disabled
 public class BigSurAutoBeaconOnlyBLUEDiagonal extends Functions {
 
@@ -39,7 +39,7 @@ public class BigSurAutoBeaconOnlyBLUEDiagonal extends Functions {
         telemetry.update();
 
         //drive initially forward to get into shooting range
-        drive(4, .5, 0);
+        drive(4, .4, 0);
 
 
         stopDrivingAndPause();
@@ -49,11 +49,11 @@ public class BigSurAutoBeaconOnlyBLUEDiagonal extends Functions {
         telemetry.update();
 
         //spin move clockwise
-        spinMove(-45);
+        spinMove(-30);
 
 
         stopDrivingAndPause();
-        
+
         telemetry.addData("drive to white line", telemetryVariable);
         telemetry.update();
 
@@ -71,8 +71,14 @@ public class BigSurAutoBeaconOnlyBLUEDiagonal extends Functions {
         //90º counter clockwise to put ourselves in a line with beacons
         spinMove(0); //MAKE IT DRIVE HIGHER
 
+        driveBack(4, -.3, 0);
 
         stopDrivingAndPause();
+
+        driveToWhiteLine();
+
+        stopDrivingAndPause();
+
 
         findAndPressBlueBeacon();
 
