@@ -69,7 +69,7 @@ public class BigSurAutoJustBeacons extends Functions {
         telemetry.update();
 
         //activate beacon pressers for the first beacon
-        findAndPressBlueBeacon();
+        findAndPressBlueBeacon(5);
 
         telemetry.addData("drive to white line",telemetryVariable);
         telemetry.update();
@@ -81,7 +81,7 @@ public class BigSurAutoJustBeacons extends Functions {
         telemetry.update();
 
         //press second beacon to get lots of points
-        findAndPressBlueBeacon();
+        findAndPressBlueBeacon(5);
 
         telemetry.addData("end code", telemetryVariable);
         telemetry.update();

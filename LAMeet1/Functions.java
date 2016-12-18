@@ -76,7 +76,7 @@ public abstract class Functions extends LinearOpMode {
     OpticalDistanceSensor whiteLineSensorRight;
     OpticalDistanceSensor whiteLineSensorLeft;
 
-    double whiteThreshold = .2;
+    double whiteThreshold = .4;
     boolean wlsRightlight = false;
     boolean wlsLeftlight = false;
 
@@ -341,10 +341,10 @@ public abstract class Functions extends LinearOpMode {
 
 
                 //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(0);
-                leftMotor2.setPower(0);
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
                 gyroTelemetry();
             }
             while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
@@ -371,11 +371,8 @@ public abstract class Functions extends LinearOpMode {
         //gives the target position for the motors to run to using the math from earlier in the code
         leftMotor1.setTargetPosition((int) COUNTS);
 
-
-
         //set the motor mode to the "RUN_TO_POSITION" mode in order to allow the motor to continue moving until the desired encoder value is reached
         leftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
 
         while (leftMotor1.isBusy()) {
 
@@ -772,16 +769,16 @@ public abstract class Functions extends LinearOpMode {
     }
 
 
-    public void findAndPressBlueBeacon ()
+    public void findAndPressBlueBeacon (double time)
     {
-
-
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-        while (bcolor.blue()<2.5)
+        while (bcolor.blue()<2.5 && ((timeTwo-timeOne) < time))
         {
+            timeTwo= this.getRuntime();
             telemetry.addData("bcolor Blue value:", bcolor.blue());
             telemetry.update();
             leftMotor1.setPower(.25);
@@ -826,10 +823,8 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
-    public void findAndPressRedBeacon ()
+    public void findAndPressRedBeacon (double time)
     {
-
-
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -883,10 +878,10 @@ public abstract class Functions extends LinearOpMode {
     public void findAndPressBeacon ()
     {
         if (weAreRed) {
-            findAndPressRedBeacon();
+            findAndPressRedBeacon(5);
         }
         else {
-            findAndPressBlueBeacon();
+            findAndPressBlueBeacon(5);
         }
     }
 

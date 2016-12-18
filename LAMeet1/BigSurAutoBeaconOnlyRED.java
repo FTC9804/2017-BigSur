@@ -13,6 +13,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @Autonomous(name = "RED Beacon Only", group = "AutoWithFunctions")
 //@Disabled
@@ -78,7 +79,7 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         telemetry.update();
 
         //activate beacon pressers for the first beacon
-        findAndPressRedBeacon();
+        findAndPressRedBeacon(5);
 
         stopDrivingAndPause();
 
@@ -94,7 +95,7 @@ public class BigSurAutoBeaconOnlyRED extends Functions {
         telemetry.update();
 
         //press second beacon to get lots of points
-        findAndPressRedBeacon();
+        findAndPressRedBeacon(5);
 
         stopDrivingAndPause();
 

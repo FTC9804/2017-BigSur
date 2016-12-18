@@ -89,7 +89,7 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         telemetry.update();
 
         //activate beacon pressers for the first beacon
-        findAndPressBlueBeacon();
+        findAndPressBlueBeacon(5);
 
 
         stopDrivingAndPause();
@@ -109,7 +109,7 @@ public class BigSurAutoBeaconOnlyBLUE extends Functions {
         telemetry.update();
 
         //press second beacon to get lots of points
-        findAndPressBlueBeacon();
+        findAndPressBlueBeacon(4.62);
 
 
         stopDrivingAndPause();
