@@ -328,8 +328,8 @@ public abstract class Functions extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed > -0.2) {
-                    turnSpeed = -0.2;
+                if (turnSpeed > -0.3) {
+                    turnSpeed = -0.3;
                 }
                 if (turnSpeed < -.95) {
                     turnSpeed = -.95;
@@ -357,8 +357,8 @@ public abstract class Functions extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed < 0.2) {
-                    turnSpeed = 0.2;
+                if (turnSpeed < 0.3) {
+                    turnSpeed = 0.3;
                 }
                 if (turnSpeed > .95) {
                     turnSpeed = .95;
@@ -592,11 +592,6 @@ public abstract class Functions extends LinearOpMode {
         stopShooting();
     }
 
-    public void startShooting (double power)
-    {
-        shooter.setPower(power);
-        sleep(2000);
-    }
 
     public void driveToWhiteLine ()
     {
