@@ -37,21 +37,58 @@ public class shooterAutoRed extends Functions {
         telemetry.addData("Calibration complete. starting drive 1", telemetryVariable);
         telemetry.update();
 
-        stopDrivingAndPause();
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
 
-        drive(20, .5, 0);
+        while (timeTwo-timeOne<1.2)
+        {
+            leftMotor1.setPower(.4);
+            leftMotor2.setPower(.4);
+            rightMotor1.setPower(.4);
+            rightMotor2.setPower(.4);
+            timeTwo = this.getRuntime();
+        }
 
-        stopDrivingAndPause();
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
 
-        shoot(.5, .1); //testing values
+        shooter.setPower(-.5);
 
-        pivot(10);
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
 
-        stopDrivingAndPause();
+        while (timeTwo-timeOne<5)
+        {
+            timeTwo= this.getRuntime();
+        }
 
-        drive(10, .3, 10);
 
-        stopDrivingAndPause();
+
+        intake.setPower(.95);
+        elevator.setPower(.95);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo-timeOne<5)
+        {
+            timeTwo= this.getRuntime();
+        }
+
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo-timeOne<.6)
+        {
+            leftMotor1.setPower(.4);
+            leftMotor2.setPower(.4);
+            rightMotor1.setPower(.4);
+            rightMotor2.setPower(.4);
+            timeTwo = this.getRuntime();
+        }
 
     }
 }

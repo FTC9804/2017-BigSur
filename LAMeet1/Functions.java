@@ -914,10 +914,8 @@ public abstract class Functions extends LinearOpMode {
         }
     }
 
-    public void shoot(double power, double hoodAngle)
+    public void shoot(double power)
     {
-
-        hood.setPosition(hoodAngle);
 
         timeRunningLoop = this.getRuntime();
 

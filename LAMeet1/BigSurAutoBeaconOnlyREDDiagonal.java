@@ -38,7 +38,7 @@ public class BigSurAutoBeaconOnlyREDDiagonal extends Functions {
         telemetry.addData("Calibration complete. starting drive 1", telemetryVariable);
         telemetry.update();
 
-        shoot(.5, .2);
+        shoot(.5);
 
         stopDrivingAndPause();
 

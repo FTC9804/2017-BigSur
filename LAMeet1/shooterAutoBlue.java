@@ -43,11 +43,11 @@ public class shooterAutoBlue extends Functions {
 
         stopDrivingAndPause();
 
-        shoot(.5, .1); //testing values
+        shoot(.5); //testing values
 
         stopDrivingAndPause();
 
-        pivot(-10);
+        spinMove(-10);
 
         stopDrivingAndPause();
 
