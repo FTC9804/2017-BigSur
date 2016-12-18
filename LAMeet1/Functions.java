@@ -243,32 +243,24 @@ public abstract class Functions extends LinearOpMode {
 
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
 
         //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
 
         //gives the target position for the motors to run to using the math from earlier in the code
         leftMotor1.setTargetPosition((int) COUNTS);
-        leftMotor2.setTargetPosition((int) COUNTS);
-        rightMotor1.setTargetPosition((int) COUNTS);
-        rightMotor2.setTargetPosition((int) COUNTS);
+
 
 
         //set the motor mode to the "RUN_TO_POSITION" mode in order to allow the motor to continue moving until the desired encoder value is reached
         leftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (leftMotor1.isBusy() && leftMotor2.isBusy() && rightMotor1.isBusy() && rightMotor2.isBusy()) {
+
+        while (leftMotor1.isBusy()) {
 
 
 
@@ -297,32 +289,20 @@ public abstract class Functions extends LinearOpMode {
 
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
 
         //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
 
         //gives the target position for the motors to run to using the math from earlier in the code
         leftMotor1.setTargetPosition((int) COUNTS);
-        leftMotor2.setTargetPosition((int) COUNTS);
-        rightMotor1.setTargetPosition((int) COUNTS);
-        rightMotor2.setTargetPosition((int) COUNTS);
+
 
 
         //set the motor mode to the "RUN_TO_POSITION" mode in order to allow the motor to continue moving until the desired encoder value is reached
         leftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (leftMotor1.isBusy() && leftMotor2.isBusy() && rightMotor1.isBusy() && rightMotor2.isBusy()) {
+
+        while (leftMotor1.isBusy()) {
 
 
             currentHeading = gyro.getIntegratedZValue();
@@ -720,7 +700,6 @@ public abstract class Functions extends LinearOpMode {
     }
 
 
-
     public void findAndPressBlueBeacon ()
     {
 
@@ -904,7 +883,8 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
-    public void stopDrivingAndPause () {
+    public void stopDrivingAndPause ()
+    {
 
         stopDriving();
 
@@ -917,6 +897,21 @@ public abstract class Functions extends LinearOpMode {
         }
     }
 
+    public void driveForTimeNoEncoders (double time)
+    {
 
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < time){
+            timeTwo = this.getRuntime();
+
+            leftMotor1.setPower(0.5);
+            leftMotor2.setPower(0.5);
+            rightMotor1.setPower(0.5);
+            rightMotor2.setPower(0.5);
+        }
+
+    }
 
 }
