@@ -39,17 +39,12 @@ public class BigSurAutoBeaconOnlyBLUEDiagonal extends Functions {
         telemetry.update();
 
         //drive initially forward to get into shooting range
-        drive(4, .4, 0);
+        pivot(-32);
 
 
         stopDrivingAndPause();
 
 
-        telemetry.addData("starting spin", telemetryVariable);
-        telemetry.update();
-
-        //spin move clockwise
-        spinMove(-30);
 
 
         stopDrivingAndPause();

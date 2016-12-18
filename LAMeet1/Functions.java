@@ -280,6 +280,81 @@ public abstract class Functions extends LinearOpMode {
 
     }
 
+    public void gyroTelemetry () {
+            telemetry.addData("Heading", gyro.getIntegratedZValue());
+            telemetry.update();
+        }
+
+
+    public void pivot (double desiredHeading)
+    {
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        initialHeading = gyro.getIntegratedZValue();
+
+        if (desiredHeading < initialHeading)
+        {
+            do{
+                currentHeading= gyro.getIntegratedZValue();
+                headingError = desiredHeading - currentHeading;
+                turnSpeed = -headingError * gyroGain;
+
+                if (turnSpeed < 0.4) {
+                    turnSpeed = 0.4;
+                }
+                if (turnSpeed > .95) {
+                    turnSpeed = .95;
+                }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
+
+                //MAKES NO SENSE JUST TRYING
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(0);
+                leftMotor2.setPower(0);
+                gyroTelemetry();
+
+            }
+            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
+        }
+        else
+        {
+            do {
+
+                currentHeading= gyro.getIntegratedZValue();
+                headingError = desiredHeading - currentHeading;
+                turnSpeed = headingError * gyroGain;
+
+                if (turnSpeed < 0.4) {
+                    turnSpeed = 0.4;
+                }
+                if (turnSpeed > .95) {
+                    turnSpeed = .95;
+                }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
+
+
+                //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(0);
+                leftMotor2.setPower(0);
+                gyroTelemetry();
+            }
+            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
+        }
+        stopDriving();
+    }
+
+
+
+
     public void driveBack (double distance, double speed, double targetHeading) {
 
         currentHeading = gyro.getIntegratedZValue();
@@ -347,10 +422,9 @@ public abstract class Functions extends LinearOpMode {
     public void spinMove (double desiredHeading)
     {
 
+
+
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         initialHeading = gyro.getIntegratedZValue();
         if (desiredHeading < initialHeading)
@@ -360,8 +434,8 @@ public abstract class Functions extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed > -0.3) {
-                    turnSpeed = -0.3;
+                if (turnSpeed > -0.25) {
+                    turnSpeed = -0.25;
                 }
                 if (turnSpeed < -.95) {
                     turnSpeed = -.95;
@@ -389,8 +463,8 @@ public abstract class Functions extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed < 0.3) {
-                    turnSpeed = 0.3;
+                if (turnSpeed < 0.25) {
+                    turnSpeed = 0.25;
                 }
                 if (turnSpeed > .95) {
                     turnSpeed = .95;
@@ -630,9 +704,7 @@ public abstract class Functions extends LinearOpMode {
 
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
 
         wlsRightlight = false;
@@ -706,9 +778,6 @@ public abstract class Functions extends LinearOpMode {
 
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         while (bcolor.blue()<2.5)
@@ -763,9 +832,6 @@ public abstract class Functions extends LinearOpMode {
 
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         while (pcolor.red()<2.5)
