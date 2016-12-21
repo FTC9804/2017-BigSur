@@ -38,6 +38,10 @@ public class BigSurAutoBeaconOnlyREDDiagonal extends Functions {
         telemetry.addData("Calibration complete. starting drive 1", telemetryVariable);
         telemetry.update();
 
+        shoot(.5);
+
+        stopDrivingAndPause();
+
         //drive initially forward to get into shooting range
         pivot(26);
 
@@ -83,7 +87,7 @@ public class BigSurAutoBeaconOnlyREDDiagonal extends Functions {
         stopDrivingAndPause();
 
 
-        findAndPressBlueBeacon(5);
+        findAndPressBlueBeacon(3);
 
         telemetry.addData("find and press beacon",telemetryVariable);
         telemetry.update();
@@ -107,7 +111,7 @@ public class BigSurAutoBeaconOnlyREDDiagonal extends Functions {
         telemetry.update();
 
         //press second beacon to get lots of points
-        findAndPressBlueBeacon(5);
+        findAndPressBlueBeacon(3);
 
 
         stopDrivingAndPause();

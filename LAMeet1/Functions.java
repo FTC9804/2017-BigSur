@@ -148,6 +148,8 @@ public abstract class Functions extends LinearOpMode {
     boolean allianceNotSelected = true;
     boolean weAreRed;
 
+    boolean exitcode1 = false;
+
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -505,6 +507,7 @@ public abstract class Functions extends LinearOpMode {
 
         turret = hardwareMap.servo.get("s1");
 
+        hood = hardwareMap.servo.get("s2");
         batterySideBeacon = hardwareMap.servo.get("s3");
         portSideBeacon = hardwareMap.servo.get("s4");
 
@@ -755,12 +758,22 @@ public abstract class Functions extends LinearOpMode {
         while ( (wlsRightlight == false
                 || wlsLeftlight == false)
                 && this.opModeIsActive()
-                && (timeTwo-timeOne < 30) );  //Repeat do loop until both odss have detected enough white light
+                && (timeTwo-timeOne < 4) );  //Repeat do loop until both odss have detected enough white light
 
-              stopDriving();
+            if (timeTwo-timeOne>=4)
+            {
+                while (this.opModeIsActive())
+                {
+                    timeTwo = this.getRuntime();
+                }
+            }
+
+
+
+            stopDriving();
             timeOne = this.getRuntime();
             timeTwo = this.getRuntime();
-            while (timeTwo-timeOne < 2)
+            while (timeTwo-timeOne < 1)
             {
                 timeTwo = this.getRuntime();
             }
@@ -785,6 +798,14 @@ public abstract class Functions extends LinearOpMode {
             leftMotor2.setPower(.25);
             rightMotor1.setPower(.25);
             rightMotor2.setPower(.25);
+        }
+
+        if (timeTwo-timeOne>=time)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
         }
 
         stopDriving();
@@ -839,6 +860,14 @@ public abstract class Functions extends LinearOpMode {
             rightMotor2.setPower(.25);
         }
 
+        if (timeTwo-timeOne>=time)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
         stopDriving();
 
         timeOne = this.getRuntime();
@@ -887,8 +916,8 @@ public abstract class Functions extends LinearOpMode {
 
     public void shoot(double power)
     {
+
         timeRunningLoop = this.getRuntime();
-        do{
 
             //set the shooter to power
             shooter.setPower(power);
@@ -906,7 +935,7 @@ public abstract class Functions extends LinearOpMode {
             //sleep function to let the first ball pass through (1.5 seconds)
             timeOne = this.getRuntime();
             timeTwo = this.getRuntime();
-            while (timeTwo-timeOne < 1.5)
+            while (timeTwo-timeOne < 1)
             {
                 timeTwo = this.getRuntime();
                 elevator.setPower(0.95); //cut off at 95% speed
@@ -934,11 +963,7 @@ public abstract class Functions extends LinearOpMode {
 
             //stop the elevator again
             elevator.setPower(0);
-
-        }while(
-                this.opModeIsActive()
-                && this.getRuntime() - timeRunningLoop < 7
-                );
+            intake.setPower(0);
 
         stopShooting();
 
@@ -952,7 +977,7 @@ public abstract class Functions extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < 1)
+        while (timeTwo - timeOne < .3)
         {
             timeTwo = this.getRuntime();
         }
