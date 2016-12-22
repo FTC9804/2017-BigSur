@@ -115,9 +115,9 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     double initialHeading;
 
-    double gyroGain = .005;
+    double gyroGain = .0075;
 
-    double straightGyroGain = .005;
+    double straightGyroGain = .002;
 
     double rpmGain = .000002;
 
@@ -252,14 +252,16 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
             telemetry.update();
             headingError = targetHeading - currentHeading;
             speedCorrection = headingError * straightGyroGain;
-            //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED
             leftMotor1.setPower(speed - speedCorrection);
             leftMotor2.setPower(speed - speedCorrection);
             rightMotor1.setPower(speed + speedCorrection);
             rightMotor2.setPower(speed + speedCorrection);
 
         }
-        stopDriving();
+        rightMotor1.setPower(0);
+        rightMotor2.setPower (0);
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
 
     }
 
@@ -413,10 +415,6 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     }
 
     public void spinMove (double desiredHeading) {
-
-
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         initialHeading = gyro.getIntegratedZValue();
         if (desiredHeading < initialHeading) {
             do {
@@ -427,8 +425,8 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
                 if (turnSpeed > -0.45) {
                     turnSpeed = -0.45;
                 }
-                if (turnSpeed < -.45) {
-                    turnSpeed = -.45;
+                if (turnSpeed < -.95) {
+                    turnSpeed = -.95;
                 }
 
                 telemetry.addData("Current Heading:", currentHeading);
@@ -470,6 +468,10 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
             }
             while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
         }
+        rightMotor1.setPower(0);
+        rightMotor2.setPower (0);
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
     }
 
 
@@ -937,10 +939,11 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     public void stopDrivingAndPause ()
     {
-        try {
-            sleep (1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        timeOne = this.getRuntime();
+        timeTwo= this.getRuntime();
+        while (timeTwo-timeOne<3)
+        {
+            timeTwo = this.getRuntime();
         }
     }
 
