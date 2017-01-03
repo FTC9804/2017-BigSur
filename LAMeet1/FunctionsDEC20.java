@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 
 
 
-public abstract class FunctionsDEC20 extends LinearOpMode {
+public abstract class FUNCTIONSDEC20 extends LinearOpMode {
     DcMotor rightMotor1;   //right drive motor front
     DcMotor leftMotor1;    //left drive motor front
     DcMotor rightMotor2;   //right drive motor back
@@ -43,6 +43,9 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     Servo batterySideBeacon;
     Servo portSideBeacon;
     Servo turret;
+
+    Servo ballControl;
+
 
 
     //encoder variables to adequately sense the lines
@@ -60,14 +63,14 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
 
     //shooter variables;
-    double shooterPower = 0.32;    //constant power applied to the shooter
+    double shooterPower = 0.62;    //constant power applied to the shooter
 
-    double turretSpeed = .5;
+    double turretSpeed=.5;
 
 
-    double INCHES_TO_MOVE = 0;
-    double ROTATIONS = 0;
-    double COUNTS = 0;
+    double INCHES_TO_MOVE=0;
+    double ROTATIONS=0;
+    double COUNTS=0;
 
     ColorSensor pcolor;
     ColorSensor bcolor;
@@ -75,7 +78,7 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     OpticalDistanceSensor whiteLineSensorRight;
     OpticalDistanceSensor whiteLineSensorLeft;
 
-    double whiteThreshold = .4;
+    double whiteThreshold = .2;
     boolean wlsRightlight = false;
     boolean wlsLeftlight = false;
 
@@ -115,11 +118,11 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     double initialHeading;
 
-    double gyroGain = .0075;
+    double gyroGain=.005;
 
-    double straightGyroGain = .002;
+    double straightGyroGain = .0005;
 
-    double rpmGain = .000002;
+    double rpmGain = .0000035;
 
     double speedCorrection;
 
@@ -127,7 +130,7 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     int telemetryVariable = 0;
 
-    double[] movingWeightedAverage = {0, 0, 0, 0, 0};
+    double [] movingWeightedAverage = {0, 0, 0, 0, 0};
 
     int loopCounter = 0;
 
@@ -135,7 +138,7 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     double rpmError = 0;
 
-    boolean throwingException = false;
+    boolean throwingException=false;
 
     int mode = 0;
 
@@ -147,13 +150,16 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     boolean allianceNotSelected = true;
     boolean weAreRed;
 
+    boolean exitcode1 = false;
+
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
 
-    public void checkAutoAlliance() {
-        while (choiceNotSelected) {
-            if (allianceNotSelected) {
+    public void checkAutoAlliance ()
+    {
+        while (choiceNotSelected)   {
+            if (allianceNotSelected){
                 telemetry.addData("Choose Alliance Color", telemetryVariable);
                 telemetry.update();
                 if (gamepad1.x) {
@@ -171,13 +177,14 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
                 if (weAreRed) {
                     telemetry.addData("We are RED", telemetryVariable);
-                } else {
+                }
+                else {
                     telemetry.addData("We are BLUE", telemetryVariable);
                 }
 
                 telemetry.addData("Y is correct.  A is incorrect", telemetryVariable);
 
-                if (gamepad1.y) {
+                if (gamepad1.y){
                     choiceNotSelected = false;
                 }
                 if (gamepad1.a) {
@@ -187,33 +194,41 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
     }
 
-
-    public void beaconTurnOne() {
-        if (weAreRed) {
+    public void beaconTurnOne ()
+    {
+        if (weAreRed)
+        {
             spinMove(-90);
-        } else {
-            spinMove(90);
+        }
+        else
+        {
+            spinMove (90);
         }
     }
 
-    public int driveTwo() {
-        if (weAreRed) {
+    public int driveTwo ()
+    {
+        if (weAreRed)
+        {
             return -90;
-        } else {
+        }
+        else
+        {
             return 90;
         }
     }
 
-    public void workshopWhiteLineBlueBeaconTesting() {
+    public void workshopWhiteLineBlueBeaconTesting ()
+    {
         while (this.opModeIsActive()) {
 
             telemetry.addData("Blue Value, pcolor = ", pcolor.blue());
             telemetry.addData("Blue Value, bcolor = ", bcolor.blue());
 
-            telemetry.addData("WhiteValueRight RAW = ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("WhiteValueRight RAW = ",whiteLineSensorRight.getRawLightDetected());
             telemetry.addData("WhiteValueLeft RAW = ", whiteLineSensorLeft.getRawLightDetected());
 
-            telemetry.addData("WhiteValueRight STD = ", whiteLineSensorRight.getLightDetected());
+            telemetry.addData("WhiteValueRight STD = ",whiteLineSensorRight.getLightDetected());
             telemetry.addData("WhiteValueLeft STD = ", whiteLineSensorLeft.getLightDetected());
 
             telemetry.addData("WhiteThreshold", whiteThreshold);
@@ -222,142 +237,140 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
     }
 
-    public void drive(double distance, double speed, double targetHeading) {
+    public void drive (double distance, double speed, double targetHeading)
+    {
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
-        ROTATIONS = distance / (Math.PI * WHEEL_DIAMETER);
+        ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
         COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
 
-
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-        //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
-        //gives the target position for the motors to run to using the math from earlier in the code
-        leftMotor1.setTargetPosition((int) COUNTS);
-
-
-        //set the motor mode to the "RUN_TO_POSITION" mode in order to allow the motor to continue moving until the desired encoder value is reached
-        leftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-        while (leftMotor1.isBusy()) {
-
+        while (leftMotor1.getCurrentPosition()<COUNTS) {
 
             currentHeading = gyro.getIntegratedZValue();
             telemetry.addData("Current Heading = ", currentHeading);
             telemetry.update();
             headingError = targetHeading - currentHeading;
             speedCorrection = headingError * straightGyroGain;
-            leftMotor1.setPower(speed - speedCorrection);
-            leftMotor2.setPower(speed - speedCorrection);
-            rightMotor1.setPower(speed + speedCorrection);
-            rightMotor2.setPower(speed + speedCorrection);
+            //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED //fix corrections
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+
 
         }
-        rightMotor1.setPower(0);
-        rightMotor2.setPower (0);
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
 
     }
 
-    public void pivotDrive(double rotations, double speed) //Positive roations is cw, negative is ccw
+    public void driveNext()
     {
-        if (rotations > 0) {
+        INCHES_TO_MOVE = 15;
+        ROTATIONS = 15/ (Math.PI*WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
 
-            COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
-            leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
-            leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //gives the target position for the motors to run to using the math from earlier in the code
-            leftMotor1.setTargetPosition((int) COUNTS);
-            //set the motor mode to the "RUN_TO_POSITION" mode in order to allow the motor to continue moving until the desired encoder value is reached
-            leftMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while (leftMotor1.isBusy()) {
-                leftMotor1.setPower(speed);
-                leftMotor2.setPower(speed);
-                rightMotor1.setPower(-speed);
-                rightMotor2.setPower(-speed);
-            }
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        while (leftMotor1.getCurrentPosition()<COUNTS) {
+            leftMotor1.setPower(.5);
+            leftMotor2.setPower(.5);
+            rightMotor1.setPower(.5);
+            rightMotor2.setPower(.5);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
         }
 
-
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
     }
 
-    public void gyroTelemetry() {
+    public void gyroTelemetry () {
         telemetry.addData("Heading", gyro.getIntegratedZValue());
         telemetry.update();
     }
 
-//IGNORE
-//    public void pivot(double desiredHeading) {
-//        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//        initialHeading = gyro.getIntegratedZValue();
-//
-//        if (desiredHeading < initialHeading) {
-//            do {
-//                currentHeading = gyro.getIntegratedZValue();
-//                headingError = desiredHeading - currentHeading;
-//                turnSpeed = -headingError * gyroGain;
-//
-//                if (turnSpeed < 0.5) {
-//                    turnSpeed = 0.5;
-//                }
-//                if (turnSpeed > .95) {
-//                    turnSpeed = .95;
-//                }
-//
-//                telemetry.addData("Current Heading:", currentHeading);
-//                telemetry.addData("TurnSpeed: ", turnSpeed);
-//                telemetry.update();
-//
-//                rightMotor1.setPower(0);
-//                rightMotor2.setPower(0);
-//                leftMotor1.setPower(turnSpeed);
-//                leftMotor2.setPower(turnSpeed);
-//                gyroTelemetry();
-//
-//            }
-//            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
-//        } else {
-//            do {
-//
-//                currentHeading = gyro.getIntegratedZValue();
-//                headingError = desiredHeading - currentHeading;
-//                turnSpeed = headingError * gyroGain;
-//
-//                if (turnSpeed < 0.5) {
-//                    turnSpeed = 0.5;
-//                }
-//                if (turnSpeed > .95) {
-//                    turnSpeed = .95;
-//                }
-//
-//                telemetry.addData("Current Heading:", currentHeading);
-//                telemetry.addData("TurnSpeed: ", turnSpeed);
-//                telemetry.update();
-//
-//
-//                //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
-//                rightMotor1.setPower(turnSpeed);
-//                rightMotor2.setPower(turnSpeed);
-//                leftMotor1.setPower(0);
-//                leftMotor2.setPower(0);
-//                gyroTelemetry();
-//            }
-//            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
-//        }
-//        stopDriving();
-//    }
+
+    public void pivot (double desiredHeading)
+    {
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        initialHeading = gyro.getIntegratedZValue();
+
+        if (desiredHeading < initialHeading)
+        {
+            do{
+                currentHeading= gyro.getIntegratedZValue();
+                headingError = desiredHeading - currentHeading;
+                turnSpeed = -headingError * gyroGain;
+
+                if (turnSpeed < 0.4) {
+                    turnSpeed = 0.4;
+                }
+                if (turnSpeed > .95) {
+                    turnSpeed = .95;
+                }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
+
+                //MAKES NO SENSE JUST TRYING
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
+                gyroTelemetry();
+
+            }
+            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
+        }
+        else
+        {
+            do {
+
+                currentHeading= gyro.getIntegratedZValue();
+                headingError = desiredHeading - currentHeading;
+                turnSpeed = headingError * gyroGain;
+
+                if (turnSpeed < 0.4) {
+                    turnSpeed = 0.4;
+                }
+                if (turnSpeed > .95) {
+                    turnSpeed = .95;
+                }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
 
 
-    public void driveBack(double distance, double speed, double targetHeading) {
+                //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(0);
+                leftMotor2.setPower(0);
+                gyroTelemetry();
+            }
+            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
+        }
+        stopDriving();
+    }
+
+
+
+
+    public void driveBack (double distance, double speed, double targetHeading) {
 
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = -distance;
@@ -385,78 +398,93 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
             headingError = targetHeading - currentHeading;
             speedCorrection = headingError * straightGyroGain;
             //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED
-            leftMotor1.setPower(speed - speedCorrection);
-            leftMotor2.setPower(speed - speedCorrection);
-            rightMotor1.setPower(speed + speedCorrection);
-            rightMotor2.setPower(speed + speedCorrection);
+            leftMotor1.setPower(speed + speedCorrection);
+            leftMotor2.setPower(speed + speedCorrection);
+            rightMotor1.setPower(speed - speedCorrection);
+            rightMotor2.setPower(speed - speedCorrection);
 
         }
         stopDriving();
     }
 
-    public void calibrateGyro() throws InterruptedException {
+    public void calibrateGyro () throws InterruptedException
+    {
         gyro.calibrate();
-        while (gyro.isCalibrating()) {
+
+        while (gyro.isCalibrating())
+        {
             sleep(100);
+            telemetry.addData("Gyro is calibrated", telemetryVariable);
+            telemetry.update();
         }
     }
 
-    public void stopDriving() {
+    public void stopDriving ()
+    {
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
     }
 
-    public void stopShooting() {
+    public void stopShooting ()
+    {
         intake.setPower(0);
         shooter.setPower(0);
         elevator.setPower(0);
     }
 
-    public void spinMove (double desiredHeading) {
+    public void spinMove (double desiredHeading)
+    {
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         initialHeading = gyro.getIntegratedZValue();
-        if (desiredHeading < initialHeading) {
-            do {
-                currentHeading = gyro.getIntegratedZValue();
+
+        if (desiredHeading < initialHeading)
+        {
+            do{
+                currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * gyroGain;
+                turnSpeed = -headingError * gyroGain;
 
-                if (turnSpeed > -0.45) {
-                    turnSpeed = -0.45;
+                if (turnSpeed < 0.43) {
+                    turnSpeed = 0.43;
                 }
-                if (turnSpeed < -.95) {
-                    turnSpeed = -.95;
+                if (turnSpeed > .57) {
+                    turnSpeed = .57;
                 }
 
-                telemetry.addData("Current Heading:", currentHeading);
-                telemetry.addData("TurnSpeed: ", turnSpeed);
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
                 //MAKES NO SENSE JUST TRYING
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
-
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
+                gyroTelemetry();
 
             }
             while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
-        } else {
+        }
+        else
+        {
             do {
 
-                currentHeading = gyro.getIntegratedZValue();
+                currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * gyroGain;
 
-                if (turnSpeed < 0.45) {
-                    turnSpeed = 0.45;
+                if (turnSpeed < .43) {
+                    turnSpeed = 0.3;
                 }
-                if (turnSpeed > .95) {
-                    turnSpeed = .95;
+                if (turnSpeed > .57) {
+                    turnSpeed = .57;
                 }
 
-                telemetry.addData("Current Heading:", currentHeading);
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
 
@@ -465,15 +493,12 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
                 rightMotor2.setPower(turnSpeed);
                 leftMotor1.setPower(-turnSpeed);
                 leftMotor2.setPower(-turnSpeed);
+                gyroTelemetry();
             }
             while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
         }
-        rightMotor1.setPower(0);
-        rightMotor2.setPower (0);
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
+        stopDriving();
     }
-
 
 
     public void Configure ()
@@ -487,26 +512,31 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         rightMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         rightMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         shooter = hardwareMap.dcMotor.get("m5");
 
         intake = hardwareMap.dcMotor.get("m6");
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        shooter.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooter.setDirection(DcMotor.Direction.FORWARD);
 
         elevator = hardwareMap.dcMotor.get("m7");
 
         turret = hardwareMap.servo.get("s1");
 
+        ballControl = hardwareMap.servo.get("s5");
+
+        hood = hardwareMap.servo.get("s2");
         batterySideBeacon = hardwareMap.servo.get("s3");
         portSideBeacon = hardwareMap.servo.get("s4");
 
         batterySideBeacon.setPosition(batterySideBeaconPositionInitial);
         portSideBeacon.setPosition(portSideBeaconPositionInitial);
         turret.setPosition(turretSpeed);
+        ballControl.setPosition(0);
 
-        gyro = (ModernRoboticsI2cGyro) hardwareMap.get("gyro"); //I2C port 0
-
+        gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
         whiteLineSensorLeft= hardwareMap.opticalDistanceSensor.get("ods1");     //Analog import port 4
         whiteLineSensorRight.enableLed(true);
@@ -523,170 +553,95 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     }
 
-    public void shootAndLiftTestingOptions ( double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
-    {
 
+    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException {
 
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        timeRunningLoop = this.getRuntime();
-
-        telemetry.addData("Input Gain (A,B,X,Y)", telemetryVariable);
-        telemetry.update();
-        while (!gamepad1.a&&!gamepad1.b&&!gamepad1.x&&!gamepad1.y) {
-
-
-            //distance in INCHES from the center of the vortex basket (red or blue).
-            if (gamepad1.a) {
-                rpmGain = .000005;
-            }
-            if (gamepad1.b) {
-                rpmGain = .000001;
-            }
-            if (gamepad1.x) {
-                rpmGain = .0000015;
-            }
-            if (gamepad1.y) {
-                rpmGain = .000002;
-            }
-        }
-
-        telemetry.clearAll();
-        telemetry.addData("Input RPM", telemetryVariable);
-        telemetry.update();
-
-        while (!gamepad1.dpad_up&&!gamepad1.dpad_down&&!gamepad1.dpad_left&&!gamepad1.dpad_right) {
-
-
-            //distance in INCHES from the center of the vortex basket (red or blue).
-            if (gamepad1.dpad_up) {
-                targetRPM=2600;
-            }
-            if (gamepad1.dpad_right) {
-                targetRPM=2800; //close-mid shot
-            }
-            if (gamepad1.dpad_down) {
-                targetRPM=3000; //far-mid shot
-            }
-            if (gamepad1.dpad_left) {
-                targetRPM=3200; //far shot
-            }
-        }
-
-        telemetry.clearAll();
-        telemetry.addData("Gain = ", rpmGain);
-        telemetry.addData("TargetRPM = ", targetRPM);
-        telemetry.update();
-
-
-        while (this.opModeIsActive()) {
-
-
-            loopCounter++;
-            timeTwo = this.getRuntime();
-            encoderClicksTwo = shooter.getCurrentPosition();
-            telemetry.addData("Time Two", timeTwo);
-            telemetry.addData("Time Difference", timeTwo - timeOne);
-            if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
-
-                timeTwo = this.getRuntime();//set time Two to curret runtime
-
-                encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
-
-                rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
-
-                timeOne = this.getRuntime(); //set timeOne to current run time
-                encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
-
-
-                for (int i = 0; i < 4; i++) {
-                    movingWeightedAverage[i] = movingWeightedAverage[i + 1];
-                }
-                movingWeightedAverage[4] = rpm;
-                if (loopCounter > 5) {
-                    baseWeight = .1; //Set base weight to .1
-                    for (int i = 0; i < 5; i++) { //Loop 5 times
-                        totalRpm += (int) movingWeightedAverage[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
-                        baseWeight += .05; //Increment base weight by .05
-                    }
-                    movingAverage = totalRpm;
-                    rpmError = targetRPM - movingAverage;
-                    shooterPower += rpmError * rpmGain;
-                    Range.clip(shooterPower, .2, .5);
-                    shooter.setPower(shooterPower);
-                    if (movingAverage > targetRPM - 200) {
-                        elevator.setPower(elevatorSpeed);
-                        intake.setPower(intakeSpeed);
-                    } else {
-                        elevator.setPower(0);
-                        intake.setPower(0);
-                    }
-                    telemetry.addData("Moving weighted rpm avg:", movingAverage);
-                    telemetry.addData("Power", shooterPower);
-                    telemetry.update();
-                }
-            }
-        }
-
-        stopShooting();
-    }
-
-    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
-    {
+        shooter.setPower(shooterPower);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (this.opModeIsActive() && (this.getRuntime() - timeRunningLoop < time)) {
-            loopCounter++;
+        while (this.getRuntime()<20) {
+
+            //Current Run Time
             timeTwo = this.getRuntime();
+            //Current Encoder Clicks
             encoderClicksTwo = shooter.getCurrentPosition();
-            telemetry.addData("Time Two", timeTwo);
-            telemetry.addData("Time Difference", timeTwo - timeOne);
+
+
+            //telemetry for shooting speed
             if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
-
                 timeTwo = this.getRuntime();//set time Two to curret runtime
-
                 encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
-
                 rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
-
+                averageRpmArray[arrayCount] = rpm; //Set position arrayCount of averageRpmArray to current rpm
                 timeOne = this.getRuntime(); //set timeOne to current run time
                 encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
-
-
-                for (int i = 0; i < 4; i++) {
-                    movingWeightedAverage[i] = movingWeightedAverage[i + 1];
-                }
-                movingWeightedAverage[4] = rpm;
-                if (loopCounter > 5) {
-                    baseWeight = .1; //Set base weight to .1
-                    for (int i = 0; i < 5; i++) { //Loop 5 times
-                        totalRpm += (int) movingWeightedAverage[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
-                        baseWeight += .05; //Increment base weight by .05
-                    }
-                    movingAverage = totalRpm;
-                    rpmError = targetRPM - movingAverage;
-                    shooterPower += rpmError * rpmGain;
-                    Range.clip(shooterPower, .2, .5);
-                    shooter.setPower(shooterPower);
-                    if (movingAverage > targetRPM - 200) {
-                        elevator.setPower(elevatorSpeed);
-                        intake.setPower(intakeSpeed);
-                    } else {
-                        elevator.setPower(0);
-                        intake.setPower(0);
-                    }
-                    telemetry.addData("Moving weighted rpm avg:", movingAverage);
-                    telemetry.addData("Power", shooterPower);
-                    telemetry.update();
-                }
+                arrayCount++;//increment arrayCount by 1
             }
-        }
 
-        stopShooting();
+
+            if (arrayCount == 5) //if arrayCount equals 5
+            {
+                for (int i = 0; i < 5; i++) { //loop 5 times
+                    totalRpm += averageRpmArray[i]; //increment totalRpm by the value at position i of averageRpmArray
+                }
+                avgRpm = (int) totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
+                baseWeight = .1; //Set base weight to .1
+                for (int i = 0; i < 5; i++) { //Loop 5 times
+                    weightedAvg += (int) averageRpmArray[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
+                    baseWeight += .05; //Increment base weight by .05
+                }
+                tempWeightedAvg = weightedAvg;
+
+                if (weightedAvg + 300 > targetRPM) {
+                    ballControl.setPosition(60);
+                    intake.setPower(intakeSpeed);
+                    elevator.setPower(elevatorSpeed);
+                } else {
+                    ballControl.setPosition(0);
+                    intake.setPower(0);
+                    elevator.setPower(0);
+                }
+
+                //Telemetry
+                weightedAvg = 0; //set weightedAvg to 0
+                arrayCount = 0; //set arrayCount to 0
+                //set each value in averageRpmArray to 0
+                averageRpmArray[0] = 0;
+                averageRpmArray[1] = 0;
+                averageRpmArray[2] = 0;
+                averageRpmArray[3] = 0;
+                averageRpmArray[4] = 0;
+                //set totalRpm to 0;
+                totalRpm = 0;
+
+                if (weightedAvg<targetRPM)
+                {
+                    shooterPower+=rpmGain * (Math.abs(targetRPM-weightedAvg));
+                }
+                else
+                {
+                    shooterPower-=rpmGain * (Math.abs(targetRPM-weightedAvg));
+                }
+                shooter.setPower(shooterPower);
+
+            }
+
+            //telemetry for rpm and averages
+            telemetry.addData("WeightedRPM: ", tempWeightedAvg);
+            telemetry.addData("RPM : ", rpm);
+            telemetry.addData("AvgRPM : ", avgRpm);
+            telemetry.update();
+
+        }
+        shooter.setPower(0);
+        intake.setPower(0);
+        elevator.setPower(0);
+        driveNext();
     }
+
 
 
     public void driveToWhiteLine ()
@@ -695,11 +650,6 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-
-        wlsRightlight = false;
-        wlsLeftlight = false;
-        stopDriving();
         leftMotor1.setPower(.3);
         rightMotor1.setPower(.3);
         leftMotor2.setPower(.3);
@@ -711,32 +661,22 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
         do {
 
-            telemetry.addData("White Value Right: ", whiteLineSensorLeft.getRawLightDetected());
-            telemetry.addData("White Value Left: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
             timeTwo = this.getRuntime();
 
             //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
+            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
                 wlsRightlight = true;
             }
-            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
+            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
                 wlsLeftlight = true;
             }
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
             if (wlsRightlight == false) {
-                leftMotor1.setPower(.3);
-                leftMotor2.setPower(.3);
-            } else {
-                leftMotor1.setPower(0);
-                leftMotor2.setPower(0);
-            }
-
-
-            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
-            if (wlsLeftlight == false) {
                 rightMotor1.setPower(.3);
                 rightMotor2.setPower(.3);
             } else {
@@ -744,19 +684,26 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
                 rightMotor2.setPower(0);
             }
 
+
+            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
+            if (wlsLeftlight == false) {
+                leftMotor1.setPower(.3);
+                leftMotor2.setPower(.3);
+            } else {
+                leftMotor1.setPower(0);
+                leftMotor2.setPower(0);
+            }
+
         }
         while ( (wlsRightlight == false
                 || wlsLeftlight == false)
                 && this.opModeIsActive()
-                && (timeTwo-timeOne < 30) );  //Repeat do loop until both odss have detected enough white light
+                && (timeTwo-timeOne < 4) );  //Repeat do loop until both odss have detected enough white light
 
-              stopDriving();
-            timeOne = this.getRuntime();
-            timeTwo = this.getRuntime();
-            while (timeTwo-timeOne < 2)
-            {
-                timeTwo = this.getRuntime();
-            }
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
 
 
     }
@@ -778,6 +725,14 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
             leftMotor2.setPower(.25);
             rightMotor1.setPower(.25);
             rightMotor2.setPower(.25);
+        }
+
+        if (timeTwo-timeOne>=time)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
         }
 
         stopDriving();
@@ -832,6 +787,14 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
             rightMotor2.setPower(.25);
         }
 
+        if (timeTwo-timeOne>=time)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
         stopDriving();
 
         timeOne = this.getRuntime();
@@ -880,58 +843,54 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
     public void shoot(double power)
     {
+
         timeRunningLoop = this.getRuntime();
-        do{
 
-            //set the shooter to power
-            shooter.setPower(power);
-            timeOne = this.getRuntime();
+        //set the shooter to power
+        shooter.setPower(power);
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //sleep function to allow the shooter to get up to speed
+        while (timeTwo-timeOne < 2)
+        {
             timeTwo = this.getRuntime();
+        }
 
-            //sleep function to allow the shooter to get up to speed
-            while (timeTwo-timeOne < 2)
-            {
-                timeTwo = this.getRuntime();
-            }
+        intake.setPower(0.95); //cut off at 95% speed
 
-            intake.setPower(0.95); //cut off at 95% speed
-
-            //sleep function to let the first ball pass through (1.5 seconds)
-            timeOne = this.getRuntime();
+        //sleep function to let the first ball pass through (1.5 seconds)
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while (timeTwo-timeOne < 1)
+        {
             timeTwo = this.getRuntime();
-            while (timeTwo-timeOne < 1.5)
-            {
-                timeTwo = this.getRuntime();
-                elevator.setPower(0.95); //cut off at 95% speed
-            }
+            elevator.setPower(0.95); //cut off at 95% speed
+        }
 
-            //stop shooting the balls
-            elevator.setPower(0);
+        //stop shooting the balls
+        elevator.setPower(0);
 
-            //let the shooter get back up to speed
-            timeOne = this.getRuntime();
+        //let the shooter get back up to speed
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while (timeTwo-timeOne < 1)
+        {
             timeTwo = this.getRuntime();
-            while (timeTwo-timeOne < 1)
-            {
-                timeTwo = this.getRuntime();
-            }
+        }
 
-            //shoot again
-            timeOne = this.getRuntime();
+        //shoot again
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+        while (timeTwo-timeOne < 1.5)
+        {
             timeTwo = this.getRuntime();
-            while (timeTwo-timeOne < 1.5)
-            {
-                timeTwo = this.getRuntime();
-                elevator.setPower(0.95); //cut off at 95% speed
-            }
+            elevator.setPower(0.95); //cut off at 95% speed
+        }
 
-            //stop the elevator again
-            elevator.setPower(0);
-
-        }while(
-                this.opModeIsActive()
-                && this.getRuntime() - timeRunningLoop < 7
-                );
+        //stop the elevator again
+        elevator.setPower(0);
+        intake.setPower(0);
 
         stopShooting();
 
@@ -940,10 +899,11 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     public void stopDrivingAndPause ()
     {
         timeOne = this.getRuntime();
-        timeTwo= this.getRuntime();
-        while (timeTwo-timeOne<3)
+        timeTwo = this.getRuntime();
+        while (timeTwo - timeOne < 3)
         {
             timeTwo = this.getRuntime();
+            telemetry.addData("Time", timeTwo);
         }
     }
 
