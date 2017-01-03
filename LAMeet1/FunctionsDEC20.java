@@ -148,10 +148,26 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     boolean weAreRed;
 
 
+
+    //variables for line follow, NOT USING DRIVE TO POSITION
+    double initialEncCountLeft;
+    double currentEncDeltaCountLeft;
+    double EncErrorLeft;
+    double currentDistance;
+    double rawDetectedLight;
+    double proportionalODSError;
+    int DESIREDLINEFOLLOWNUMBER = 350; //NEEDS TO BE TESTED
+    double driveSteering;
+    double driveGainODS = 0.005;
+    double leftPower;
+    double rightPower;
+    double midPower = 0.5;
+
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
 
-    public void checkAutoAlliance() {
+    public void checkAutoAlliance()
+    {
         while (choiceNotSelected) {
             if (allianceNotSelected) {
                 telemetry.addData("Choose Alliance Color", telemetryVariable);
@@ -187,8 +203,8 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
     }
 
-
-    public void beaconTurnOne() {
+    public void beaconTurnOne()
+    {
         if (weAreRed) {
             spinMove(-90);
         } else {
@@ -196,7 +212,8 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
     }
 
-    public int driveTwo() {
+    public int driveTwo()
+    {
         if (weAreRed) {
             return -90;
         } else {
@@ -204,7 +221,8 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
     }
 
-    public void workshopWhiteLineBlueBeaconTesting() {
+    public void workshopWhiteLineBlueBeaconTesting()
+    {
         while (this.opModeIsActive()) {
 
             telemetry.addData("Blue Value, pcolor = ", pcolor.blue());
@@ -222,7 +240,8 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
     }
 
-    public void drive(double distance, double speed, double targetHeading) {
+    public void drive(double distance, double speed, double targetHeading)
+    {
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
         ROTATIONS = distance / (Math.PI * WHEEL_DIAMETER);
@@ -268,7 +287,6 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
     public void pivotDrive(double rotations, double speed) //Positive roations is cw, negative is ccw
     {
         if (rotations > 0) {
-
             COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
             leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
@@ -283,13 +301,11 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
                 rightMotor1.setPower(-speed);
                 rightMotor2.setPower(-speed);
             }
-
         }
-
-
     }
 
-    public void gyroTelemetry() {
+    public void gyroTelemetry()
+    {
         telemetry.addData("Heading", gyro.getIntegratedZValue());
         telemetry.update();
     }
@@ -356,8 +372,8 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 //        stopDriving();
 //    }
 
-
-    public void driveBack(double distance, double speed, double targetHeading) {
+    public void driveBack(double distance, double speed, double targetHeading)
+    {
 
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = -distance;
@@ -394,27 +410,31 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         stopDriving();
     }
 
-    public void calibrateGyro() throws InterruptedException {
+    public void calibrateGyro() throws InterruptedException
+    {
         gyro.calibrate();
         while (gyro.isCalibrating()) {
             sleep(100);
         }
     }
 
-    public void stopDriving() {
+    public void stopDriving()
+    {
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
     }
 
-    public void stopShooting() {
+    public void stopShooting()
+    {
         intake.setPower(0);
         shooter.setPower(0);
         elevator.setPower(0);
     }
 
-    public void spinMove (double desiredHeading) {
+    public void spinMove (double desiredHeading)
+    {
         initialHeading = gyro.getIntegratedZValue();
         if (desiredHeading < initialHeading) {
             do {
@@ -473,8 +493,6 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
     }
-
-
 
     public void Configure ()
     {
@@ -688,14 +706,9 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         stopShooting();
     }
 
-
     public void driveToWhiteLine ()
     {
-
-
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
 
         wlsRightlight = false;
         wlsLeftlight = false;
@@ -760,7 +773,6 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
 
 
     }
-
 
     public void findAndPressBlueBeacon (double time)
     {
@@ -963,5 +975,70 @@ public abstract class FunctionsDEC20 extends LinearOpMode {
         }
 
     }
+
+    public void proportionalLineFollowRIGHTSideOfLineRIGHTSensor (double distance, double speed)
+    {
+
+        telemetry.clear();      //clear all telemetry data before starting
+
+        driveGainODS = 0.005;           //gain for proportional control
+
+        //math for target encoder counts to travel
+        ROTATIONS = distance / (Math.PI * WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //takes the initial position of the encoders to establish a starting point for the distance
+        initialEncCountLeft = leftMotor1.getCurrentPosition();
+
+
+        do {
+
+            timeTwo = this.getRuntime();
+
+            currentEncDeltaCountLeft = leftMotor1.getCurrentPosition() - initialEncCountLeft;         //the current - initial will give the
+            // current distance of the encoders
+
+            EncErrorLeft = COUNTS - Math.abs(currentEncDeltaCountLeft);                     //the error is the delta between the target counts and current counts
+
+
+            //telemetry for encoder information
+            telemetry.addData("EncErrorLeft = ", EncErrorLeft);
+            telemetry.addData("Left Encoder: ", currentEncDeltaCountLeft);
+
+            //telemetry for the distance travelled (IN INCHES)
+            currentDistance = (currentEncDeltaCountLeft * (Math.PI * WHEEL_DIAMETER)) / ENCODER_CPR;
+            telemetry.addData("Calculated current distance: ", currentDistance);
+
+
+            rawDetectedLight = whiteLineSensorRight.getRawLightDetected();
+
+            proportionalODSError = DESIREDLINEFOLLOWNUMBER - rawDetectedLight; //lets say more white, this would be -
+
+            speedCorrection = proportionalODSError * driveGainODS; //this would be -
+
+            leftPower = speed - speedCorrection;   //if more white, on right side of line, left power needs to increase
+            rightPower = speed + speedCorrection;  //while right power needs to decrease power to adjust
+
+            Range.clip(rightPower, .2, 1.0);
+            Range.clip(leftPower,.2, 1.0);
+
+            leftMotor1.setPower(leftPower);
+            leftMotor2.setPower(leftPower);
+            rightMotor1.setPower(rightPower);
+            rightMotor2.setPower(rightPower);
+
+
+        }
+        while (EncErrorLeft > 0                     //the error is slowly decreasing, so run while greater than 0
+                && (timeTwo-timeOne) < 10           //safety timeout of 10 seconds
+                && this.opModeIsActive());
+
+        stopDriving();
+
+    }
+
 
 }
