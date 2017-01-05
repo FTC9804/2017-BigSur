@@ -7,7 +7,15 @@
 * built off of BigSurTeleopx2Drive
 * additions including cap ball mechanism and stop shooting and commenting out four shooting modes
 *
-
+*
+*
+* IMPORTANT NOTE:
+*   The encoder for the cap ball motor was mounted on the turret to track rotations.
+*   This means that while it is on the turret servo, we still have to call the encoder
+*       as if it was on the cap ball lifting motor.
+*   To clarify, the cap ball motor does not use any encoders, which is why we used its
+*       encoder port for the turret.
+*
 */
 
 
@@ -47,7 +55,6 @@ public class BigSurTeleopDriveCapBall extends OpMode {
     DcMotor shooter;        //shooting flywheel
     DcMotor intake;         //intake system
     DcMotor elevator;       //elevator loading system
-    DcMotor encode;         //encode motor
     DcMotor capBallLifter;  //cap ball lifter
 
 
@@ -255,21 +262,13 @@ public class BigSurTeleopDriveCapBall extends OpMode {
         shooter = hardwareMap.dcMotor.get("m5");
         intake = hardwareMap.dcMotor.get("m6");
         elevator = hardwareMap.dcMotor.get("m7");
-        encode = hardwareMap.dcMotor.get("m8");
-        capBallLifter = hardwareMap.dcMotor.get("m9");
+        capBallLifter = hardwareMap.dcMotor.get("m8");
 
 
 
 
-
-        capBallLifter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
-
-        //Stop and reset encoder, declare intention to run using encoder
-        encode.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        capBallLifter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  //resetting encoder to use for turret
+        capBallLifter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);     //we are not, however, using the encoder to run the lifter
 
 
 
@@ -280,7 +279,7 @@ public class BigSurTeleopDriveCapBall extends OpMode {
 
 
         //encoder count for turret at the init phase
-        initialEncoderCount = encode.getCurrentPosition();
+        initialEncoderCount = capBallLifter.getCurrentPosition();   //used for the turret, despite the name of cap ball
 
 
 
@@ -460,7 +459,7 @@ public class BigSurTeleopDriveCapBall extends OpMode {
 
 
 
-        currentEncoderPosition = encode.getCurrentPosition();  //set current Encoder position
+        currentEncoderPosition = capBallLifter.getCurrentPosition();  //set current Encoder position for turret, even though it is part of the cap ball motor
         telemetry.addData("Turret Position" , currentEncoderPosition); //telemetry
         countDelta = (double) Math.abs(currentEncoderPosition - initialEncoderCount); //set countDelta
         rotations =   (countDelta / countsPerRotation) * (GEAR_RATIO); //set rotations to countDelta/countsPerRotation * GEAR_RATIO
@@ -494,7 +493,7 @@ public class BigSurTeleopDriveCapBall extends OpMode {
         //gives ability to turn off shooter
         if (!possibleToShoot) {
             shooter.setPower(0);
-            intake.setPower(intakePower);
+            intake.setPower(0);
             telemetry.addData("Shooting & Intake Stopped", blankTelemetryVariable);
 
         }
