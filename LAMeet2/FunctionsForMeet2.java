@@ -144,6 +144,9 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
 
     boolean exitcode1 = false;
 
+    double leftPower;
+    double rightPower;
+
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -363,14 +366,28 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
 
     public void driveBack (double distance, double speed, double targetHeading)
     {
+        /**
+         * Notes About Parameters:
+         *  distance is INCHES you want to drive backwards, input a positive number
+         *  speed is the middle power you want to travel out, input a negative number greater than -1 [-1 <= n <= 0]
+         *  targetHeading is the desired GLOBAL heading you wish to drive straight at
+         *
+         *
+         *
+         * driveBack() uses the leftMotor1 encoder for all purposes to avoid any potential conflicts in our
+         *  west coast drive drivetrain. we will only be calling and resetting that encoder
+         */
+
 
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = -distance;
-        ROTATIONS = -distance / (Math.PI * WHEEL_DIAMETER);
+        ROTATIONS = INCHES_TO_MOVE / (Math.PI * WHEEL_DIAMETER);
         COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
 
-
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);    //We want all other motors to be able
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);   //to run without interference by the
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);   //encoder, so we only use leftMotor1
 
         //set the modes of the encoders to "STOP_AND_RESET_ENCODER" in order to give intial readings of 0
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -383,17 +400,20 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
 
         while (leftMotor1.isBusy()) {
 
-
             currentHeading = gyro.getIntegratedZValue();
             telemetry.addData("Current Heading = ", currentHeading);
             telemetry.update();
             headingError = targetHeading - currentHeading;
             speedCorrection = headingError * straightGyroGain;
-            //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED
-            leftMotor1.setPower(speed + speedCorrection);
-            leftMotor2.setPower(speed + speedCorrection);
-            rightMotor1.setPower(speed - speedCorrection);
-            rightMotor2.setPower(speed - speedCorrection);
+
+
+
+            leftPower = speed + speedCorrection;
+            rightPower = speed - speedCorrection;
+            leftMotor1.setPower(leftPower);
+            leftMotor2.setPower(leftPower);
+            rightMotor1.setPower(rightPower);
+            rightMotor2.setPower(rightPower);
 
         }
         stopDriving();
@@ -628,10 +648,13 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
             telemetry.update();
 
         }
+
+        stopShooting();
+
         shooter.setPower(0);
         intake.setPower(0);
         elevator.setPower(0);
-        driveNext();
+        //driveNext();
     }
 
     public void driveToWhiteLine ()
@@ -887,12 +910,14 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
 
     public void stopDrivingAndPause ()
     {
+
+        stopDriving();
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (timeTwo - timeOne < 3)
+        while (timeTwo - timeOne < 1.5)
         {
             timeTwo = this.getRuntime();
-            telemetry.addData("Time", timeTwo);
+            telemetry.addData("Time", (timeTwo-timeOne));
         }
     }
 
@@ -911,6 +936,19 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
             rightMotor2.setPower(0.5);
         }
 
+    }
+
+    public void runIntakeOnly(double intakeSpeed, double time)
+    {
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while ((timeTwo - timeOne) < time) {
+            intake.setPower(intakeSpeed);
+        }
+
+        intake.setPower(0);
     }
 
 }
