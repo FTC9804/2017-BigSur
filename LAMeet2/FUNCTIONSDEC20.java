@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 
 
 
-public abstract class FUNCTIONSDEC20 extends LinearOpMode {
+public abstract class FunctionsDEC20 extends LinearOpMode {
     DcMotor rightMotor1;   //right drive motor front
     DcMotor leftMotor1;    //left drive motor front
     DcMotor rightMotor2;   //right drive motor back
@@ -118,7 +118,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
     double initialHeading;
 
-    double gyroGain=.005;
+    final double GYRO_GAIN =.0041;
 
     double straightGyroGain = .0005;
 
@@ -295,11 +295,13 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-    public void gyroTelemetry () {
+    public void gyroTelemetry ()
+    {
         telemetry.addData("Heading", gyro.getIntegratedZValue());
+        telemetry.addData("Turn Speed", turnSpeed);
+        //telemetry.addData("Motor power", leftMotor1.getPower());
         telemetry.update();
     }
-
 
     public void pivot (double desiredHeading)
     {
@@ -312,7 +314,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
             do{
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = -headingError * gyroGain;
+                turnSpeed = -headingError * GYRO_GAIN;
 
                 if (turnSpeed < 0.4) {
                     turnSpeed = 0.4;
@@ -341,7 +343,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * gyroGain;
+                turnSpeed = headingError * GYRO_GAIN;
 
                 if (turnSpeed < 0.4) {
                     turnSpeed = 0.4;
@@ -367,10 +369,8 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         stopDriving();
     }
 
-
-
-
-    public void driveBack (double distance, double speed, double targetHeading) {
+    public void driveBack (double distance, double speed, double targetHeading)
+    {
 
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = -distance;
@@ -414,7 +414,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         while (gyro.isCalibrating())
         {
             sleep(100);
-            telemetry.addData("Gyro is calibrated", telemetryVariable);
+            telemetry.addData("Gyro is not calibrated", telemetryVariable);
             telemetry.update();
         }
     }
@@ -445,13 +445,13 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
             do{
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = -headingError * gyroGain;
+                turnSpeed = -headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.43) {
-                    turnSpeed = 0.43;
+                if (turnSpeed < 0.35) {
+                    turnSpeed = 0.35;
                 }
-                if (turnSpeed > .57) {
-                    turnSpeed = .57;
+                if (turnSpeed > .82) {
+                    turnSpeed = .82;
                 }
 
                 telemetry.addData("Current Heading:",currentHeading);
@@ -474,13 +474,13 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * gyroGain;
+                turnSpeed = headingError * GYRO_GAIN;
 
-                if (turnSpeed < .43) {
-                    turnSpeed = 0.3;
+                if (turnSpeed < .35) {
+                    turnSpeed = 0.35;
                 }
-                if (turnSpeed > .57) {
-                    turnSpeed = .57;
+                if (turnSpeed > .82) {
+                    turnSpeed = .82;
                 }
 
                 telemetry.addData("Current Heading:",currentHeading);
@@ -499,7 +499,6 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         }
         stopDriving();
     }
-
 
     public void Configure ()
     {
@@ -551,10 +550,11 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
 
 
+
     }
 
-
-    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException {
+    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
+    {
 
         shooter.setPower(shooterPower);
 
@@ -562,7 +562,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (this.getRuntime()<20) {
+        while (this.getRuntime()<40) {
 
             //Current Run Time
             timeTwo = this.getRuntime();
@@ -642,8 +642,6 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         driveNext();
     }
 
-
-
     public void driveToWhiteLine ()
     {
 
@@ -707,7 +705,6 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
 
     }
-
 
     public void findAndPressBlueBeacon (double time)
     {
