@@ -118,7 +118,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
     double initialHeading;
 
-    double gyroGain=.005;
+    final double GYRO_GAIN =.0041;
 
     double straightGyroGain = .0005;
 
@@ -297,6 +297,8 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
     public void gyroTelemetry () {
         telemetry.addData("Heading", gyro.getIntegratedZValue());
+        telemetry.addData("Turn Speed", turnSpeed);
+        //telemetry.addData("Motor power", leftMotor1.getPower());
         telemetry.update();
     }
 
@@ -312,7 +314,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
             do{
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = -headingError * gyroGain;
+                turnSpeed = -headingError * GYRO_GAIN;
 
                 if (turnSpeed < 0.4) {
                     turnSpeed = 0.4;
@@ -341,7 +343,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * gyroGain;
+                turnSpeed = headingError * GYRO_GAIN;
 
                 if (turnSpeed < 0.4) {
                     turnSpeed = 0.4;
@@ -414,7 +416,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         while (gyro.isCalibrating())
         {
             sleep(100);
-            telemetry.addData("Gyro is calibrated", telemetryVariable);
+            telemetry.addData("Gyro is not calibrated", telemetryVariable);
             telemetry.update();
         }
     }
@@ -445,13 +447,13 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
             do{
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = -headingError * gyroGain;
+                turnSpeed = -headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.43) {
-                    turnSpeed = 0.43;
+                if (turnSpeed < 0.35) {
+                    turnSpeed = 0.35;
                 }
-                if (turnSpeed > .57) {
-                    turnSpeed = .57;
+                if (turnSpeed > .82) {
+                    turnSpeed = .82;
                 }
 
                 telemetry.addData("Current Heading:",currentHeading);
@@ -474,13 +476,13 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * gyroGain;
+                turnSpeed = headingError * GYRO_GAIN;
 
-                if (turnSpeed < .43) {
-                    turnSpeed = 0.3;
+                if (turnSpeed < .35) {
+                    turnSpeed = 0.35;
                 }
-                if (turnSpeed > .57) {
-                    turnSpeed = .57;
+                if (turnSpeed > .82) {
+                    turnSpeed = .82;
                 }
 
                 telemetry.addData("Current Heading:",currentHeading);
@@ -551,6 +553,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
 
 
+
     }
 
 
@@ -562,7 +565,7 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (this.getRuntime()<20) {
+        while (this.getRuntime()<40) {
 
             //Current Run Time
             timeTwo = this.getRuntime();
