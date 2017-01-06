@@ -408,6 +408,8 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
 
 
 
+
+            // + & - SHOULD BE REVERSED ACCORDING TO LOGIC, CHECK ON ROBOT
             leftPower = speed + speedCorrection;
             rightPower = speed - speedCorrection;
             leftMotor1.setPower(leftPower);
