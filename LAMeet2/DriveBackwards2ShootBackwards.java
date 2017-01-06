@@ -7,6 +7,20 @@
 *
 * Version 1: creates code for full movement, both alliances
 *
+*
+* L I N E U P
+*   aim for cap ball at the center vortex
+*   have alliance partner's particle within access for our intake system to sweep up
+*
+* M O V E M E N T
+*   drive backwards 6 inches
+*   run only intake to sweep in alliance partner’s particle
+*   drive backwards 19 inches
+*   shoot and lift at 2500 rpm
+*   drive back 15 inches to hit cap ball
+*
+*
+*
 */
 
 package org.firstinspires.ftc.teamcode;
