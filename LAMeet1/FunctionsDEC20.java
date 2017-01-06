@@ -295,13 +295,13 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-    public void gyroTelemetry () {
+    public void gyroTelemetry ()
+    {
         telemetry.addData("Heading", gyro.getIntegratedZValue());
         telemetry.addData("Turn Speed", turnSpeed);
         //telemetry.addData("Motor power", leftMotor1.getPower());
         telemetry.update();
     }
-
 
     public void pivot (double desiredHeading)
     {
@@ -369,10 +369,8 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         stopDriving();
     }
 
-
-
-
-    public void driveBack (double distance, double speed, double targetHeading) {
+    public void driveBack (double distance, double speed, double targetHeading)
+    {
 
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = -distance;
@@ -502,7 +500,6 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         stopDriving();
     }
 
-
     public void Configure ()
     {
         rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
@@ -556,8 +553,8 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
     }
 
-
-    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException {
+    public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
+    {
 
         shooter.setPower(shooterPower);
 
@@ -645,8 +642,6 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
         driveNext();
     }
 
-
-
     public void driveToWhiteLine ()
     {
 
@@ -710,7 +705,6 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
 
 
     }
-
 
     public void findAndPressBlueBeacon (double time)
     {
