@@ -943,11 +943,15 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
     public void runIntakeOnly(double intakeSpeed, double time)
     {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
         while ((timeTwo - timeOne) < time) {
+
             intake.setPower(intakeSpeed);
+
+            timeTwo  = this.getRuntime();
         }
 
         intake.setPower(0);
