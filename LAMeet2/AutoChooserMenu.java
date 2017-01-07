@@ -15,9 +15,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public abstract class AutoChooserMenu extends LinearOpMode {
 
-    double timeOne;
-    double timeTwo;
-
     int telemetryVariable = 0;
 
     boolean choiceNotSelected = true;
@@ -106,6 +103,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
 
         }
 
+        stepInMenu = 1;
+
     }
 
     public void setAutoAlliance ()
@@ -153,6 +152,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
                 }
             }
         }
+
+        stepInMenu = 2;
     }
 
     public void setStartPosition ()
@@ -217,6 +218,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
             telemetry.update();
 
         }
+
+        stepInMenu = 3;
 
 
     }
