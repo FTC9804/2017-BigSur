@@ -576,7 +576,7 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (this.getRuntime()<40) {
+        while (timeTwo-timeOne<time) {
 
             //Current Run Time
             timeTwo = this.getRuntime();
