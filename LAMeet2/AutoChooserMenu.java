@@ -19,7 +19,7 @@ public abstract class AutoChooserMenu extends LinearOpMode {
     //OVERALL VARIABLES
     double timeOne;
     double timeTwo;
-    int stepInMenu;
+    int stepInMenu = 1;
     int telemetryVariable = 0;
     boolean notAllChosen = true;
     boolean choiceNotSelected = true;
@@ -69,7 +69,6 @@ public abstract class AutoChooserMenu extends LinearOpMode {
         {
 
             goBack = false;
-            stepInMenu = 1;
 
             if (stepInMenu == 1){
                 setAutoAlliance();
@@ -101,6 +100,10 @@ public abstract class AutoChooserMenu extends LinearOpMode {
             }
 
         }
+
+        telemetry.addData("HAVE A FANTASTIC DAY", telemetryVariable);
+        telemetry.update();
+        delayLong();
 
     }
 
@@ -143,6 +146,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
         while (choiceNotSelected && stepInMenu == 1)   {
 
             if (allianceNotSelected){
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addData("Gamepad 1 ONLY, click BACK to go back a step", telemetryVariable);
                 telemetry.addData("Choose Alliance Color, x= blue, b=red", telemetryVariable);
                 telemetry.update();
                 if (gamepad1.x) {
@@ -159,6 +164,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
 
             if (!allianceNotSelected) {
 
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addData("Gamepad 1 ONLY, click BACK to go back a step", telemetryVariable);
                 telemetry.addData("Confirm your color choice", telemetryVariable);
 
                 if (weAreRed) {
@@ -199,6 +206,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
 
         while  (choiceNotSelected && stepInMenu == 2) {
             if (startPositionNotSelected){
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addData("Gamepad 1 ONLY, click BACK to go back a step", telemetryVariable);
                 telemetry.addData("Choose start position", telemetryVariable);
                 telemetry.addData("Y = ", 1);
                 telemetry.addData("B = ", 2);
@@ -247,9 +256,9 @@ public abstract class AutoChooserMenu extends LinearOpMode {
                 else {
                     goBack = false;
                 }
-                telemetry.addData("Confirm your start position choice", telemetryVariable);
-
-                telemetry.addData("Start Position = ", startPosition);
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addData("Gamepad 1 ONLY, click BACK to go back a step", telemetryVariable);
+                telemetry.addData("Confirm your start position choice = ", startPosition);
 
                 telemetry.addData("Y is correct.  A is incorrect", telemetryVariable);
 
@@ -295,6 +304,8 @@ public abstract class AutoChooserMenu extends LinearOpMode {
 
         while  (choiceNotSelected && stepInMenu == 3) {
             if (timeDelayNotSelected){
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addData("Gamepad 1 ONLY, click BACK to go back a step", telemetryVariable);
                 telemetry.addData("Choose Time Delay", telemetryVariable);
                 telemetry.addData("Y = ", 0);
                 telemetry.addData("B = ", 5);
@@ -333,9 +344,9 @@ public abstract class AutoChooserMenu extends LinearOpMode {
             }
 
             if (!timeDelayNotSelected) {
+                telemetry.addData("STEP NUMBER = ", stepInMenu);
+                telemetry.addData("Gamepad 1 ONLY, click BACK to go back a step", telemetryVariable);
                 telemetry.addData("Confirm your time delay choice", timeDelay);
-
-                telemetry.addData("Time Delay = ", timeDelay);
 
                 telemetry.addData("Y is correct.  A is incorrect", telemetryVariable);
 
