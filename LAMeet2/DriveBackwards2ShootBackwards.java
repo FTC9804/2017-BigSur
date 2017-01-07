@@ -9,7 +9,7 @@
 *
 *
 * L I N E U P
-*   aim for cap ball at the center vortex
+*   aim for cap ball at the center vortex with front left of Big Sur on right edgeof 2nd tile
 *   have alliance partner's particle within access for our intake system to sweep up
 *
 * M O V E M E N T
@@ -17,7 +17,7 @@
 *   run only intake to sweep in alliance partner’s particle
 *   drive backwards 19 inches
 *   shoot and lift at 2500 rpm
-*   drive back 15 inches to hit cap ball
+*   drive back 45 inches to hit cap ball
 *
 *
 *
@@ -58,8 +58,8 @@ public class DriveBackwards2ShootBackwards extends FunctionsForMeet2 {
 
 
         driveBack(19 /*distance*/ ,
-                .5 /*speed*/,
-                0/*targetHeading*/);
+                -.5 /*speed*/ ,
+                0 /*targetHeading*/);
         stopDrivingAndPause();
 
 
@@ -71,7 +71,7 @@ public class DriveBackwards2ShootBackwards extends FunctionsForMeet2 {
         stopDrivingAndPause();
 
 
-        driveBack(15 /*distance*/ ,
+        driveBack(45 /*distance*/ ,
                 -.5 /*speed*/ ,
                 0 /*targetHeading*/ );
 
