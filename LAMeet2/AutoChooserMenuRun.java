@@ -27,7 +27,12 @@ public class AutoChooserMenuRun extends AutoChooserMenu {
             checkAutoMenu();
 
             telemetry.clearAll();
-            telemetry.addData("WeAreRed", weAreRed);
+            if (weAreRed) {
+                telemetry.addData("We are Red", telemetryVariable);
+            }
+            else {
+                telemetry.addData("We are BLUE", telemetryVariable);
+            }
             telemetry.addData("Start Position = ", startPosition);
             telemetry.addData("Time Delay = ", timeDelay);
             telemetry.update();
