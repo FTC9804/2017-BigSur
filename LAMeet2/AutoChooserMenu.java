@@ -15,32 +15,39 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public abstract class AutoChooserMenu extends LinearOpMode {
 
+
+    //OVERALL VARIABLES
+
+    int stepInMenu;
     int telemetryVariable = 0;
-
+    boolean notAllChosen = true;
     boolean choiceNotSelected = true;
-    boolean allianceNotSelected = true;
-    boolean weAreRed;
 
+    //checkGamepads() variables
     boolean gamepad1IsNotOK = true;
     boolean gamepad2IsNotOK = true;
 
+    //setAutoAlliance() variables
+    boolean weAreRed;
+    boolean allianceNotSelected = true;
+
+    //setStartPosition() variables
     int startPosition;
     boolean startPositionNotSelected = true;
 
+    //setTimeDelay() variables
     int timeDelay;
     boolean timeDelayNotSelected = true;
 
-
-    boolean notAllChosen = true;
-
-
-    int stepInMenu;
-
     /**
+     *
+     * Order of Auto Menu
+     *
      * 00 checkGamepads()
      * 1. setAutoAlliance()
      * 2. setStartPosition()
      * 3. setTimeDelay()
+     *
      */
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
