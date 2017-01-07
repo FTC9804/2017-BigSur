@@ -369,7 +369,7 @@ public abstract class FunctionsForMeet2 extends LinearOpMode {
         /**
          * Notes About Parameters:
          *  distance is INCHES you want to drive backwards, input a positive number
-         *  speed is the middle power you want to travel out, input a negative number greater than -1 [-1 <= n <= 0]
+         *  speed is the middle power you want to travel out, input a negative number greater than -1 [-1 <= n < 0]
          *  targetHeading is the desired GLOBAL heading you wish to drive straight at
          *
          *
