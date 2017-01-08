@@ -140,7 +140,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //shooter variables;
-    double shooterSpeed = 0.32;    //constant power applied to the shooter
+    double shooterSpeed = 0.28;    //constant power applied to the shooter
     double elevatorSpeed;        //power given to the loading elevator
 
 
@@ -254,7 +254,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
-    double initShootPower=.32;
+    double initShootPower=.28;
 
 
 
@@ -748,7 +748,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //Set the elevator and intake's speed to the values specified above
-        if (avgRpm>2400) {
+        if (avgRpm>2000) {
             elevator.setPower(elevatorSpeed);
         } else {
             elevator.setPower(0.0);
