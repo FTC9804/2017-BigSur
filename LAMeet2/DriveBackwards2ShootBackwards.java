@@ -54,7 +54,7 @@ public class DriveBackwards2ShootBackwards extends FunctionsForMeet2 {
         runIntakeOnly(.95 /*intakeSpeed*/ ,
                         2 /*time*/ );
 
-        stopDrivingAndPause();
+        stopDrivingAndPaase();
 
 
         driveBack(19 /*distance*/ ,
