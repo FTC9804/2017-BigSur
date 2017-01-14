@@ -6,7 +6,9 @@
 * edited by Etienne Lunetta Thursday Dec. 1, 2016
 * code examined by Steve and Etienne on Friday 2 Dec. 2016
 * reedited Etienne Lunetta Sunday December 4 @ 2:01 AM
-* Purpose: Preliminary coding of the In N Out Project to create initial robot movement
+* edited by steve and marcus on friday january 13 @ 5:50 in the afternoon
+*
+*  Purpose: Preliminary coding of the In N Out Project to create initial robot movement
 *
 *
 * FTC Team 9804 Bomb Squad
@@ -19,16 +21,8 @@
 * the accepted range of hood servo values to ensure that servos do not get burned out.
 * Version 5: Add set rpms and hood angles for specific shot ranges, letting the gunner control these functions using the dpad.
 * Version 6.0: Fixed errors in past code regarding the elevator and turret and multiple speed declarations, deleted unnecessary spaces
+* version 7.0: fixed errors resulting from our last tournament and testing
 *
-* //
-*  Steve Cox 10-28-16: Reflecting Data of TestBot
-* +++++++++++++++++++++++++++++++TestBot Configuration Info+++++++++++++++++++++++++++++++
-*
-* SN            NAME                    PORT            CONFIG. NAME
-* not yet available
-* NOTE ABOUT THE CODE:
-*  Every time you update a name/type or add a new motor/servo/sensor/etc,
-*  add a line like the above template in order to have code organization.
 *
 */
 
@@ -83,7 +77,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     double tempWeightedAvg;
 
-
+    double rpmGain = .0000035;
 
 
     int mode;
@@ -726,17 +720,15 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //increment shooter motor power based on dpad commands
-        if (gamepad1.dpad_up)
+        if (weightedAvg<2000)
         {
-            mode=0;
-            shooterSpeed+=.001;
+            shooterSpeed+=rpmGain * (Math.abs(2000-weightedAvg));
         }
-        if (gamepad1.dpad_down)
+        else
         {
-            mode=0;
-            shooterSpeed-=.001;
+            shooterSpeed-=rpmGain * (Math.abs(2000-weightedAvg));
         }
-
+        shooter.setPower(shooterSpeed);
 
 
 
@@ -748,11 +740,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //Set the elevator and intake's speed to the values specified above
-        if (avgRpm>2000) {
-            elevator.setPower(elevatorSpeed);
-        } else {
-            elevator.setPower(0.0);
-        }
 
 
 
