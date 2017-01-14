@@ -46,12 +46,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
-
-
-
-
-
+import com.qualcomm.robotcore.util.Range;
 
 
 @TeleOp(name = "TeleOpV7", group = "InNOut Testing")
@@ -629,15 +624,17 @@ public class BigSurTeleopx2Drive extends OpMode {
 //        shooterSpeed = 0;
 //    }
 
+//        //no longer used because of Range.clip right below
+//        if (shooterSpeed>1)
+//        {
+//            shooterSpeed=1;
+//        }
+//        if (shooterSpeed<0)
+//        {
+//            shooterSpeed=0;
+//        }
 
-        if (shooterSpeed>1)
-        {
-            shooterSpeed=1;
-        }
-        if (shooterSpeed<0)
-        {
-            shooterSpeed=0;
-        }
+        shooterSpeed = Range.clip(shooterSpeed,0,1);
 
 
         shooter.setPower(shooterSpeed);
@@ -748,4 +745,22 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         telemetry.update(); //update telemetry
     }
+
+    @Override
+    public void stop() {
+
+        do {
+
+            shooterSpeed -= .001;
+            shooter.setPower(shooterSpeed);
+            telemetry.addData("shooterSpeed = ", shooterSpeed);
+            telemetry.update();
+            timeOne = this.getRuntime();
+
+        } while (shooterSpeed > 0);
+
+        shooter.setPower(0);
+
+    }
+
 }
