@@ -241,7 +241,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
             telemetry.update();
             headingError = targetHeading - currentHeading;
             speedCorrection = headingError * straightGyroGain;
-            //power of motors as .5. MAKES NO SENSE + - SHOULD BE REVERSED //fix corrections
+
             leftMotor1.setPower(speed);
             leftMotor2.setPower(speed);
             rightMotor1.setPower(speed);
@@ -465,10 +465,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 telemetry.update();
 
                 //MAKES NO SENSE JUST TRYING
-                rightMotor1.setPower(-turnSpeed);
-                rightMotor2.setPower(-turnSpeed);
-                leftMotor1.setPower(turnSpeed);
-                leftMotor2.setPower(turnSpeed);
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(-turnSpeed);
+                leftMotor2.setPower(-turnSpeed);
                 gyroTelemetry();
 
             }
@@ -495,10 +495,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
 
                 //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
                 gyroTelemetry();
             }
             while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
@@ -508,10 +508,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void Configure ()
     {
-        rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
-        rightMotor2 = hardwareMap.dcMotor.get("m4");
-        leftMotor1 = hardwareMap.dcMotor.get("m1");
-        leftMotor2 = hardwareMap.dcMotor.get("m2");
+        rightMotor1 = hardwareMap.dcMotor.get("m1");//port 1 on robot and in the hardwaremap
+        rightMotor2 = hardwareMap.dcMotor.get("m2");
+        leftMotor1 = hardwareMap.dcMotor.get("m3");
+        leftMotor2 = hardwareMap.dcMotor.get("m4");
         leftMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
         leftMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
         rightMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -678,10 +678,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
             //If enough white light has been detected, set the ods boolean to true
             if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
-                wlsRightlight = true;
+                wlsLeftlight = true;
             }
             if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
-                wlsLeftlight = true;
+                wlsRightlight = true;
             }
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0

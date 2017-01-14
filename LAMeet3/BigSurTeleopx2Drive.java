@@ -250,6 +250,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     double initShootPower=.32;
 
+    boolean shooterOff=false;
+
 
 
 
@@ -364,9 +366,9 @@ public class BigSurTeleopx2Drive extends OpMode {
         //  A S S I G N  J O Y S T I C K  V A L U E S @@
         //***************************************************
 
-
-        joystick1ValueRight = gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
-        joystick1ValueLeft = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
+        //maybe change
+        joystick1ValueLeft= gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
+        joystick1ValueRight = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
 
 
         //toggle gain
@@ -400,6 +402,13 @@ public class BigSurTeleopx2Drive extends OpMode {
             telemetry.addData("On half gain (true/false)", halfGain);
         }
 
+
+        if (gamepad1.left_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
+
+
+            shooterOff = !shooterOff;
+            telemetry.addData("On shooterOff (true/false)", shooterOff);
+        }
 
         //set leftPower and rightPower to .95 * the value of joystick1ValueLeft and joystick1ValueRight cubed, respectively, in order to
         //allow fine control for driving
@@ -743,8 +752,13 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
-
+    if (!shooterOff) {
         shooter.setPower(shooterSpeed);
+    }
+    else
+    {
+        shooter.setPower(shooterSpeed);
+    }
         intake.setPower(intakeSpeed);
         telemetry.addData("shooter speed: ", shooterSpeed);
 
