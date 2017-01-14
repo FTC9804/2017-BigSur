@@ -32,8 +32,6 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
 
     Servo hood;       //position servo for 180º, adjust angle of shooter
-    Servo batterySideBeacon;
-    Servo portSideBeacon;
     Servo turret;
 
     Servo ballControl;
@@ -47,14 +45,6 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
     final static double GEAR_RATIO = 0.75;     //Gear ratio used in Big Sur in 24/18, so in code we multiply by 18/24
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
-
-
-    double batterySideBeaconPositionInitial = 0.5;
-    double batterySideBeaconPositionExtend = 0;
-    double batterySideBeaconPositionRetract = 1;
-    double portSideBeaconPositionInitial = 0.5;
-    double portSideBeaconPositionExtend = 1;
-    double portSideBeaconPositionRetract = 0;
 
 
     //shooter variables;
@@ -508,14 +498,14 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void Configure ()
     {
-        rightMotor1 = hardwareMap.dcMotor.get("m1");//port 1 on robot and in the hardwaremap
-        rightMotor2 = hardwareMap.dcMotor.get("m2");
-        leftMotor1 = hardwareMap.dcMotor.get("m3");
-        leftMotor2 = hardwareMap.dcMotor.get("m4");
-        leftMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
+        rightMotor2 = hardwareMap.dcMotor.get("m4");
+        leftMotor1 = hardwareMap.dcMotor.get("m1");
+        leftMotor2 = hardwareMap.dcMotor.get("m2");
+        rightMotor1.setDirection(DcMotor.Direction.REVERSE);
+        rightMotor2.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor1.setDirection(DcMotor.Direction.FORWARD);
+        leftMotor2.setDirection(DcMotor.Direction.FORWARD);
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -531,16 +521,12 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
         turret = hardwareMap.servo.get("s1");
         hood = hardwareMap.servo.get("s2");
-        batterySideBeacon = hardwareMap.servo.get("s3");
-        portSideBeacon = hardwareMap.servo.get("s4");
+        beaconPusherLeft = hardwareMap.servo.get("s3");
+        beaconPusherRight = hardwareMap.servo.get("s4");
         ballControl = hardwareMap.servo.get("s5");
-        beaconPusherLeft = hardwareMap.servo.get("s6");
-        beaconPusherRight = hardwareMap.servo.get("s7");
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-        batterySideBeacon.setPosition(batterySideBeaconPositionInitial);
-        portSideBeacon.setPosition(portSideBeaconPositionInitial);
         turret.setPosition(turretSpeed);
         ballControl.setPosition(0);
 
