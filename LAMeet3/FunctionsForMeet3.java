@@ -665,6 +665,8 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+
+
         //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
         do {
 
