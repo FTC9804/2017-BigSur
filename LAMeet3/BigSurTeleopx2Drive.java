@@ -44,6 +44,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 
@@ -77,7 +78,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     double tempWeightedAvg;
 
-    double rpmGain = .0000035;
+    double rpmGain = .0000001;
 
 
     int mode;
@@ -134,7 +135,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //shooter variables;
-    double shooterSpeed = 0.28;    //constant power applied to the shooter
+    double shooterSpeed = 0.23;    //constant power applied to the shooter during init, variable later updated
     double elevatorSpeed;        //power given to the loading elevator
 
 
@@ -247,10 +248,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
-
-    double initShootPower=.32;
-
-    boolean shooterOff=false;
+    //boolean shooterOff=false;
 
 
 
@@ -270,10 +268,10 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //motor configurations in the hardware map
-        rightMotor1 = hardwareMap.dcMotor.get("m1");//port 1 on robot and in the hardwaremap
-        rightMotor2 = hardwareMap.dcMotor.get("m2");//port 2
-        leftMotor1 = hardwareMap.dcMotor.get("m3");
-        leftMotor2 = hardwareMap.dcMotor.get("m4");
+        rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
+        rightMotor2 = hardwareMap.dcMotor.get("m4");//port 2
+        leftMotor1 = hardwareMap.dcMotor.get("m1");
+        leftMotor2 = hardwareMap.dcMotor.get("m2");
         shooter = hardwareMap.dcMotor.get("m5");
         intake = hardwareMap.dcMotor.get("m6");
         elevator = hardwareMap.dcMotor.get("m7");
@@ -317,10 +315,10 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //WE GIVE RIGHT SIDE FORWARD VALUES AND LEFT REVERSE VALUES BECAUSE JOYSTICK VALUES (UP/DOWN) ARE OPPOSITE (UP-> -1; DOWN -> 1)
 
-        rightMotor1.setDirection(DcMotor.Direction.FORWARD);
-        rightMotor2.setDirection(DcMotor.Direction.FORWARD);
-        leftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        leftMotor2.setDirection(DcMotor.Direction.REVERSE);
+        rightMotor1.setDirection(DcMotor.Direction.REVERSE);
+        rightMotor2.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor1.setDirection(DcMotor.Direction.FORWARD);
+        leftMotor2.setDirection(DcMotor.Direction.FORWARD);
 
         shooter.setDirection(DcMotor.Direction.FORWARD);
         intake.setDirection(DcMotor.Direction.REVERSE);
@@ -350,7 +348,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //Shooter initially running at shooterSpeed power
-        shooter.setPower(initShootPower);
+        shooter.setPower(shooterSpeed);
+
     }
 
 
@@ -403,12 +402,12 @@ public class BigSurTeleopx2Drive extends OpMode {
         }
 
 
-        if (gamepad1.left_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
-
-
-            shooterOff = !shooterOff;
-            telemetry.addData("On shooterOff (true/false)", shooterOff);
-        }
+//        if (gamepad1.left_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
+//
+//
+//            shooterOff = !shooterOff;
+//            telemetry.addData("On shooterOff (true/false)", shooterOff);
+//        }
 
         //set leftPower and rightPower to .95 * the value of joystick1ValueLeft and joystick1ValueRight cubed, respectively, in order to
         //allow fine control for driving
@@ -512,122 +511,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         //*****************
 
 
-        //Use the dpad of gamepad2 to set rpm and hood angles to predetermined modes
-        //If weighted RPM is not in the correct range (outside + or - 3%), increment the shooter power
-        //by .03 in the appropriate direction
-        //20 inch shot
-
-
-//        //distance in INCHES from the center of the vortex basket (red or blue).
-//        if (gamepad2.dpad_up)
-//        {
-//            mode=20; //close shot
-//        }
-//        if (gamepad2.dpad_right)
-//        {
-//            mode=39; //close-mid shot
-//        }
-//        if (gamepad2.dpad_down)
-//        {
-//            mode=54; //far-mid shot
-//        }
-//        if (gamepad2.dpad_left)
-//        {
-//            mode=88; //far shot
-//        }
-//
-//
-//        if (mode == 20)
-//        {
-//            hood.setPosition(twentyInchHoodAngle);
-//            if ((avgRpm>(twentyInchRPM+ (twentyInchRPM*.03)))  ||  (avgRpm<(twentyInchRPM - (twentyInchRPM*.03))))
-//            {
-//                if (avgRpm<twentyInchRPM)
-//                {
-//                    shooterSpeed+=driveGain * (Math.abs(twentyInchRPM-avgRpm));
-//                }
-//                else
-//                {
-//                    shooterSpeed -=driveGain * (Math.abs(twentyInchRPM-avgRpm));
-//                }
-//            }
-//        }
-//
-//
-//        if (mode == 39)
-//        {
-//            hood.setPosition(thirtyNineInchHoodAngle);
-//            if ((avgRpm>(thirtyNineInchRPM+ (thirtyNineInchRPM*.03)))  ||  (avgRpm<(thirtyNineInchRPM - (thirtyNineInchRPM*.03))))
-//            {
-//                if (avgRpm<thirtyNineInchRPM)
-//                {
-//                    shooterSpeed+=driveGain * (Math.abs(thirtyNineInchRPM-avgRpm));
-//                }
-//                else
-//                {
-//                    shooterSpeed -= driveGain * (Math.abs(thirtyNineInchRPM-avgRpm));
-//                }
-//            }
-//        }
-//
-//
-//        if (mode == 54)
-//        {
-//            hood.setPosition(fiftyFourInchHoodAngle);
-//            if ((avgRpm>(fiftyFourInchRPM+ (fiftyFourInchRPM*.03)))  ||  (avgRpm<(fiftyFourInchRPM - (fiftyFourInchRPM*.03))))
-//            {
-//                if (avgRpm<fiftyFourInchRPM)
-//                {
-//                    shooterSpeed+=driveGain * (Math.abs(fiftyFourInchRPM-avgRpm));
-//                }
-//                else
-//                {
-//                    shooterSpeed -=driveGain * (Math.abs(fiftyFourInchRPM-avgRpm));
-//                }
-//            }
-//        }
-//
-//
-//        if (mode == 88)
-//        {
-//            hood.setPosition(eightyEightInchHoodAngle);
-//            if ((avgRpm>(eightyEightInchRPM+ (eightyEightInchRPM*.03)))  ||  (avgRpm<(eightyEightInchRPM - (eightyEightInchRPM*.03))))
-//            {
-//                if (avgRpm<eightyEightInchRPM)
-//                {
-//                    shooterSpeed+=driveGain * (Math.abs(eightyEightInchRPM-avgRpm));
-//                }
-//                else
-//                {
-//                    shooterSpeed -= driveGain * (Math.abs(eightyEightInchRPM-avgRpm));
-//                }
-//            }
-//        }
-//
-//
-//
-//
-//        telemetry.addData("Mode:" , mode);
-
-
-
-
-        //make sure the power is in an acceptable range
-        if (shooterSpeed>1)
-        {
-            shooterSpeed=1;
-        }
-        if (shooterSpeed<0)
-        {
-            shooterSpeed=0;
-        }
-
-
-        //shooter.setPower(shooterSpeed); //set power of shooter to shooterSpeed
-        //deleted now after examination because we set the power later
-
-
-
 
         //Current Run Time
         timeTwo = this.getRuntime();
@@ -729,15 +612,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //increment shooter motor power based on dpad commands
-        if (weightedAvg<2000)
-        {
-            shooterSpeed+=rpmGain * (Math.abs(2000-weightedAvg));
-        }
-        else
-        {
-            shooterSpeed-=rpmGain * (Math.abs(2000-weightedAvg));
-        }
-        shooter.setPower(shooterSpeed);
+            shooterSpeed+= rpmGain * (2000-avgRpm);
 
 
 
@@ -745,24 +620,32 @@ public class BigSurTeleopx2Drive extends OpMode {
         //SET ALL POWERS @@
         //*****************
 
-
-
-
         //Set the elevator and intake's speed to the values specified above
 
 
 
-    if (!shooterOff) {
+//    if (shooterOff)
+//    {
+//        shooterSpeed = 0;
+//    }
+
+
+        if (shooterSpeed>1)
+        {
+            shooterSpeed=1;
+        }
+        if (shooterSpeed<0)
+        {
+            shooterSpeed=0;
+        }
+
+
         shooter.setPower(shooterSpeed);
-    }
-    else
-    {
-        shooter.setPower(shooterSpeed);
-    }
+
         intake.setPower(intakeSpeed);
         telemetry.addData("shooter speed: ", shooterSpeed);
 
-
+        elevator.setPower(elevatorSpeed);
 
 
         //*****************
