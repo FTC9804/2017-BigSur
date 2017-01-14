@@ -254,7 +254,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
-    double initShootPower=.28;
+    double initShootPower=.32;
 
 
 
@@ -515,96 +515,96 @@ public class BigSurTeleopx2Drive extends OpMode {
         //20 inch shot
 
 
-        //distance in INCHES from the center of the vortex basket (red or blue).
-        if (gamepad2.dpad_up)
-        {
-            mode=20; //close shot
-        }
-        if (gamepad2.dpad_right)
-        {
-            mode=39; //close-mid shot
-        }
-        if (gamepad2.dpad_down)
-        {
-            mode=54; //far-mid shot
-        }
-        if (gamepad2.dpad_left)
-        {
-            mode=88; //far shot
-        }
-
-
-        if (mode == 20)
-        {
-            hood.setPosition(twentyInchHoodAngle);
-            if ((avgRpm>(twentyInchRPM+ (twentyInchRPM*.03)))  ||  (avgRpm<(twentyInchRPM - (twentyInchRPM*.03))))
-            {
-                if (avgRpm<twentyInchRPM)
-                {
-                    shooterSpeed+=driveGain * (Math.abs(twentyInchRPM-avgRpm));
-                }
-                else
-                {
-                    shooterSpeed -=driveGain * (Math.abs(twentyInchRPM-avgRpm));
-                }
-            }
-        }
-
-
-        if (mode == 39)
-        {
-            hood.setPosition(thirtyNineInchHoodAngle);
-            if ((avgRpm>(thirtyNineInchRPM+ (thirtyNineInchRPM*.03)))  ||  (avgRpm<(thirtyNineInchRPM - (thirtyNineInchRPM*.03))))
-            {
-                if (avgRpm<thirtyNineInchRPM)
-                {
-                    shooterSpeed+=driveGain * (Math.abs(thirtyNineInchRPM-avgRpm));
-                }
-                else
-                {
-                    shooterSpeed -= driveGain * (Math.abs(thirtyNineInchRPM-avgRpm));
-                }
-            }
-        }
-
-
-        if (mode == 54)
-        {
-            hood.setPosition(fiftyFourInchHoodAngle);
-            if ((avgRpm>(fiftyFourInchRPM+ (fiftyFourInchRPM*.03)))  ||  (avgRpm<(fiftyFourInchRPM - (fiftyFourInchRPM*.03))))
-            {
-                if (avgRpm<fiftyFourInchRPM)
-                {
-                    shooterSpeed+=driveGain * (Math.abs(fiftyFourInchRPM-avgRpm));
-                }
-                else
-                {
-                    shooterSpeed -=driveGain * (Math.abs(fiftyFourInchRPM-avgRpm));
-                }
-            }
-        }
-
-
-        if (mode == 88)
-        {
-            hood.setPosition(eightyEightInchHoodAngle);
-            if ((avgRpm>(eightyEightInchRPM+ (eightyEightInchRPM*.03)))  ||  (avgRpm<(eightyEightInchRPM - (eightyEightInchRPM*.03))))
-            {
-                if (avgRpm<eightyEightInchRPM)
-                {
-                    shooterSpeed+=driveGain * (Math.abs(eightyEightInchRPM-avgRpm));
-                }
-                else
-                {
-                    shooterSpeed -= driveGain * (Math.abs(eightyEightInchRPM-avgRpm));
-                }
-            }
-        }
-
-
-
-
-        telemetry.addData("Mode:" , mode);
+//        //distance in INCHES from the center of the vortex basket (red or blue).
+//        if (gamepad2.dpad_up)
+//        {
+//            mode=20; //close shot
+//        }
+//        if (gamepad2.dpad_right)
+//        {
+//            mode=39; //close-mid shot
+//        }
+//        if (gamepad2.dpad_down)
+//        {
+//            mode=54; //far-mid shot
+//        }
+//        if (gamepad2.dpad_left)
+//        {
+//            mode=88; //far shot
+//        }
+//
+//
+//        if (mode == 20)
+//        {
+//            hood.setPosition(twentyInchHoodAngle);
+//            if ((avgRpm>(twentyInchRPM+ (twentyInchRPM*.03)))  ||  (avgRpm<(twentyInchRPM - (twentyInchRPM*.03))))
+//            {
+//                if (avgRpm<twentyInchRPM)
+//                {
+//                    shooterSpeed+=driveGain * (Math.abs(twentyInchRPM-avgRpm));
+//                }
+//                else
+//                {
+//                    shooterSpeed -=driveGain * (Math.abs(twentyInchRPM-avgRpm));
+//                }
+//            }
+//        }
+//
+//
+//        if (mode == 39)
+//        {
+//            hood.setPosition(thirtyNineInchHoodAngle);
+//            if ((avgRpm>(thirtyNineInchRPM+ (thirtyNineInchRPM*.03)))  ||  (avgRpm<(thirtyNineInchRPM - (thirtyNineInchRPM*.03))))
+//            {
+//                if (avgRpm<thirtyNineInchRPM)
+//                {
+//                    shooterSpeed+=driveGain * (Math.abs(thirtyNineInchRPM-avgRpm));
+//                }
+//                else
+//                {
+//                    shooterSpeed -= driveGain * (Math.abs(thirtyNineInchRPM-avgRpm));
+//                }
+//            }
+//        }
+//
+//
+//        if (mode == 54)
+//        {
+//            hood.setPosition(fiftyFourInchHoodAngle);
+//            if ((avgRpm>(fiftyFourInchRPM+ (fiftyFourInchRPM*.03)))  ||  (avgRpm<(fiftyFourInchRPM - (fiftyFourInchRPM*.03))))
+//            {
+//                if (avgRpm<fiftyFourInchRPM)
+//                {
+//                    shooterSpeed+=driveGain * (Math.abs(fiftyFourInchRPM-avgRpm));
+//                }
+//                else
+//                {
+//                    shooterSpeed -=driveGain * (Math.abs(fiftyFourInchRPM-avgRpm));
+//                }
+//            }
+//        }
+//
+//
+//        if (mode == 88)
+//        {
+//            hood.setPosition(eightyEightInchHoodAngle);
+//            if ((avgRpm>(eightyEightInchRPM+ (eightyEightInchRPM*.03)))  ||  (avgRpm<(eightyEightInchRPM - (eightyEightInchRPM*.03))))
+//            {
+//                if (avgRpm<eightyEightInchRPM)
+//                {
+//                    shooterSpeed+=driveGain * (Math.abs(eightyEightInchRPM-avgRpm));
+//                }
+//                else
+//                {
+//                    shooterSpeed -= driveGain * (Math.abs(eightyEightInchRPM-avgRpm));
+//                }
+//            }
+//        }
+//
+//
+//
+//
+//        telemetry.addData("Mode:" , mode);
 
 
 
