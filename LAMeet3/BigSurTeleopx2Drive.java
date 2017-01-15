@@ -130,7 +130,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //shooter variables;
-    double shooterSpeed = 0.23;    //constant power applied to the shooter during init, variable later updated
+    double shooterSpeed = 0.235;    // 0.23 is for 1850 RPM, 0.24 is for 2500 RPM, 0.235 is for 2100
     double elevatorSpeed;        //power given to the loading elevator
 
 
@@ -607,7 +607,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //increment shooter motor power based on dpad commands
-            shooterSpeed+= rpmGain * (2000-avgRpm);
+            shooterSpeed+= rpmGain * (2100-avgRpm);
 
 
 
@@ -745,22 +745,21 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         telemetry.update(); //update telemetry
     }
-
-    @Override
-    public void stop() {
-
-        do {
-
-            shooterSpeed -= .001;
-            shooter.setPower(shooterSpeed);
-            telemetry.addData("shooterSpeed = ", shooterSpeed);
-            telemetry.update();
-            timeOne = this.getRuntime();
-
-        } while (shooterSpeed > 0);
-
-        shooter.setPower(0);
-
-    }
-
+//
+//    @Override
+//    public void stop() {
+//
+//        do {
+//
+//            shooterSpeed -= .001;
+//            shooter.setPower(shooterSpeed);
+//            telemetry.addData("shooterSpeed = ", shooterSpeed);
+//            telemetry.update();
+//            timeOne = this.getRuntime();
+//
+//        } while (shooterSpeed > 0);
+//
+//        shooter.setPower(0);
+//
+//    }
 }
