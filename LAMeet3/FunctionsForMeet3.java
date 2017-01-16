@@ -103,7 +103,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     double initialHeading;
 
     //Gain for the gyro when executing a spin move
-    final double GYRO_GAIN =.0041;
+    final double GYRO_GAIN =.0031;
 
     //Gain for the gyro when driving straight
     double straightGyroGain = .0005;
@@ -143,8 +143,11 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     //Positions of the continuos rotation beacon pushers, based on wheter retracting or extending
     double beaconPusherLeftRetractPosition = 0.05;
     double beaconPusherLeftExtendPosition = .95;
-    double beaconPusherRightRetractPosition = 0.05;
-    double beaconPusherRightExtendPosition = .95;
+    double beaconPusherRightRetractPosition = 0.95;
+    double beaconPusherRightExtendPosition = 0.05;
+
+    boolean pushOne ;
+    boolean pushTwo ;
 
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
@@ -545,7 +548,11 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
         touchSensor = hardwareMap.touchSensor.get("touch");
 
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
+        pushOne=false;
+        pushTwo=false;
 
     }
 
@@ -775,7 +782,6 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void driveForTimeNoEncoders (double time)
     {
-
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
@@ -809,13 +815,15 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void driveToTouch (double speed)
     {
-        while (!touchSensor.isPressed()){
+        timeOne=this.getRuntime();
+        timeTwo= this.getRuntime();
 
+        while (!touchSensor.isPressed()&& (timeTwo-timeOne<6)){
             leftMotor1.setPower(speed);
             leftMotor2.setPower(speed);
             rightMotor1.setPower(speed);
             rightMotor2.setPower(speed);
-
+            timeTwo=this.getRuntime();
         }
 
         stopDriving();
@@ -823,17 +831,25 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void pressBeaconFrontRed ()
     {
-        if (colorSensor.red() > 2.5 && colorSensor.blue() < 2.5){
-            beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
-            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-        }
-        else if (colorSensor.blue() > 2.5 && colorSensor.red() < 2.5) {
-            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
-            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-        }
-        else {
-            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        timeOne = this.getRuntime();
+        timeTwo= this.getRuntime();
+
+        while (timeTwo-timeOne<4) {
+            if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5 && !pushTwo) {
+                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+                pushOne = true;
+            } else if (colorSensor.blue() > 1.5 && colorSensor.red() < 1.5 && !pushOne) {
+                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
+                pushTwo = true;
+            } else {
+                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+            }
+
+            telemetry.addData("Blue color", colorSensor.blue());
+            telemetry.update();
         }
 
 
@@ -853,17 +869,27 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void pressBeaconFrontBlue ()
     {
-        if (colorSensor.red() > 2.5 && colorSensor.blue() < 2.5){
-            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
-        }
-        else if (colorSensor.blue() > 2.5 && colorSensor.red() < 2.5) {
-            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-            beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
-        }
-        else {
-            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        timeOne = this.getRuntime();
+        timeTwo= this.getRuntime();
+
+        while (timeTwo-timeOne<4) {
+
+
+            if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5 && !pushTwo) {
+                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
+                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+                pushOne = true;
+            } else if (colorSensor.blue() > 1.5 && colorSensor.red() < 1.5 && !pushOne) {
+                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+                pushTwo = true;
+            } else {
+                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+            }
+
+            telemetry.addData("Blue color", colorSensor.blue());
+            telemetry.update();
         }
 
 
@@ -883,10 +909,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftMotor1.setPower(.3);
-        rightMotor1.setPower(.3);
-        leftMotor2.setPower(.3);
-        rightMotor2.setPower(.3);
+        leftMotor1.setPower(.2);
+        rightMotor1.setPower(.2);
+        leftMotor2.setPower(.2);
+        rightMotor2.setPower(.2);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -905,10 +931,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 wlsRightlight = true;
             }
 
-            leftMotor1.setPower(.3);
-            leftMotor2.setPower(.3);
-            rightMotor1.setPower(.3);
-            rightMotor2.setPower(.3);
+            leftMotor1.setPower(.2);
+            leftMotor2.setPower(.2);
+            rightMotor1.setPower(.2);
+            rightMotor2.setPower(.2);
 
         }
         while (!wlsRightlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
@@ -924,10 +950,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftMotor1.setPower(.3);
-        rightMotor1.setPower(.3);
-        leftMotor2.setPower(.3);
-        rightMotor2.setPower(.3);
+        leftMotor1.setPower(.2);
+        rightMotor1.setPower(.2);
+        leftMotor2.setPower(.2);
+        rightMotor2.setPower(.2);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -946,10 +972,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 wlsRightlight = true;
             }
 
-            leftMotor1.setPower(.3);
-            leftMotor2.setPower(.3);
-            rightMotor1.setPower(.3);
-            rightMotor2.setPower(.3);
+            leftMotor1.setPower(.2);
+            leftMotor2.setPower(.2);
+            rightMotor1.setPower(.2);
+            rightMotor2.setPower(.2);
 
         }
         while (!wlsLeftlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
