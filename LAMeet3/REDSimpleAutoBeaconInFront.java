@@ -1,4 +1,5 @@
 
+
 //Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
 //of driving forward, shooting, turning to 45, finding the white line, turning to 90
 //and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
@@ -11,9 +12,9 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "REDSimpleAutoBeaconInFront1.12", group = "AutoWithFunctions")
+@Autonomous(name = "REDSimpleAutoBeaconInFront1.204", group = "AutoWithFunctions")
 //@Disabled
-public class REDSimpleAutoBeaconInFront extends FunctionsForMeet3 {
+public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
     public void runOpMode() throws InterruptedException {
 
@@ -71,8 +72,8 @@ public class REDSimpleAutoBeaconInFront extends FunctionsForMeet3 {
         }
 
 
-        //Move to 90 degrees counterclockwise.  Set parameter to 77 degrees counterclockwise to combat overshoot in the gyro
-        spinMove(77);
+        //Move to 90 degrees counterclockwise.  Set parameter to 73 degrees counterclockwise to combat overshoot in the gyro
+        spinMove(73);
 
 
 
@@ -80,7 +81,7 @@ public class REDSimpleAutoBeaconInFront extends FunctionsForMeet3 {
 
 
         //Run driveToTouch method, applying .25 power to the motors when doing so
-        //driveToTouch(0.25);
+        //driveToTouch(0.12);
 
         //Run pressBeaconFrontRed method
         //pressBeaconFrontRed();
