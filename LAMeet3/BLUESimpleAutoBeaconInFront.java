@@ -18,7 +18,7 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "BLUESimpleAutoBeaconInFront1.12", group = "AutoWithFunctions")
+@Autonomous(name = "BLUESimpleAutoBeaconInFront1.24", group = "AutoWithFunctions")
 //@Disabled
 public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
@@ -44,12 +44,12 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         spinMove(-36);
 
 
-        //Set timeOne and timeTwo to the current run time
+       //Set timeOne and timeTwo to the current run time
         timeTwo=this.getRuntime();
         timeOne=this.getRuntime();
 
         //Wait three seconds
-        while (timeTwo - timeOne <3)
+        while (timeTwo - timeOne <2)
         {
             timeTwo=this.getRuntime();
         }
@@ -62,7 +62,7 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         timeOne=this.getRuntime();
 
         //Run driveToOneWhiteLineRight function
-        while (timeTwo - timeOne <3)
+        while (timeTwo - timeOne <1)
         {
             timeTwo=this.getRuntime();
         }
@@ -72,20 +72,20 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         timeOne=this.getRuntime();
 
         //Run driveToOneWhiteLineRight function
-        while (timeTwo - timeOne <3)
+        while (timeTwo - timeOne <1)
         {
             timeTwo=this.getRuntime();
         }
 
 
-        //Move to 90 degrees clockwise.  Set parameter to 77 degrees clockwise to combat overshoot in the gyro
-        spinMove(-77);
+        //Move to 90 degrees clockwise.  Set parameter to 73 degrees clockwise to combat overshoot in the gyro
+        spinMove(-73);
 
         //Run driveToTouch method, applying .25 power to the motors when doing so
-        //driveToTouch(0.25);
+        driveToTouch(0.12);
 
         //Run pressBeaconFrontBlue method
-        //pressBeaconFrontBlue();
+        pressBeaconFrontBlue();
 
 
 
