@@ -1,15 +1,8 @@
 
+//package declaration
 package org.firstinspires.ftc.teamcode;
 
-/**
- *
- * Created by Programmers of FTC Team 9804 Bomb Squad
- *
- * edited on Fri. Jan 13, '17
- *      Adjusting code for tournament next weekend with an emphasis on a new beacon pushing mechanism
- */
-
-
+//import statements
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -22,6 +15,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
 public abstract class FunctionsForMeet3 extends LinearOpMode {
+    //Variable Declarations
+
     DcMotor rightMotor1;   //right drive motor front
     DcMotor leftMotor1;    //left drive motor front
     DcMotor rightMotor2;   //right drive motor back
@@ -32,12 +27,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
 
     Servo hood;       //position servo for 180º, adjust angle of shooter
-    Servo turret;
+    Servo turret;     //Continuous Rotation
 
-    Servo ballControl;
-
-    Servo beaconPusherLeft;
-    Servo beaconPusherRight;
+    Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
+    Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
 
 
 
@@ -47,28 +40,28 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
 
-    //shooter variables;
-    double shooterPower = 0.62;    //constant power applied to the shooter
+    double shooterPower = 0.62; //initial power applied to the shooter
 
-    double turretSpeed=.5;
+    double turretPosition=.5;  //initial position set to the turret servo
 
+    //Driving variables, initialized to 0
+    double INCHES_TO_MOVE=0;  //Desired number of inches to drive
+    double ROTATIONS=0;       //Wheel rotations necessary to drive the above amount of inches
+    double COUNTS=0;          //Encoder counts necessary to drive the above amount of inches/rotations
 
-    double INCHES_TO_MOVE=0;
-    double ROTATIONS=0;
-    double COUNTS=0;
-
-
-    //LOCATED ON RIGHT SIDE OF ROBOT
+    //Color sensor, located
     ColorSensor colorSensor;
 
+    //Touch sensor for the beacon
     TouchSensor touchSensor;
 
+    //Optical distance sensors to detect white light
     OpticalDistanceSensor whiteLineSensorRight;
     OpticalDistanceSensor whiteLineSensorLeft;
 
-    double whiteThreshold = .2;
-    boolean wlsRightlight = false;
-    boolean wlsLeftlight = false;
+    double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true
+    boolean wlsRightlight = false; //Boolean expressing whether the whiteLineSensorRight has seen a sufficient amount of white light
+    boolean wlsLeftlight = false;  //Boolean expressing whether the whiteLineSensorLeft has seen a sufficient amount of white light
 
     //rpm variables
     //shooter variables
@@ -92,57 +85,62 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     //a boolean set to false unless outside force is currently being applied to the motor disturbing its rpm.  Reflective of how the motor will be disturbed when a ball is being shot in our actual robot.
     double tempWeightedAvg = 0;
 
+    //time variables set to current run time throughout the code
     double timeOne;
-
     double timeTwo;
-
     double timeRunningLoop;
 
+    //Gyro sensor declaration
     ModernRoboticsI2cGyro gyro;
 
+    //measure gyro heading/position
     double currentHeading;
 
+    //measure difference between current and desired gyro heading
     double headingError;
 
+    //variable to measure the gyro heading at the beginning of a method
     double initialHeading;
 
+    //Gain for the gyro when executing a spin move
     final double GYRO_GAIN =.0041;
 
+    //Gain for the gyro when driving straight
     double straightGyroGain = .0005;
 
+    //Gain to control rpm on the robot
     double rpmGain = .0000035;
 
+    //(not being used) The necesarry correction to power applied to motors when driving forward, based on the proximity between current and desired gyro headings
     double speedCorrection;
 
+    //Speed applied to motors when executing a pivot or spinMove, based on both GYRO_GAIN and headingError
     double turnSpeed;
 
+    //Placeholder Variable to display in telemetry
     int telemetryVariable = 0;
 
-    double [] movingWeightedAverage = {0, 0, 0, 0, 0};
+    //Array of the last 5 rpm values
+    //double [] movingWeightedAverage = {0, 0, 0, 0, 0};
 
-    int loopCounter = 0;
-
-    double movingAverage;
-
-    double rpmError = 0;
-
+    //boolean to express whether an exception is being thrown
     boolean throwingException=false;
 
-    int mode = 0;
+    //To do, comment this
+    //int mode = 0;
 
-    double blueValue;
-    double whiteValueRight;
-    double whiteValueLeft;
+    //Variables for choosing alliance prior to auto
+    boolean choiceNotSelected = true;  //Boolean exressing if we have not yet chose an alliance
+    boolean allianceNotSelected = true; //Boolean exressing if we have not yet chose an alliance?
+    boolean weAreRed; //Boolean set to true if we are the red alliance
 
-    boolean choiceNotSelected = true;
-    boolean allianceNotSelected = true;
-    boolean weAreRed;
-
-    boolean exitcode1 = false;
-
+    //Power applied to the left motor
     double leftPower;
+
+    //Power applied to the right motor
     double rightPower;
 
+    //Positions of the continuos rotation beacon pushers, based on wheter retracting or extending
     double beaconPusherLeftRetractPosition = 0.05;
     double beaconPusherLeftExtendPosition = .95;
     double beaconPusherRightRetractPosition = 0.05;
@@ -334,7 +332,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 telemetry.update();
 
 
-                //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
+
                 rightMotor1.setPower(turnSpeed);
                 rightMotor2.setPower(turnSpeed);
                 leftMotor1.setPower(0);
@@ -430,6 +428,17 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         elevator.setPower(0);
     }
 
+
+    public void findAndPressBlueBeacon (int drive)
+    {
+        drive(drive, .3, 0);
+    }
+
+    public void findAndPressRedBeacon (int drive)
+    {
+        drive(drive, .3, 0);
+    }
+
     public void spinMove (double desiredHeading)
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -454,11 +463,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
-                //MAKES NO SENSE JUST TRYING
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(-turnSpeed);
-                leftMotor2.setPower(-turnSpeed);
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
                 gyroTelemetry();
 
             }
@@ -483,12 +491,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 telemetry.addData("TurnSpeed: ",turnSpeed);
                 telemetry.update();
 
-
-                //WHAT THE HECK IS HAPPENING? SHOULDNT THESE BE OPPOSITE
-                rightMotor1.setPower(-turnSpeed);
-                rightMotor2.setPower(-turnSpeed);
-                leftMotor1.setPower(turnSpeed);
-                leftMotor2.setPower(turnSpeed);
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(-turnSpeed);
+                leftMotor2.setPower(-turnSpeed);
                 gyroTelemetry();
             }
             while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
@@ -502,10 +508,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         rightMotor2 = hardwareMap.dcMotor.get("m4");
         leftMotor1 = hardwareMap.dcMotor.get("m1");
         leftMotor2 = hardwareMap.dcMotor.get("m2");
-        rightMotor1.setDirection(DcMotor.Direction.REVERSE);
-        rightMotor2.setDirection(DcMotor.Direction.REVERSE);
-        leftMotor1.setDirection(DcMotor.Direction.FORWARD);
-        leftMotor2.setDirection(DcMotor.Direction.FORWARD);
+        rightMotor1.setDirection(DcMotor.Direction.FORWARD);
+        rightMotor2.setDirection(DcMotor.Direction.FORWARD);
+        leftMotor1.setDirection(DcMotor.Direction.REVERSE);
+        leftMotor2.setDirection(DcMotor.Direction.REVERSE);
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -523,12 +529,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         hood = hardwareMap.servo.get("s2");
         beaconPusherLeft = hardwareMap.servo.get("s3");
         beaconPusherRight = hardwareMap.servo.get("s4");
-        ballControl = hardwareMap.servo.get("s5");
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-        turret.setPosition(turretSpeed);
-        ballControl.setPosition(0);
+        turret.setPosition(turretPosition);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
@@ -588,11 +592,9 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 tempWeightedAvg = weightedAvg;
 
                 if (weightedAvg + 300 > targetRPM) {
-                    ballControl.setPosition(60);
                     intake.setPower(intakeSpeed);
                     elevator.setPower(elevatorSpeed);
                 } else {
-                    ballControl.setPosition(0);
                     intake.setPower(0);
                     elevator.setPower(0);
                 }
@@ -637,7 +639,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         //driveNext();
     }
 
-    public void driveToWhiteLine ()
+    public void driveToWhiteLineRight ()
     {
 
 
@@ -821,18 +823,18 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void pressBeaconFrontRed ()
     {
-            if (colorSensor.red() > 2.5 && colorSensor.blue() < 2.5){
-                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
-                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-            }
-            else if (colorSensor.blue() > 2.5 && colorSensor.red() < 2.5) {
-                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
-                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-            }
-            else {
-                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-            }
+        if (colorSensor.red() > 2.5 && colorSensor.blue() < 2.5){
+            beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
+            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+        }
+        else if (colorSensor.blue() > 2.5 && colorSensor.red() < 2.5) {
+            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        }
+        else {
+            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        }
 
 
         timeOne = this.getRuntime();
@@ -877,7 +879,48 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
     }
 
-    public void driveToOneWhiteLine ()
+    public void driveToOneWhiteLineRight ()
+    {
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(.3);
+        rightMotor1.setPower(.3);
+        leftMotor2.setPower(.3);
+        rightMotor2.setPower(.3);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+
+            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
+                wlsRightlight = true;
+            }
+
+            leftMotor1.setPower(.3);
+            leftMotor2.setPower(.3);
+            rightMotor1.setPower(.3);
+            rightMotor2.setPower(.3);
+
+        }
+        while (!wlsRightlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+
+    }
+
+    public void driveToOneWhiteLineLeft ()
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -902,9 +945,6 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
             if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
                 wlsRightlight = true;
             }
-            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
-                wlsLeftlight = true;
-            }
 
             leftMotor1.setPower(.3);
             leftMotor2.setPower(.3);
@@ -912,16 +952,19 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
             rightMotor2.setPower(.3);
 
         }
-        while ( (wlsRightlight == false
-                && wlsLeftlight == false)
-                && this.opModeIsActive()
-                && (timeTwo-timeOne < 6) );  //Repeat do loop until both odss have detected enough white light
+        while (!wlsLeftlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
 
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
 
+
+    }
+
+    public void driveToWhiteLine ()
+    {
+        timeTwo = this.getRuntime();
     }
 
 }
