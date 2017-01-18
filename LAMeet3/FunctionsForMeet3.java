@@ -1,4 +1,3 @@
-
 //package declaration
 package org.firstinspires.ftc.teamcode;
 
@@ -90,6 +89,9 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     double timeTwo;
     double timeRunningLoop;
 
+    double robotCircumference = 16.125 * Math.PI;
+    double encoderTurnArc = 0;
+
     //Gyro sensor declaration
     ModernRoboticsI2cGyro gyro;
 
@@ -103,7 +105,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     double initialHeading;
 
     //Gain for the gyro when executing a spin move
-    final double GYRO_GAIN =.0031;
+    final double GYRO_GAIN =.0021;
 
     //Gain for the gyro when driving straight
     double straightGyroGain = .0005;
@@ -214,6 +216,57 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
             return 90;
         }
     }
+
+    public void encoderTurnClockwise (double rotations, double speed)
+    {
+        //currentHeading = gyro.getIntegratedZValue();
+        //headingError = Math.abs(desiredHeading - currentHeading);
+        //encoderTurnArc = robotCircumference * (headingError / 360);
+        COUNTS = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (leftMotor1.getCurrentPosition()<COUNTS) {
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(-speed);
+            rightMotor2.setPower(-speed);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+        }
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+    }
+
+    public void encoderTurnCounterClockwise (double rotations, double speed)
+    {
+        //currentHeading = gyro.getIntegratedZValue();
+        //headingError = Math.abs(desiredHeading - currentHeading);
+        //encoderTurnArc = robotCircumference * (headingError / 360);
+        COUNTS = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (leftMotor1.getCurrentPosition()<COUNTS) {
+            leftMotor1.setPower(-speed);
+            leftMotor2.setPower(-speed);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+        }
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+    }
+
 
     public void drive (double distance, double speed, double targetHeading)
     {
@@ -455,8 +508,8 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = -headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.35) {
-                    turnSpeed = 0.35;
+                if (turnSpeed < 0.28) {
+                    turnSpeed = 0.28;
                 }
                 if (turnSpeed > .82) {
                     turnSpeed = .82;
@@ -909,10 +962,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftMotor1.setPower(.2);
-        rightMotor1.setPower(.2);
-        leftMotor2.setPower(.2);
-        rightMotor2.setPower(.2);
+        leftMotor1.setPower(.13);
+        rightMotor1.setPower(.13);
+        leftMotor2.setPower(.13);
+        rightMotor2.setPower(.13);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -931,10 +984,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 wlsRightlight = true;
             }
 
-            leftMotor1.setPower(.2);
-            leftMotor2.setPower(.2);
-            rightMotor1.setPower(.2);
-            rightMotor2.setPower(.2);
+            leftMotor1.setPower(.13);
+            leftMotor2.setPower(.13);
+            rightMotor1.setPower(.13);
+            rightMotor2.setPower(.13);
 
         }
         while (!wlsRightlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
@@ -948,6 +1001,54 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     public void driveToOneWhiteLineLeft ()
     {
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(.13);
+        rightMotor1.setPower(.13);
+        leftMotor2.setPower(.13);
+        rightMotor2.setPower(.13);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+
+            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
+                wlsRightlight = true;
+            }
+
+            leftMotor1.setPower(.13);
+            leftMotor2.setPower(.13);
+            rightMotor1.setPower(.13);
+            rightMotor2.setPower(.13);
+
+        }
+        while (!wlsLeftlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+
+
+    }
+
+    public void driveToWhiteLine ()
+    {
+        timeTwo = this.getRuntime();
+    }
+
+    public void spinMoveToWhiteLineLeft ()
+    {
+
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         leftMotor1.setPower(.2);
@@ -972,10 +1073,10 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 wlsRightlight = true;
             }
 
-            leftMotor1.setPower(.2);
-            leftMotor2.setPower(.2);
-            rightMotor1.setPower(.2);
-            rightMotor2.setPower(.2);
+            leftMotor1.setPower(.3);
+            leftMotor2.setPower(.3);
+            rightMotor1.setPower(-.3);
+            rightMotor2.setPower(-.3);
 
         }
         while (!wlsLeftlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
@@ -988,9 +1089,5 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
     }
 
-    public void driveToWhiteLine ()
-    {
-        timeTwo = this.getRuntime();
-    }
-
 }
+
