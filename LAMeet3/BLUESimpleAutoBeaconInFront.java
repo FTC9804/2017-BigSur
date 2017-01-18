@@ -1,3 +1,4 @@
+
 //Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
 //of driving forward, shooting, turning to 45, finding the white line, turning to 90
 //and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
@@ -16,9 +17,9 @@
 package org.firstinspires.ftc.teamcode;
 
 //import statement
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+        import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "BLUESimpleAutoBeaconInFront1.24", group = "AutoWithFunctions")
+@Autonomous(name = "REDSimpleAutoBeaconInFront1.46", group = "AutoWithFunctions")
 //@Disabled
 public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
@@ -31,25 +32,36 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         waitForStart();
 
 
-       //Calibrate the Gyro
-       calibrateGyro();
-
-        //Drive Forward 10 inches at .4 speed, maintaining a gyro heading of 0
-        drive(10, .4, 0);
+        //Calibrate the Gyro
+        calibrateGyro();
 
         //Run shootAndLift function for 20 seconds at a goal of 2300 rpm, with intake and elevator speeds of .95
         //shootAndLift(20, 2300, .95, .95);
 
-        //Move 45 degrees clockwise.  Set parameter to 36 degrees clockwise to combat overshoot in the gyro
-        spinMove(-36);
+        drive(20, .2, 0);
 
-
-       //Set timeOne and timeTwo to the current run time
+        //Set timeOne and timeTwo to the current run time
         timeTwo=this.getRuntime();
         timeOne=this.getRuntime();
 
         //Wait three seconds
-        while (timeTwo - timeOne <2)
+        while (timeTwo - timeOne <1)
+        {
+            timeTwo=this.getRuntime();
+        }
+
+        //Move 45 degrees clockwise.  Set parameter to 36 degrees clockwise to combat overshoot in the gyro
+        //spinMove(-32);
+
+        encoderTurnClockwise(.55, .28);
+
+
+        //Set timeOne and timeTwo to the current run time
+        timeTwo=this.getRuntime();
+        timeOne=this.getRuntime();
+
+        //Wait three seconds
+        while (timeTwo - timeOne <3)
         {
             timeTwo=this.getRuntime();
         }
@@ -62,27 +74,53 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         timeOne=this.getRuntime();
 
         //Run driveToOneWhiteLineRight function
-        while (timeTwo - timeOne <1)
+        while (timeTwo - timeOne <3)
         {
             timeTwo=this.getRuntime();
         }
+
+
+
+        //Move to 90 degrees clockwise.  Set parameter to 73 degrees clockwise to combat overshoot in the gyro
+        //spinMove(-87);
+
+        encoderTurnClockwise(.8, .28);
+
 
         //Set timeOne and timeTwo to the current run time
         timeTwo=this.getRuntime();
         timeOne=this.getRuntime();
 
         //Run driveToOneWhiteLineRight function
-        while (timeTwo - timeOne <1)
+        while (timeTwo - timeOne <3)
         {
             timeTwo=this.getRuntime();
         }
 
+        spinMove(-86);
 
-        //Move to 90 degrees clockwise.  Set parameter to 73 degrees clockwise to combat overshoot in the gyro
-        spinMove(-73);
+        //Set timeOne and timeTwo to the current run time
+        timeTwo=this.getRuntime();
+        timeOne=this.getRuntime();
+
+        //Run driveToOneWhiteLineRight function
+        while (timeTwo - timeOne <3)
+        {
+            timeTwo=this.getRuntime();
+        }
 
         //Run driveToTouch method, applying .25 power to the motors when doing so
-        driveToTouch(0.12);
+        driveToTouch(0.1);
+
+        //Set timeOne and timeTwo to the current run time
+        timeTwo=this.getRuntime();
+        timeOne=this.getRuntime();
+
+        //Run driveToOneWhiteLineRight function
+        while (timeTwo - timeOne <3)
+        {
+            timeTwo=this.getRuntime();
+        }
 
         //Run pressBeaconFrontBlue method
         pressBeaconFrontBlue();
