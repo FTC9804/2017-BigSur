@@ -269,7 +269,6 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-
     public void drive (double distance, double speed, double targetHeading)
     {
         currentHeading = gyro.getIntegratedZValue();
@@ -485,7 +484,6 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
         shooter.setPower(0);
         elevator.setPower(0);
     }
-
 
     public void findAndPressBlueBeacon (int drive)
     {
