@@ -232,7 +232,8 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
             leftMotor2.setPower(speed);
             rightMotor1.setPower(-speed);
             rightMotor2.setPower(-speed);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.addData("Current encoder position = ", leftMotor1.getCurrentPosition());
+            telemetry.addData("Current rotations travelled = ", (leftMotor1.getCurrentPosition())/(ENCODER_CPR*GEAR_RATIO));
             telemetry.update();
         }
 
@@ -257,7 +258,8 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
             leftMotor2.setPower(-speed);
             rightMotor1.setPower(speed);
             rightMotor2.setPower(speed);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.addData("Current encoder position = ", leftMotor1.getCurrentPosition());
+            telemetry.addData("Current rotations travelled = ", (leftMotor1.getCurrentPosition())/(ENCODER_CPR*GEAR_RATIO));
             telemetry.update();
         }
 
@@ -1090,4 +1092,3 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     }
 
 }
-
