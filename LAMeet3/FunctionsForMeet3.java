@@ -672,7 +672,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
 
 
                 //rpmGain now equal to .0000001 which is what we use in teleop.  may need to be adjusted
-                shooterSpeed+= rpmGain * (targetRPM - weightedAvg);
+                shooterPower+= rpmGain * (targetRPM - weightedAvg);
 
 
 

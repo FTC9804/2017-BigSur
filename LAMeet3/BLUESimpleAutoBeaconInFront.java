@@ -20,7 +20,7 @@ package org.firstinspires.ftc.teamcode;
 
 @Autonomous(name = "REDSimpleAutoBeaconInFront1.46", group = "AutoWithFunctions")
 //@Disabled
-public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
+public class BLUESimpleAutoBeaconInFront extends FunctionsForMeet3 {
 
     public void runOpMode() throws InterruptedException {
 
@@ -123,13 +123,6 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
         //Run pressBeaconFrontBlue method
         pressBeaconFrontBlue();
-
-
-
-
-
-
-
 
     }
 

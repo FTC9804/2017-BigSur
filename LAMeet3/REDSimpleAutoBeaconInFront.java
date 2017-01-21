@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "BLUESimpleAutoBeaconInFront1.46", group = "AutoWithFunctions")
 //@Disabled
-public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
+public class REDSimpleAutoBeaconInFront extends FunctionsForMeet3 {
 
     public void runOpMode() throws InterruptedException {
 
@@ -123,13 +123,6 @@ public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
         //Run pressBeaconFrontBlue method
         pressBeaconFrontRed();
-
-
-
-
-
-
-
 
     }
 
