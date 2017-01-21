@@ -111,7 +111,7 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
     double straightGyroGain = .0005;
 
     //Gain to control rpm on the robot
-    double rpmGain = .0000035;
+    double rpmGain = .0000001;
 
     //(not being used) The necesarry correction to power applied to motors when driving forward, based on the proximity between current and desired gyro headings
     double speedCorrection;
@@ -659,6 +659,24 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                     elevator.setPower(0);
                 }
 
+
+                // if (weightedAvg<targetRPM)
+                // {
+                //     shooterPower+=rpmGain * (Math.abs(targetRPM-weightedAvg));
+                // }
+                // else
+                // {
+                //     shooterPower-=rpmGain * (Math.abs(targetRPM-weightedAvg));
+                // }
+                //used with rpmGain = .0000035;
+
+
+                //rpmGain now equal to .0000001 which is what we use in teleop.  may need to be adjusted
+                shooterSpeed+= rpmGain * (targetRPM - weightedAvg);
+
+
+
+                //MOVED THESE DOWN SO THAT THEY DONT INTERRUPT THE CODE WITH PROPORTIONAL CONTROL
                 //Telemetry
                 weightedAvg = 0; //set weightedAvg to 0
                 arrayCount = 0; //set arrayCount to 0
@@ -671,14 +689,8 @@ public abstract class FunctionsForMeet3 extends LinearOpMode {
                 //set totalRpm to 0;
                 totalRpm = 0;
 
-                if (weightedAvg<targetRPM)
-                {
-                    shooterPower+=rpmGain * (Math.abs(targetRPM-weightedAvg));
-                }
-                else
-                {
-                    shooterPower-=rpmGain * (Math.abs(targetRPM-weightedAvg));
-                }
+
+
                 shooter.setPower(shooterPower);
 
             }
