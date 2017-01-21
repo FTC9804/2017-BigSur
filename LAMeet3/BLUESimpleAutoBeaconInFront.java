@@ -1,4 +1,3 @@
-
 //Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
 //of driving forward, shooting, turning to 45, finding the white line, turning to 90
 //and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
