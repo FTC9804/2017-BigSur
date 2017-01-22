@@ -607,7 +607,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //increment shooter motor power based on dpad commands
-            shooterSpeed+= rpmGain * (2100-avgRpm);
+            shooterSpeed+= rpmGain * (2000-avgRpm);
 
 
 
