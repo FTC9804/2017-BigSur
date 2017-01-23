@@ -1,5 +1,6 @@
 
 
+
 //Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
 //of driving forward, shooting, turning to 45, finding the white line, turning to 90
 //and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
@@ -20,7 +21,7 @@ package org.firstinspires.ftc.teamcode;
 //import statement
         import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "BLUESimpleAutoBeaconInFront1.8", group = "AutoWithFunctions")
+@Autonomous(name = "BLUESimpleAutoBeaconInFront1.91", group = "AutoWithFunctions")
 //@Disabled
 public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
@@ -43,7 +44,7 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         //Move 45 degrees clockwise.  Set parameter to 36 degrees clockwise to combat overshoot in the gyro
         //spinMove(-32);
 
-        encoderTurnClockwise(.77, .3);
+        encoderTurnClockwise(.53, .23);
 
 
         //Set timeOne and timeTwo to the current run time
@@ -56,18 +57,19 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         driveToOneWhiteLineRight();
 
 
+        drive(2, .25, 0);
         //Move to 90 degrees clockwise.  Set parameter to 73 degrees clockwise to combat overshoot in the gyro
         //spinMove(-87);
 
-        encoderTurnClockwise(.53, .3);
+        encoderTurnClockwise(.43, .28);
 
 
-        spinMove(-86);
+        spinMove(-83);
 
 
 
         //Run driveToTouch method, applying .25 power to the motors when doing so
-        driveToTouch(0.19);
+        driveToTouch(0.15);
 
         //Run pressBeaconFrontBlue method
         pressBeaconFrontBlue();
@@ -86,14 +88,14 @@ public class BLUESimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         driveToOneWhiteLineRight();
 
 
-        drive(2.8, .25, 0);
+        drive(3, .25, 0);
 
 
 
-        encoderTurnClockwise(.56, .13);
+        encoderTurnClockwise(.6, .13);
 
 
-        spinMoveSecond(-86);
+        spinMoveSecond(-83);
 
 
         //Run driveToTouch method, applying .25 power to the motors when doing so
