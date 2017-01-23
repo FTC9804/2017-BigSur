@@ -488,8 +488,8 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = -headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.28) {
-                    turnSpeed = 0.28;
+                if (turnSpeed < 0.2) {
+                    turnSpeed = 0.2;
                 }
                 if (turnSpeed > .82) {
                     turnSpeed = .82;
@@ -516,8 +516,8 @@ public abstract class FUNCTIONSDEC20 extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * GYRO_GAIN;
 
-                if (turnSpeed < .18) {
-                    turnSpeed = 0.18;
+                if (turnSpeed < .2) {
+                    turnSpeed = 0.2;
                 }
                 if (turnSpeed > .82) {
                     turnSpeed = .82;
