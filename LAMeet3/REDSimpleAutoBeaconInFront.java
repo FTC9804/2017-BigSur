@@ -1,5 +1,6 @@
 
 
+
 //Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
 //of driving forward, shooting, turning to 45, finding the white line, turning to 90
 //and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
@@ -20,7 +21,7 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "REDSimpleAutoBeaconInFront1.8", group = "AutoWithFunctions")
+@Autonomous(name = "REDSimpleAutoBeaconInFront1.91", group = "AutoWithFunctions")
 //@Disabled
 public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
@@ -46,7 +47,7 @@ public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         //Move 45 degrees clockwise.  Set parameter to 36 degrees clockwise to combat overshoot in the gyro
         //spinMove(-32);
 
-        encoderTurnCounterClockwise(.54, .16);
+        encoderTurnCounterClockwise(.4, .16);
 
 
         drive (17, .5, 0);
@@ -60,16 +61,16 @@ public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
         //Move to 90 degrees clockwise.  Set parameter to 73 degrees clockwise to combat overshoot in the gyro
         //spinMove(-87);
 
-        encoderTurnCounterClockwise(.53, .16);
+        encoderTurnCounterClockwise(.4, .16);
 
 
 
-        spinMove(86);
+        spinMoveSecond(83);
 
 
 
         //Run driveToTouch method, applying .25 power to the motors when doing so
-        driveToTouch(0.19);
+        driveToTouch(0.15);
 
 
 
@@ -80,7 +81,7 @@ public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
         driveBack(29, .5, 0);
 
-        encoderTurnClockwise(.89, .13);
+        encoderTurnClockwise(.76, .13);
 
 
         drive (26, .5, 0);
@@ -98,7 +99,7 @@ public class REDSimpleAutoBeaconInFront extends FUNCTIONSDEC20 {
 
 
 
-        spinMoveSecond(86);
+        spinMoveSecond(83);
 
 
 
