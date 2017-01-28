@@ -1,0 +1,75 @@
+
+
+//Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
+//of driving forward, shooting, turning to 45, finding the white line, turning to 90
+//and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
+//forward, turning to 45, finding the white line, and turning to 90, which was accomplished.
+
+
+
+
+
+
+
+
+
+
+//package declaration
+package org.firstinspires.ftc.teamcode;
+
+//import statement
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+@Autonomous(name = "V2BLUEAUTO", group = "AutoWithFunctions")
+//@Disabled
+public class V2RedAuto extends FunctionsForILT {
+
+    public void runOpMode() throws InterruptedException {
+
+        //Configure motors, servos and sensors
+        Configure();
+
+        //Wait until play button is pressed
+        waitForStart();
+
+        //Calibrate the Gyro
+        calibrateGyro();
+
+        drive(20, .2, 0);
+
+
+
+        shootAndLift(10, 2025, .95, .95);
+
+
+
+        spinMove(25);
+
+
+
+
+        driveMoreRight(40, .25, 0);
+
+
+        lineUpFasterRight();
+
+        //Code to press bluebeacon
+
+
+
+        driveMoreRightBack (29, .5, 0);
+
+
+        lineUpFasterRightBack();
+
+        //Code to press bluebeacon
+
+
+
+
+
+
+
+    }
+
+}
