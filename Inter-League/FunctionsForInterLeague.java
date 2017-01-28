@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
-public abstract class FunctionsForInterLeague extends LinearOpMode {
+public abstract class FunctionsForILT extends LinearOpMode {
     //Variable Declarations
 
     DcMotor rightMotor1;   //right drive motor front
@@ -64,6 +64,9 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
     double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true
     boolean wlsRightlight = false; //Boolean expressing whether the whiteLineSensorRight has seen a sufficient amount of white light
     boolean wlsLeftlight = false;  //Boolean expressing whether the whiteLineSensorLeft has seen a sufficient amount of white light
+
+    int whitesCounterLeft;
+    int whitesCounterRight;
 
     //rpm variables
     //shooter variables
@@ -158,67 +161,6 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
 
-    public void checkAutoAlliance ()
-    {
-        while (choiceNotSelected)   {
-            if (allianceNotSelected){
-                telemetry.addData("Choose Alliance Color", telemetryVariable);
-                telemetry.update();
-                if (gamepad1.x) {
-                    weAreRed = false;
-                    allianceNotSelected = false;
-                }
-                if (gamepad1.b) {
-                    weAreRed = true;
-                    allianceNotSelected = false;
-                }
-
-            }
-            if (!allianceNotSelected) {
-                telemetry.addData("Confirm your color choice", telemetryVariable);
-
-                if (weAreRed) {
-                    telemetry.addData("We are RED", telemetryVariable);
-                }
-                else {
-                    telemetry.addData("We are BLUE", telemetryVariable);
-                }
-
-                telemetry.addData("Y is correct.  A is incorrect", telemetryVariable);
-
-                if (gamepad1.y){
-                    choiceNotSelected = false;
-                }
-                if (gamepad1.a) {
-                    allianceNotSelected = true;
-                }
-            }
-        }
-    }
-
-    public void beaconTurnOne ()
-    {
-        if (weAreRed)
-        {
-            spinMove(-90);
-        }
-        else
-        {
-            spinMove (90);
-        }
-    }
-
-    public int driveTwo ()
-    {
-        if (weAreRed)
-        {
-            return -90;
-        }
-        else
-        {
-            return 90;
-        }
-    }
 
     public void encoderTurnClockwise (double rotations, double speed)
     {
@@ -306,29 +248,6 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
 
     }
 
-    public void driveNext()
-    {
-        INCHES_TO_MOVE = 15;
-        ROTATIONS = 15/ (Math.PI*WHEEL_DIAMETER);
-        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
-
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        while (leftMotor1.getCurrentPosition()<COUNTS) {
-            leftMotor1.setPower(.5);
-            leftMotor2.setPower(.5);
-            rightMotor1.setPower(.5);
-            rightMotor2.setPower(.5);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
-            telemetry.update();
-        }
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-    }
 
     public void gyroTelemetry ()
     {
@@ -336,72 +255,6 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
         telemetry.addData("Turn Speed", turnSpeed);
         //telemetry.addData("Motor power", leftMotor1.getPower());
         telemetry.update();
-    }
-
-    public void pivot (double desiredHeading)
-    {
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        initialHeading = gyro.getIntegratedZValue();
-
-        if (desiredHeading < initialHeading)
-        {
-            do{
-                currentHeading= gyro.getIntegratedZValue();
-                headingError = desiredHeading - currentHeading;
-                turnSpeed = -headingError * GYRO_GAIN;
-
-                if (turnSpeed < 0.4) {
-                    turnSpeed = 0.4;
-                }
-                if (turnSpeed > .95) {
-                    turnSpeed = .95;
-                }
-
-                telemetry.addData("Current Heading:",currentHeading);
-                telemetry.addData("TurnSpeed: ",turnSpeed);
-                telemetry.update();
-
-                //MAKES NO SENSE JUST TRYING
-                rightMotor1.setPower(0);
-                rightMotor2.setPower(0);
-                leftMotor1.setPower(turnSpeed);
-                leftMotor2.setPower(turnSpeed);
-                gyroTelemetry();
-
-            }
-            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
-        }
-        else
-        {
-            do {
-
-                currentHeading= gyro.getIntegratedZValue();
-                headingError = desiredHeading - currentHeading;
-                turnSpeed = headingError * GYRO_GAIN;
-
-                if (turnSpeed < 0.4) {
-                    turnSpeed = 0.4;
-                }
-                if (turnSpeed > .95) {
-                    turnSpeed = .95;
-                }
-
-                telemetry.addData("Current Heading:",currentHeading);
-                telemetry.addData("TurnSpeed: ",turnSpeed);
-                telemetry.update();
-
-
-
-                rightMotor1.setPower(turnSpeed);
-                rightMotor2.setPower(turnSpeed);
-                leftMotor1.setPower(0);
-                leftMotor2.setPower(0);
-                gyroTelemetry();
-            }
-            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
-        }
-        stopDriving();
     }
 
     public void driveBack (double distance, double speed, double targetHeading)
@@ -463,16 +316,6 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
         intake.setPower(0);
         shooter.setPower(0);
         elevator.setPower(0);
-    }
-
-    public void findAndPressBlueBeacon (int drive)
-    {
-        drive(drive, .3, 0);
-    }
-
-    public void findAndPressRedBeacon (int drive)
-    {
-        drive(drive, .3, 0);
     }
 
     public void spinMove (double desiredHeading)
@@ -694,7 +537,7 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
                 }
                 tempWeightedAvg = weightedAvg;
 
-                if (weightedAvg + 300 > targetRPM) {
+                if (weightedAvg + 50 > targetRPM) {
                     intake.setPower(intakeSpeed);
                     elevator.setPower(elevatorSpeed);
                 } else {
@@ -754,71 +597,7 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
         //driveNext();
     }
 
-    public void driveToWhiteLineRight ()
-    {
 
-
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftMotor1.setPower(.3);
-        rightMotor1.setPower(.3);
-        leftMotor2.setPower(.3);
-        rightMotor2.setPower(.3);
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-
-
-        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
-        do {
-
-            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
-            telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime();
-
-            //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
-                wlsLeftlight = true;
-            }
-            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
-                wlsRightlight = true;
-            }
-
-            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
-            if (wlsRightlight == false) {
-                rightMotor1.setPower(.3);
-                rightMotor2.setPower(.3);
-            } else {
-                rightMotor1.setPower(0);
-                rightMotor2.setPower(0);
-            }
-
-
-            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
-            if (wlsLeftlight == false) {
-                leftMotor1.setPower(.3);
-                leftMotor2.setPower(.3);
-            } else {
-                leftMotor1.setPower(0);
-                leftMotor2.setPower(0);
-            }
-
-        }
-        while ( (wlsRightlight == false
-                || wlsLeftlight == false)
-                && this.opModeIsActive()
-                && (timeTwo-timeOne < 4) );  //Repeat do loop until both odss have detected enough white light
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-
-
-    }
 
     public void shoot(double power)
     {
@@ -888,21 +667,7 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
         }
     }
 
-    public void driveForTimeNoEncoders (double time)
-    {
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < time){
-            timeTwo = this.getRuntime();
-
-            leftMotor1.setPower(0.5);
-            leftMotor2.setPower(0.5);
-            rightMotor1.setPower(0.5);
-            rightMotor2.setPower(0.5);
-        }
-
-    }
 
     public void runIntakeOnly(double intakeSpeed, double time)
     {
@@ -980,14 +745,13 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
 
     }
 
-    public void pressBeaconFrontBlue ()
-    {
+    public void pressBeaconFrontBlue () {
         timeOne = this.getRuntime();
-        timeTwo= this.getRuntime();
+        timeTwo = this.getRuntime();
         pushOne = false;
         pushTwo = false;
 
-        while (timeTwo-timeOne<1.2) {
+        while (timeTwo - timeOne < 1.2) {
 
 
             if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5 && !pushTwo) {
@@ -1006,20 +770,167 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
             telemetry.addData("Blue color", colorSensor.blue());
             telemetry.update();
             timeTwo = this.getRuntime();
-        }
 
-        if (timeTwo-timeOne>4)
+            if (timeTwo - timeOne > 4) {
+                while (this.opModeIsActive()) {
+                    timeTwo = this.getRuntime();
+                }
+            }
+
+            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+
+            telemetry.addData("Done", telemetryVariable);
+        }
+    }
+
+
+    public void lineUpFasterLeft ()
+    {
+        whitesCounterLeft = 0;
+        whitesCounterRight = 0;
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wlsRightlight=false;
+        wlsLeftlight=false;
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        leftMotor1.setPower(.25);
+        rightMotor1.setPower(.2);
+        leftMotor2.setPower(.25);
+        rightMotor2.setPower(.2);
+
+
+        //Keep the motor(s) at .3 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getLightDetected()>=whiteThreshold) {
+                whitesCounterLeft++;
+                if (whitesCounterLeft>2) {
+                    wlsLeftlight = true;
+                }
+            }
+            if (whiteLineSensorRight.getLightDetected()>=whiteThreshold) {
+                whitesCounterRight++;
+                if (whitesCounterRight>2) {
+                    wlsRightlight = true;
+                }
+            }
+            // Display the light level while we are looking for the line
+            //telemetry.addData("ODS 1 Light Level", whiteLineSensor1.getLightDetected());
+            //telemetry.update();
+            //idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            //telemetry.addData("ODS 2 Light Level", whiteLineSensor2.getLightDetected());
+            //telemetry.update();
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsRightlight==false) {
+                rightMotor1.setPower(.2);
+                rightMotor2.setPower(.2);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsLeftlight==false) {
+                leftMotor1.setPower(.25);
+                leftMotor2.setPower(.25);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            timeTwo=this.getRuntime();
+        }
+        while ((wlsLeftlight==false || wlsRightlight==false)&&((timeTwo-timeOne)<6));  //Repeat do loop until both odss have detected enough white light
+        if (timeTwo-timeOne>6)
         {
             while (this.opModeIsActive())
             {
-                timeTwo = this.getRuntime();
+                timeTwo=this.getRuntime();
             }
         }
 
-        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+    }
 
-        telemetry.addData("Done", telemetryVariable);
+    public void lineUpFasterRight ()
+    {
+        whitesCounterLeft = 0;
+        whitesCounterRight = 0;
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wlsRightlight=false;
+        wlsLeftlight=false;
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        leftMotor1.setPower(.2);
+        rightMotor1.setPower(.25);
+        leftMotor2.setPower(.2);
+        rightMotor2.setPower(.25);
+
+
+        //Keep the motor(s) at .3 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getLightDetected()>=whiteThreshold) {
+                whitesCounterLeft++;
+                if (whitesCounterLeft>2) {
+                    wlsLeftlight = true;
+                }
+            }
+            if (whiteLineSensorRight.getLightDetected()>=whiteThreshold) {
+                whitesCounterRight++;
+                if (whitesCounterRight>2) {
+                    wlsRightlight = true;
+                }
+            }
+            // Display the light level while we are looking for the line
+            //telemetry.addData("ODS 1 Light Level", whiteLineSensor1.getLightDetected());
+            //telemetry.update();
+            //idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            //telemetry.addData("ODS 2 Light Level", whiteLineSensor2.getLightDetected());
+            //telemetry.update();
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsRightlight==false) {
+                rightMotor1.setPower(.25);
+                rightMotor2.setPower(.25);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsLeftlight==false) {
+                leftMotor1.setPower(.2);
+                leftMotor2.setPower(.2);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            timeTwo=this.getRuntime();
+        }
+        while ((wlsLeftlight==false || wlsRightlight==false)&&((timeTwo-timeOne)<6));  //Repeat do loop until both odss have detected enough white light
+        if (timeTwo-timeOne>6)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
     }
 
     public void driveToOneWhiteLineRight ()
@@ -1121,56 +1032,289 @@ public abstract class FunctionsForInterLeague extends LinearOpMode {
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
-
-
     }
 
-    public void driveToWhiteLine ()
+    public void driveMoreLeft (double distance, double speed, double targetHeading)
     {
-        timeTwo = this.getRuntime();
-    }
+        currentHeading = gyro.getIntegratedZValue();
+        INCHES_TO_MOVE = distance;
+        ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
 
-    public void spinMoveToWhiteLineLeft ()
-    {
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        while (leftMotor1.getCurrentPosition()<COUNTS) {
 
-        leftMotor1.setPower(.2);
-        rightMotor1.setPower(.2);
-        leftMotor2.setPower(.2);
-        rightMotor2.setPower(.2);
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
-        do {
-
-            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            currentHeading = gyro.getIntegratedZValue();
+            telemetry.addData("Current Heading = ", currentHeading);
             telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime();
+            headingError = targetHeading - currentHeading;
+            speedCorrection = headingError * straightGyroGain;
 
-            //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
-                wlsRightlight = true;
-            }
+            leftMotor1.setPower(speed+.05);
+            leftMotor2.setPower(speed+.05);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
 
-            leftMotor1.setPower(.3);
-            leftMotor2.setPower(.3);
-            rightMotor1.setPower(-.3);
-            rightMotor2.setPower(-.3);
 
         }
-        while (!wlsLeftlight && this.opModeIsActive() && (timeTwo-timeOne < 6));  //Repeat do loop until both odss have detected enough white light
-
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
 
+    }
+    //checkrotations
+    public void driveMoreRight (double distance, double speed, double targetHeading)
+    {
+        currentHeading = gyro.getIntegratedZValue();
+        INCHES_TO_MOVE = distance;
+        ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (leftMotor1.getCurrentPosition()<COUNTS) {
+
+            currentHeading = gyro.getIntegratedZValue();
+            telemetry.addData("Current Heading = ", currentHeading);
+            telemetry.update();
+            headingError = targetHeading - currentHeading;
+            speedCorrection = headingError * straightGyroGain;
+
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(speed+.05);
+            rightMotor2.setPower(speed+.05);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+
+
+        }
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
 
     }
 
+    public void driveMoreRightBack (double distance, double speed, double targetHeading)
+    {
+        currentHeading = gyro.getIntegratedZValue();
+        INCHES_TO_MOVE = distance;
+        ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (Math.abs(leftMotor1.getCurrentPosition())<COUNTS) {
+
+            currentHeading = gyro.getIntegratedZValue();
+            telemetry.addData("Current Heading = ", currentHeading);
+            telemetry.update();
+            headingError = targetHeading - currentHeading;
+            speedCorrection = headingError * straightGyroGain;
+
+            leftMotor1.setPower(-speed);
+            leftMotor2.setPower(-speed);
+            rightMotor1.setPower(-speed-.05);
+            rightMotor2.setPower(-speed-.05);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+
+
+        }
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+
+    }
+
+    public void driveMoreLeftBack (double distance, double speed, double targetHeading)
+    {
+        currentHeading = gyro.getIntegratedZValue();
+        INCHES_TO_MOVE = distance;
+        ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
+        COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (Math.abs(leftMotor1.getCurrentPosition())<COUNTS) {
+
+            currentHeading = gyro.getIntegratedZValue();
+            telemetry.addData("Current Heading = ", currentHeading);
+            telemetry.update();
+            headingError = targetHeading - currentHeading;
+            speedCorrection = headingError * straightGyroGain;
+
+            leftMotor1.setPower(-speed-.05);
+            leftMotor2.setPower(-speed-.05);
+            rightMotor1.setPower(-speed);
+            rightMotor2.setPower(-speed);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+
+
+        }
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+
+    }
+
+    public void lineUpFasterLeftBack ()
+    {
+        whitesCounterLeft = 0;
+        whitesCounterRight = 0;
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wlsRightlight=false;
+        wlsLeftlight=false;
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        leftMotor1.setPower(-.25);
+        rightMotor1.setPower(-.2);
+        leftMotor2.setPower(-.25);
+        rightMotor2.setPower(-.2);
+
+
+        //Keep the motor(s) at .3 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getLightDetected()>=whiteThreshold) {
+                whitesCounterLeft++;
+                if (whitesCounterLeft>2) {
+                    wlsLeftlight = true;
+                }
+            }
+            if (whiteLineSensorRight.getLightDetected()>=whiteThreshold) {
+                whitesCounterRight++;
+                if (whitesCounterRight>2) {
+                    wlsRightlight = true;
+                }
+            }
+            // Display the light level while we are looking for the line
+            //telemetry.addData("ODS 1 Light Level", whiteLineSensor1.getLightDetected());
+            //telemetry.update();
+            //idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            //telemetry.addData("ODS 2 Light Level", whiteLineSensor2.getLightDetected());
+            //telemetry.update();
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsRightlight==false) {
+                rightMotor1.setPower(-.2);
+                rightMotor2.setPower(-.2);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsLeftlight==false) {
+                leftMotor1.setPower(-.25);
+                leftMotor2.setPower(-.25);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            timeTwo=this.getRuntime();
+        }
+        while ((wlsLeftlight==false || wlsRightlight==false)&&((timeTwo-timeOne)<6));  //Repeat do loop until both odss have detected enough white light
+        if (timeTwo-timeOne>6)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
+    }
+
+    public void lineUpFasterRightBack ()
+    {
+        whitesCounterLeft = 0;
+        whitesCounterRight = 0;
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        wlsRightlight=false;
+        wlsLeftlight=false;
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        leftMotor1.setPower(-.2);
+        rightMotor1.setPower(-.25);
+        leftMotor2.setPower(-.2);
+        rightMotor2.setPower(-.25);
+
+
+        //Keep the motor(s) at .3 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getLightDetected()>=whiteThreshold) {
+                whitesCounterLeft++;
+                if (whitesCounterLeft>2) {
+                    wlsLeftlight = true;
+                }
+            }
+            if (whiteLineSensorRight.getLightDetected()>=whiteThreshold) {
+                whitesCounterRight++;
+                if (whitesCounterRight>2) {
+                    wlsRightlight = true;
+                }
+            }
+            // Display the light level while we are looking for the line
+            //telemetry.addData("ODS 1 Light Level", whiteLineSensor1.getLightDetected());
+            //telemetry.update();
+            //idle(); // Always call idle() at the bottom of your while(opModeIsActive()) loop
+            //telemetry.addData("ODS 2 Light Level", whiteLineSensor2.getLightDetected());
+            //telemetry.update();
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsRightlight==false) {
+                rightMotor1.setPower(-.25);
+                rightMotor2.setPower(-.25);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            //If enough white light has not been detected, keep the power of the motor at .3; else set it to 0
+            if (wlsLeftlight==false) {
+                leftMotor1.setPower(-.2);
+                leftMotor2.setPower(-.2);
+            }
+            else
+            {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            timeTwo=this.getRuntime();
+        }
+        while ((wlsLeftlight==false || wlsRightlight==false)&&((timeTwo-timeOne)<6));  //Repeat do loop until both odss have detected enough white light
+        if (timeTwo-timeOne>6)
+        {
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
+    }
 }
