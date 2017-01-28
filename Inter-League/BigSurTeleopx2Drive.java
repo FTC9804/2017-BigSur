@@ -49,7 +49,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name = "TeleOpV7", group = "InNOut Testing")
+@TeleOp(name = "TeleOpV72400", group = "InNOut Testing")
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
@@ -101,8 +101,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //Driving variables
-    double joystick1ValueLeftYAxis;       //value taken in by left driving joystick
-    double joystick1ValueRightYAxis;   //value taken in by right driving joystick
+    //double joystick1ValueLeftYAxis;       //value taken in by left driving joystick
+    //double joystick1ValueRightYAxis;   //value taken in by right driving joystick
     double leftPower;           //power given to left motors
     double rightPower;       //power given to right motors
 
@@ -115,6 +115,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     boolean halfGain = false;
 //    boolean previousStatus = false;
 //    boolean currentStatus = false;
+    int bumperCount = 0;
+    int tempBumperCount = 0;
+    boolean justBumped = false;
 
 
 
@@ -379,9 +382,12 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         if (gamepad1.right_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
-
-
-            halfGain = !halfGain;
+            justBumped = true;
+        }
+        if (!gamepad1.right_bumper&&justBumped)
+        {
+            halfGain= !halfGain;
+            justBumped = false;
         }
 
 
@@ -390,8 +396,6 @@ public class BigSurTeleopx2Drive extends OpMode {
             gain = .5;
             telemetry.addData("On half gain (true/false)", halfGain);
         } else {
-
-
             gain = 1;
             telemetry.addData("On half gain (true/false)", halfGain);
         }
@@ -433,10 +437,10 @@ public class BigSurTeleopx2Drive extends OpMode {
         //ensures the value of the joystick, if negative, will result in a negative value of power
 
 
-        if (joystick1ValueLeftYAxis < 0) {
+        if (joystick1ValueLeft < 0) {
             leftPower *= -Math.abs(leftPower);
         }
-        if (joystick1ValueRightYAxis < 0) {
+        if (joystick1ValueRight < 0) {
             rightPower *= -Math.abs(rightPower);
         }
 
@@ -508,7 +512,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //Current Run Time
-        timeTwo = this.getRuntime();
+        timeTwo = this.getRuntime ();
         //Current Encoder Clicks
         encoderClicksTwo = shooter.getCurrentPosition();
 
@@ -607,7 +611,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //increment shooter motor power based on dpad commands
-            shooterSpeed+= rpmGain * (2000-avgRpm);
+        shooterSpeed+= rpmGain * (2400-avgRpm);
 
 
 
@@ -755,7 +759,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 //            shooter.setPower(shooterSpeed);
 //            telemetry.addData("shooterSpeed = ", shooterSpeed);
 //            telemetry.update();
-//            timeOne = this.getRuntime();
+//            timeOne = clock.seconds ()();
 //
 //        } while (shooterSpeed > 0);
 //
