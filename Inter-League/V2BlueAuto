@@ -1,18 +1,7 @@
-
-
-
-//Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
-//of driving forward, shooting, turning to 45, finding the white line, turning to 90
-//and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
-//forward, turning to 45, finding the white line, and turning to 90, which was accomplished.
-
-
-
-
-
-
-
-
+/* V2 created for the new Drogon robot with adaptations to the driving with the 
+ * redesigned west coast drive and updated chassis.
+ * Separate codes for red and blue
+ */
 
 
 //package declaration
