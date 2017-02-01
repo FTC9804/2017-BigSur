@@ -1,5 +1,6 @@
 
 
+
 //Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
 //of driving forward, shooting, turning to 45, finding the white line, turning to 90
 //and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
@@ -35,41 +36,35 @@ public class V2BlueAuto extends FunctionsForILT {
         //Calibrate the Gyro
         calibrateGyro();
 
-        drive(20, .2, 0);
-
+        driveBack(20, .2);
 
 
         shootAndLift(10, 2025, .95, .95);
 
 
-
         spinMove(-25);
 
 
+        driveMoreRightBack(40, .25, 0);
 
 
-        driveMoreLeft(40, .25, 0);
+        lineUpFasterRightBack();
 
 
-        lineUpFasterLeft();
-
-        //Code to press bluebeacon
+        pressBeaconFrontBlueNew(true);
 
 
-
-        driveMoreLeftBack (29, .5, 0);
-
-
-       lineUpFasterLeftBack();
-
-        //Code to press bluebeacon
+        driveMoreRight (29, .5, 0);
 
 
+        lineUpFasterRight();
 
 
+        pressBeaconFrontBlueNew(false);
 
+        spinMove(-18);
 
-
+        drive(33, .6);
     }
 
 }
