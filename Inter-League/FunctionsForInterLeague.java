@@ -52,7 +52,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
     double COUNTS=0;          //Encoder counts necessary to drive the above amount of inches/rotations
 
     //Color sensor, located
-    ColorSensor colorSensor;
+    ColorSensor colorSensorLeft;
+    ColorSensor colorSensorRight;
 
     //Touch sensor for the beacon
     TouchSensor touchSensor;
@@ -154,8 +155,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
     double beaconPusherRightRetractPosition = 0.95;
     double beaconPusherRightExtendPosition = 0.05;
 
-    boolean pushOne ;
-    boolean pushTwo ;
+    boolean pushOne;
+    boolean pushTwo;
+
+    boolean push;
 
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
@@ -214,7 +217,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-    public void drive (double distance, double speed, double targetHeading)
+    public void drive (double distance, double speed)
     {
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
@@ -226,11 +229,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         while (leftMotor1.getCurrentPosition()<COUNTS) {
 
-            currentHeading = gyro.getIntegratedZValue();
-            telemetry.addData("Current Heading = ", currentHeading);
-            telemetry.update();
-            headingError = targetHeading - currentHeading;
-            speedCorrection = headingError * straightGyroGain;
 
             leftMotor1.setPower(speed);
             leftMotor2.setPower(speed);
@@ -257,7 +255,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         telemetry.update();
     }
 
-    public void driveBack (double distance, double speed, double targetHeading)
+    public void driveBack (double distance, double speed)
     {
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
@@ -269,12 +267,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
         while (Math.abs(leftMotor1.getCurrentPosition())<COUNTS) {
-
-            currentHeading = gyro.getIntegratedZValue();
-            telemetry.addData("Current Heading = ", currentHeading);
-            telemetry.update();
-            headingError = targetHeading - currentHeading;
-            speedCorrection = headingError * straightGyroGain;
 
             leftMotor1.setPower(-speed);
             leftMotor2.setPower(-speed);
@@ -482,8 +474,11 @@ public abstract class FunctionsForILT extends LinearOpMode {
         whiteLineSensorRight.enableLed(true);
         whiteLineSensorLeft.enableLed(true);
 
-        colorSensor = hardwareMap.colorSensor.get("color");     //I2C port 1
-        colorSensor.enableLed(false);
+        colorSensorLeft = hardwareMap.colorSensor.get("color");     //I2C port 1
+        colorSensorLeft.enableLed(false); //
+
+        colorSensorRight = hardwareMap.colorSensor.get("color");     //I2C port 2
+        colorSensorRight.enableLed(false); //
 
         touchSensor = hardwareMap.touchSensor.get("touch");
 
@@ -492,6 +487,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         pushOne=false;
         pushTwo=false;
+        push=false;
 
     }
 
@@ -700,88 +696,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         }
 
         stopDriving();
-    }
-
-    public void pressBeaconFrontRed ()
-    {
-        timeOne = this.getRuntime();
-        timeTwo= this.getRuntime();
-        pushOne = false;
-        pushTwo = false;
-
-        while (timeTwo-timeOne<1.2) {
-            if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5 && !pushTwo) {
-                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
-                pushOne = true;
-            } else if (colorSensor.blue() > 1.5 && colorSensor.red() < 1.5 && !pushOne) {
-                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
-                pushTwo = true;
-            } else {
-                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-            }
-
-            telemetry.addData("Blue color", colorSensor.blue());
-            telemetry.update();
-
-            timeTwo = this.getRuntime();
-        }
-
-        if (timeTwo-timeOne>4)
-        {
-            while (this.opModeIsActive())
-            {
-                timeTwo = this.getRuntime();
-            }
-        }
-
-        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-
-        telemetry.addData("Done", telemetryVariable);
-
-
-    }
-
-    public void pressBeaconFrontBlue () {
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        pushOne = false;
-        pushTwo = false;
-
-        while (timeTwo - timeOne < 1.2) {
-
-
-            if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5 && !pushTwo) {
-                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
-                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-                pushOne = true;
-            } else if (colorSensor.blue() > 1.5 && colorSensor.red() < 1.5 && !pushOne) {
-                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
-                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-                pushTwo = true;
-            } else {
-                beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-                beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-            }
-
-            telemetry.addData("Blue color", colorSensor.blue());
-            telemetry.update();
-            timeTwo = this.getRuntime();
-
-            if (timeTwo - timeOne > 4) {
-                while (this.opModeIsActive()) {
-                    timeTwo = this.getRuntime();
-                }
-            }
-
-            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-
-            telemetry.addData("Done", telemetryVariable);
-        }
     }
 
 
@@ -1317,4 +1231,115 @@ public abstract class FunctionsForILT extends LinearOpMode {
         }
 
     }
+
+
+
+    public void pressBeaconFrontRedNew (boolean goingForward)
+    {
+        timeOne = this.getRuntime();
+        push = false;
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+
+        while (timeTwo-timeOne<4) {
+            if (colorSensorRight.red() > 1.5 && colorSensorRight.blue() < 1.5 && !push) {
+                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
+                push = true;
+            }
+
+            if (!push)
+            {
+                if (goingForward)
+                {
+                    leftMotor1.setPower(-.25);
+                    leftMotor2.setPower (-.25);
+                    rightMotor1.setPower(-.2);
+                    rightMotor2.setPower(-.2);
+                }
+                else
+                {
+                    leftMotor1.setPower(.25);
+                    leftMotor2.setPower (.25);
+                    rightMotor1.setPower(.2);
+                    rightMotor2.setPower(.2);
+                }
+            }
+
+            telemetry.addData("Red color", colorSensorRight.red());
+            telemetry.update();
+
+            timeTwo = this.getRuntime();
+        }
+
+        if (timeTwo-timeOne>6)
+        {
+            while (this.getRuntime()<40)
+            {
+                timeTwo = this.getRuntime();;
+            }
+        }
+
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
+        telemetry.addData("Done", telemetryVariable);
+    }
+
+
+
+
+
+
+
+
+
+
+    public void pressBeaconFrontBlueNew (boolean goingForward) {
+        timeOne = this.getRuntime();;
+        push = false;
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
+        while (timeTwo-timeOne<4) {
+            if (colorSensorLeft.blue() > 1.5 && colorSensorLeft.red() < 1.5 && !push) {
+                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+                push = true;
+            }
+
+            if (!push)
+            {
+                if (goingForward)
+                {
+                    leftMotor1.setPower(-.2);
+                    leftMotor2.setPower (-.2);
+                    rightMotor1.setPower(-.25);
+                    rightMotor2.setPower(-.25);
+                }
+                else
+                {
+                    leftMotor1.setPower(.2);
+                    leftMotor2.setPower (.2);
+                    rightMotor1.setPower(.25);
+                    rightMotor2.setPower(.25);
+                }
+            }
+
+            telemetry.addData("Red color", colorSensorLeft.red());
+            telemetry.update();
+
+            timeTwo = this.getRuntime();;
+        }
+
+        if (timeTwo-timeOne>6)
+        {
+            while (this.getRuntime()<40)
+            {
+                timeTwo = this.getRuntime();;
+            }
+        }
+
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+
+        telemetry.addData("Done", telemetryVariable);
+    }
+
+
+
 }
