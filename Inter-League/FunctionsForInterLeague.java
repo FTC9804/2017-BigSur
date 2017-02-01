@@ -163,8 +163,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
-
-
     public void encoderTurnClockwise (double rotations, double speed)
     {
         //currentHeading = gyro.getIntegratedZValue();
@@ -245,7 +243,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
 
     }
-
 
     public void gyroTelemetry ()
     {
@@ -593,8 +590,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         //driveNext();
     }
 
-
-
     public void shoot(double power)
     {
 
@@ -663,8 +658,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         }
     }
 
-
-
     public void runIntakeOnly(double intakeSpeed, double time)
     {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -697,7 +690,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         stopDriving();
     }
-
 
     public void lineUpFasterLeft ()
     {
@@ -981,6 +973,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
 
     }
+
     //checkrotations
     public void driveMoreRight (double distance, double speed, double targetHeading)
     {
@@ -1232,8 +1225,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     }
 
-
-
     public void pressBeaconFrontRedNew (boolean goingForward)
     {
         timeOne = this.getRuntime();
@@ -1283,16 +1274,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
         telemetry.addData("Done", telemetryVariable);
     }
 
-
-
-
-
-
-
-
-
-
-    public void pressBeaconFrontBlueNew (boolean goingForward) {
+    public void pressBeaconFrontBlueNew (boolean goingForward)
+    {
         timeOne = this.getRuntime();;
         push = false;
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
