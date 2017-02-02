@@ -45,6 +45,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -65,9 +67,6 @@ public class BigSurTeleopx2Drive extends OpMode {
     DcMotor intake;       //intake system
     DcMotor elevator;     //elevator loading system
 
-
-
-
     DcMotor encode; //Hypothetical Motor
 
 
@@ -87,16 +86,13 @@ public class BigSurTeleopx2Drive extends OpMode {
     Servo batterySideBeacon;
     Servo portSideBeacon;
 
+    DigitalChannel ledShoot;    //indicator LEDs dependent on RPM
+    DigitalChannel ledDontShoot;
 
 
 
     double batterySideBeaconPosition;
     double portSideBeaconPosition;
-
-
-
-
-
 
 
 
@@ -207,8 +203,8 @@ public class BigSurTeleopx2Drive extends OpMode {
     //the weight given to the oldest value, incremented by .05 for each more recent value
     double baseWeight;
     //a boolean set to false unless outside force is currently being applied to the motor disturbing its rpm.  Reflective of how the motor will be disturbed when a ball is being shot in our actual robot.
-
-
+    double targetRPM = 2400;
+    //target RPM that we try to get to consistently
 
 
     double timeOne=0;
@@ -323,6 +319,15 @@ public class BigSurTeleopx2Drive extends OpMode {
         elevator.setDirection(DcMotor.Direction.FORWARD);
 
 
+        //configuration of the LED indicators
+        //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
+        //if the RPM is within an acceptable range
+        ledShoot = hardwareMap.digitalChannel.get("led1");
+        ledDontShoot = hardwareMap.digitalChannel.get("led2");
+        ledShoot.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
+        ledDontShoot.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
+        ledShoot.setState(true);                                     //LEDs are initialized to (1) or "OFF"
+        ledDontShoot.setState(true);
 
 
 
@@ -578,7 +583,18 @@ public class BigSurTeleopx2Drive extends OpMode {
         telemetry.addData("AvgRPM : ", avgRpm);
 
 
-        //***************************************************
+        //LED Notifications
+        if (tempWeightedAvg < (targetRPM +100)  || tempWeightedAvg > (targetRPM -100)) {
+            ledDontShoot.setState(true);
+            ledShoot.setState(false);
+        }
+        else {
+            ledDontShoot.setState(false);
+            ledShoot.setState(true);
+        }
+
+
+            //***************************************************
         //E L E V A T O R  L O A D E R  &  I N T A K E **
         //***************************************************
 
@@ -611,7 +627,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //increment shooter motor power based on dpad commands
-        shooterSpeed+= rpmGain * (2400-avgRpm);
+        shooterSpeed+= rpmGain * (targetRPM-avgRpm);
 
 
 
