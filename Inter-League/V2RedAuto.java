@@ -10,7 +10,7 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "V2BLUEAUTO", group = "AutoWithFunctions")
+@Autonomous(name = "V2REDAUTO", group = "AutoWithFunctions")
 //@Disabled
 public class V2RedAuto extends FunctionsForILT {
 
