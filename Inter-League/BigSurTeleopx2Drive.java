@@ -57,8 +57,6 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
-    DeviceInterfaceModule cdim;
-
     TouchSensor beamBreak;
 
     DigitalChannel ledShootGreen;
@@ -269,10 +267,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     /* Initialize standard Hardware interfaces */
     public void init() { //use hardwaremap here instead of hwmap or ahwmap provided in sample code
-
-        cdim = hardwareMap.deviceInterfaceModule.get("cdim");
-        cdim.setLED(1, redLedOn);
-        cdim.setLED(0, blueLedOff);
 
         //configuration of the LED indicators
         //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
