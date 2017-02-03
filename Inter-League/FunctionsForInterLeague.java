@@ -22,7 +22,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
-    DcMotor elevator;     //elevator loading system
 
     double whitesCounter = 0;
 
@@ -118,7 +117,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
     double straightGyroGain = .0005;
 
     //Gain to control rpm on the robot
-    double rpmGain = .0000001;
+    double rpmGain = .000003;
 
     //(not being used) The necesarry correction to power applied to motors when driving forward, based on the proximity between current and desired gyro headings
     double speedCorrection;
@@ -162,6 +161,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
+
+
 
     public void encoderTurnClockwise (double rotations, double speed)
     {
@@ -244,6 +245,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     }
 
+
     public void gyroTelemetry ()
     {
         telemetry.addData("Heading", gyro.getIntegratedZValue());
@@ -304,7 +306,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
     {
         intake.setPower(0);
         shooter.setPower(0);
-        elevator.setPower(0);
     }
 
     public void spinMove (double desiredHeading)
@@ -453,8 +454,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
-        elevator = hardwareMap.dcMotor.get("m7");
-
 
         turret = hardwareMap.servo.get("s1");
         hood = hardwareMap.servo.get("s2");
@@ -471,10 +470,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
         whiteLineSensorRight.enableLed(true);
         whiteLineSensorLeft.enableLed(true);
 
-        colorSensorLeft = hardwareMap.colorSensor.get("color");     //I2C port 1
+        colorSensorLeft = hardwareMap.colorSensor.get("colorLeft");     //I2C port 1
         colorSensorLeft.enableLed(false); //
 
-        colorSensorRight = hardwareMap.colorSensor.get("color");     //I2C port 2
+        colorSensorRight = hardwareMap.colorSensor.get("colorRight");     //I2C port 2
         colorSensorRight.enableLed(false); //
 
         touchSensor = hardwareMap.touchSensor.get("touch");
@@ -485,7 +484,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         pushOne=false;
         pushTwo=false;
         push=false;
-
     }
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
@@ -532,10 +530,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
                 if (weightedAvg + 50 > targetRPM) {
                     intake.setPower(intakeSpeed);
-                    elevator.setPower(elevatorSpeed);
                 } else {
                     intake.setPower(0);
-                    elevator.setPower(0);
                 }
 
 
@@ -586,64 +582,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         shooter.setPower(0);
         intake.setPower(0);
-        elevator.setPower(0);
         //driveNext();
     }
 
-    public void shoot(double power)
-    {
-
-        timeRunningLoop = this.getRuntime();
-
-        //set the shooter to power
-        shooter.setPower(power);
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //sleep function to allow the shooter to get up to speed
-        while (timeTwo-timeOne < 2)
-        {
-            timeTwo = this.getRuntime();
-        }
-
-        intake.setPower(0.95); //cut off at 95% speed
-
-        //sleep function to let the first ball pass through (1.5 seconds)
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        while (timeTwo-timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-            elevator.setPower(0.95); //cut off at 95% speed
-        }
-
-        //stop shooting the balls
-        elevator.setPower(0);
-
-        //let the shooter get back up to speed
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        while (timeTwo-timeOne < 1)
-        {
-            timeTwo = this.getRuntime();
-        }
-
-        //shoot again
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-        while (timeTwo-timeOne < 1.5)
-        {
-            timeTwo = this.getRuntime();
-            elevator.setPower(0.95); //cut off at 95% speed
-        }
-
-        //stop the elevator again
-        elevator.setPower(0);
-        intake.setPower(0);
-
-        stopShooting();
-
-    }
 
     public void stopDrivingAndPause ()
     {
@@ -657,6 +598,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
             telemetry.addData("Time", (timeTwo - timeOne));
         }
     }
+
+
 
     public void runIntakeOnly(double intakeSpeed, double time)
     {
@@ -690,6 +633,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         stopDriving();
     }
+
 
     public void lineUpFasterLeft ()
     {
@@ -973,7 +917,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
 
     }
-
     //checkrotations
     public void driveMoreRight (double distance, double speed, double targetHeading)
     {
@@ -1225,6 +1168,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     }
 
+
+
     public void pressBeaconFrontRedNew (boolean goingForward)
     {
         timeOne = this.getRuntime();
@@ -1274,9 +1219,17 @@ public abstract class FunctionsForILT extends LinearOpMode {
         telemetry.addData("Done", telemetryVariable);
     }
 
-    public void pressBeaconFrontBlueNew (boolean goingForward)
-    {
-        timeOne = this.getRuntime();;
+
+
+
+
+
+
+
+
+
+    public void pressBeaconFrontBlueNew (boolean goingForward) {
+        timeOne = this.getRuntime();
         push = false;
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
 
@@ -1304,7 +1257,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 }
             }
 
-            telemetry.addData("Red color", colorSensorLeft.red());
+            telemetry.addData("Blue color", colorSensorLeft.blue());
             telemetry.update();
 
             timeTwo = this.getRuntime();;
