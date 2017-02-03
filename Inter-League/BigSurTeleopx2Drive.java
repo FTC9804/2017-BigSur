@@ -45,8 +45,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -65,7 +63,21 @@ public class BigSurTeleopx2Drive extends OpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
-    DcMotor elevator;     //elevator loading system
+
+
+    Servo leftIntake;
+    Servo rightIntake;
+    Servo kicker;
+
+
+
+
+
+
+
+
+
+
 
     DcMotor encode; //Hypothetical Motor
 
@@ -83,16 +95,20 @@ public class BigSurTeleopx2Drive extends OpMode {
     //servos declared
     Servo turret;       //continuous rotation servo, adjust direction of shooter
     Servo hood;       //position servo for 180º, adjust angle of shooter
-    Servo batterySideBeacon;
-    Servo portSideBeacon;
-
-    DigitalChannel ledShoot;    //indicator LEDs dependent on RPM
-    DigitalChannel ledDontShoot;
+    Servo beaconPusherLeft;
+    Servo beaconPusherRight;
+    Servo ballControl;
 
 
 
-    double batterySideBeaconPosition;
-    double portSideBeaconPosition;
+
+    double beaconPusherRightPosition;
+    double beaconPusherLeftPosition;
+
+
+
+
+
 
 
 
@@ -111,8 +127,6 @@ public class BigSurTeleopx2Drive extends OpMode {
     boolean halfGain = false;
 //    boolean previousStatus = false;
 //    boolean currentStatus = false;
-    int bumperCount = 0;
-    int tempBumperCount = 0;
     boolean justBumped = false;
 
 
@@ -203,8 +217,8 @@ public class BigSurTeleopx2Drive extends OpMode {
     //the weight given to the oldest value, incremented by .05 for each more recent value
     double baseWeight;
     //a boolean set to false unless outside force is currently being applied to the motor disturbing its rpm.  Reflective of how the motor will be disturbed when a ball is being shot in our actual robot.
-    double targetRPM = 2400;
-    //target RPM that we try to get to consistently
+
+
 
 
     double timeOne=0;
@@ -268,7 +282,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor2 = hardwareMap.dcMotor.get("m2");
         shooter = hardwareMap.dcMotor.get("m5");
         intake = hardwareMap.dcMotor.get("m6");
-        elevator = hardwareMap.dcMotor.get("m7");
         encode = hardwareMap.dcMotor.get("m8");
 
 
@@ -316,36 +329,30 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         shooter.setDirection(DcMotor.Direction.FORWARD);
         intake.setDirection(DcMotor.Direction.REVERSE);
-        elevator.setDirection(DcMotor.Direction.FORWARD);
 
 
-        //configuration of the LED indicators
-        //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
-        //if the RPM is within an acceptable range
-        ledShoot = hardwareMap.digitalChannel.get("led1");
-        ledDontShoot = hardwareMap.digitalChannel.get("led2");
-        ledShoot.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
-        ledDontShoot.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
-        ledShoot.setState(true);                                     //LEDs are initialized to (1) or "OFF"
-        ledDontShoot.setState(true);
-
+        ballControl.setPosition(0);
 
 
 
         //Servo configurations
         turret = hardwareMap.servo.get("s1");
         hood = hardwareMap.servo.get("s2");
-        batterySideBeacon = hardwareMap.servo.get("s3");
-        portSideBeacon = hardwareMap.servo.get("s4");
+        beaconPusherRight = hardwareMap.servo.get("s3");
+        beaconPusherLeft = hardwareMap.servo.get("s4");
+        ballControl = hardwareMap.servo.get("s5");
 
+        leftIntake = hardwareMap.servo.get("s6");
+        rightIntake = hardwareMap.servo.get("s7");
+        kicker = hardwareMap.servo.get("s8");
 
 
 
         //Servo initial positions
         turret.setPosition(TURRET_INITIAL);
         hood.setPosition(HOOD_INITIAL);
-        batterySideBeacon.setPosition(.5);
-        portSideBeacon.setPosition(.5);
+        beaconPusherRight.setPosition(.5);
+        beaconPusherLeft.setPosition(.5);
 
 
 
@@ -583,18 +590,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         telemetry.addData("AvgRPM : ", avgRpm);
 
 
-        //LED Notifications
-        if (tempWeightedAvg < (targetRPM +100)  || tempWeightedAvg > (targetRPM -100)) {
-            ledDontShoot.setState(true);
-            ledShoot.setState(false);
-        }
-        else {
-            ledDontShoot.setState(false);
-            ledShoot.setState(true);
-        }
-
-
-            //***************************************************
+        //***************************************************
         //E L E V A T O R  L O A D E R  &  I N T A K E **
         //***************************************************
 
@@ -604,30 +600,40 @@ public class BigSurTeleopx2Drive extends OpMode {
         if (gamepad2.right_trigger > 0.6) { //triggers act like an axis, so to make them behave like buttons
             // we set them to active when they reach beyond a certain value: .6.  If the right trigger's
             //value is above .6, activate elevator (going up) and intake (coming in)
-            elevatorSpeed = 1.0;
             intakeSpeed = 1.0;
-        } else if (gamepad2.right_bumper) { //If the right bumper is pressed, activate elevator (going down) and intake (going out)
-            elevatorSpeed = -1.0;
-            intakeSpeed = -1.0;
-        } else if ((gamepad2.left_trigger > 0.6) && (!(gamepad2.right_trigger > 0.6) && !(gamepad2.right_bumper))) { //If the left trigger's value is beyond .6,
-            //but the right trigger is not above .6 and the right bumper is not being pressed, keep the elevator still and activate the intake (coming in)
-            intakeSpeed = 1.0;
-            elevatorSpeed = 0.0;
-        } else if ((gamepad2.left_bumper) && (!(gamepad2.right_trigger > 0.6) && !(gamepad2.right_bumper)))//If the left bumper is being pressed,
-        //but the right trigger is not above .6 and the right bumper is not being pressed, keep the elevator still and activate the intake (going out)
+        }
+        else if (gamepad2.left_trigger>.6)
         {
-            intakeSpeed = -1.0;
-            elevatorSpeed = 0.0;
-        } else {//If none of the above conditions are true, stop running both the intake and the elevator
-            intakeSpeed = 0.0;
-            elevatorSpeed = 0.0;
+            intakeSpeed=-1;
+        }
+        else
+        {
+            intakeSpeed=0;
         }
 
 
 
 
         //increment shooter motor power based on dpad commands
-        shooterSpeed+= rpmGain * (targetRPM-avgRpm);
+        shooterSpeed+= rpmGain * (2000-avgRpm);
+
+        if (gamepad2.left_bumper)
+        {
+            ballControl.setPosition(.95);
+        }
+        else
+        {
+            ballControl.setPosition(0);
+        }
+
+        if (gamepad2.right_bumper)
+        {
+            kicker.setPosition(.95);
+        }
+        else
+        {
+            kicker.setPosition(0);
+        }
 
 
 
@@ -661,9 +667,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         intake.setPower(intakeSpeed);
         telemetry.addData("shooter speed: ", shooterSpeed);
-
-        elevator.setPower(elevatorSpeed);
-
 
         //*****************
         // H O O D @@
@@ -724,37 +727,38 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //Move both port side and battery side beacons based on actions on the dpad*/
-        if (gamepad1.x) {
-            portSideBeaconPosition = .2;
+        if (gamepad2.x) {
+            beaconPusherLeftPosition = .8;
         }
-        else if (gamepad1.b) {
-            portSideBeaconPosition = .8;
+        else {
+            beaconPusherLeftPosition = .2;
+        }
+
+
+
+        if (gamepad2.dpad_up)
+        {
+            rightIntake.setPosition(.95);
+            leftIntake.setPosition(.05);
+        }
+        if (gamepad2.dpad_down)
+        {
+            leftIntake.setPosition(.95);
+            rightIntake.setPosition(.05);
+        }
+
+        if (gamepad1.b) {
+            beaconPusherRightPosition = .8;
         }
         else
         {
-            portSideBeaconPosition = .5;
+            beaconPusherRightPosition=.2;
         }
 
 
-
-
-
-
-
-
-        if (gamepad1.a) {
-            batterySideBeaconPosition = .2;
-        }
-        else if (gamepad1.y) { //If a is being pressed, move the hood up
-            batterySideBeaconPosition = .8;
-        }
-        else
-        {
-            batterySideBeaconPosition=.5;
-        }
         //set the position of each beacon to its respective position determined above
-        portSideBeacon.setPosition(portSideBeaconPosition);
-        batterySideBeacon.setPosition(batterySideBeaconPosition);
+        beaconPusherLeft.setPosition(beaconPusherLeftPosition);
+        beaconPusherRight.setPosition(beaconPusherRightPosition);
 
 
 
@@ -763,23 +767,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
-        telemetry.update(); //update telemetry
+        telemetry.update(); //update telemetryKEEP IN OOP
     }
-//
-//    @Override
-//    public void stop() {
-//
-//        do {
-//
-//            shooterSpeed -= .001;
-//            shooter.setPower(shooterSpeed);
-//            telemetry.addData("shooterSpeed = ", shooterSpeed);
-//            telemetry.update();
-//            timeOne = clock.seconds ()();
-//
-//        } while (shooterSpeed > 0);
-//
-//        shooter.setPower(0);
-//
-//    }
 }
