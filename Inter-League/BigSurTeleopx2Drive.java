@@ -81,8 +81,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     //old rpm
     //double rpmGain = .0000001;
-    double rpmGain = .0000001;
-    double targetRPM = 3200;
+    double rpmGain = .0000002;
+    double targetRPM = 2400;
 
     int mode;
 
@@ -579,8 +579,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         }
         //telemetry for rpm and averages
 //        telemetry.addData("WeightedRPM: ", tempWeightedAvg);
-        rpm = rpm * 22/16; //we have a 16:22 gear ratio
-        avgRpm = avgRpm * 22/16;
+//        rpm = rpm * 22/16; //we have a 16:22 gear ratio
+//        avgRpm = avgRpm * 22/16;
         telemetry.addData("RPM : ", rpm);
         telemetry.addData("AvgRPM : ", avgRpm);
 
