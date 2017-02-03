@@ -45,7 +45,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 
@@ -53,7 +56,14 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
+    TouchSensor beamBreak;
 
+    DigitalChannel ledShootGreen;
+    DigitalChannel ledDontShootRed;
+    DigitalChannel ledBallBlue;
+    boolean greenLEDIsOn = true;
+    boolean redLEDIsOn = true;
+    boolean blueLEDIsOn = true;
 
 
     //motors declared
@@ -253,6 +263,21 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     /* Initialize standard Hardware interfaces */
     public void init() { //use hardwaremap here instead of hwmap or ahwmap provided in sample code
+
+        //configuration of the LED indicators
+        //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
+        //if the RPM is within an acceptable range
+        ledShootGreen = hardwareMap.digitalChannel.get("led1");
+        ledDontShootRed = hardwareMap.digitalChannel.get("led2");
+        ledBallBlue = hardwareMap.digitalChannel.get("led3");
+        ledShootGreen.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
+        ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
+        ledBallBlue.setMode(DigitalChannelController.Mode.OUTPUT);
+        ledShootGreen.setState(greenLEDIsOn);                                     //LEDs are initialized to "ON"
+        ledDontShootRed.setState(redLEDIsOn);
+        ledBallBlue.setState(blueLEDIsOn);
+
+        beamBreak = hardwareMap.touchSensor.get("bb");
 
         //motor configurations in the hardware map
         rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
@@ -554,6 +579,9 @@ public class BigSurTeleopx2Drive extends OpMode {
         telemetry.addData("AvgRPM : ", avgRpm);
 
 
+
+
+
         //***************************************************
         //E L E V A T O R  L O A D E R  &  I N T A K E **
         //***************************************************
@@ -580,6 +608,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //increment shooter motor power based on dpad commands
         shooterSpeed+= rpmGain * (2000-avgRpm);
+
+
 
         if (gamepad2.left_bumper)
         {
@@ -631,6 +661,32 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         intake.setPower(intakeSpeed);
         telemetry.addData("shooter speed: ", shooterSpeed);
+
+
+
+        //***************************************************
+        // L E D   N O T I F I C A T I O N S
+        //***************************************************
+
+        //LED Notifications
+        if (avgRpm < (2000 +100)  || avgRpm > (2000 -100)) {
+            ledDontShootRed.setState(!redLEDIsOn);
+            ledShootGreen.setState(greenLEDIsOn);
+        }
+        else {
+            ledDontShootRed.setState(redLEDIsOn);
+            ledShootGreen.setState(!greenLEDIsOn);
+        }
+        if (beamBreak.isPressed()) {
+            telemetry.addLine("No Ball");
+            ledBallBlue.setState(!blueLEDIsOn);
+        }
+        else {
+            telemetry.addLine("Ball");
+            ledBallBlue.setState(blueLEDIsOn);
+        }
+
+
 
         //*****************
         // H O O D @@
