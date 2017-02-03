@@ -45,6 +45,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -52,14 +53,16 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name = "TeleOpV72400", group = "InNOut Testing")
+@TeleOp(name = "TeleOpV73200", group = "InNOut Testing")
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
+
+    DeviceInterfaceModule cdim;
 
     TouchSensor beamBreak;
 
     DigitalChannel ledShootGreen;
-    DigitalChannel ledDontShootRed;
+    //DigitalChannel ledDontShootRed;
     DigitalChannel ledBallBlue;
     boolean greenLEDIsOn = true;
     boolean redLEDIsOn = true;
@@ -78,8 +81,10 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     double tempWeightedAvg;
 
+    //old rpm
+    //double rpmGain = .0000001;
     double rpmGain = .0000001;
-
+    double targetRPM = 3200;
 
     int mode;
 
@@ -87,7 +92,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //servos declared
-    Servo turret;       //continuous rotation servo, adjust direction of shooter
+    Servo turret;       //crontinuous rotation servo, adjust direction of shooter
     Servo hood;       //position servo for 180º, adjust angle of shooter
     Servo beaconPusherLeft;
     Servo beaconPusherRight;
@@ -254,7 +259,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     //boolean shooterOff=false;
 
-
+    boolean redLedOn = true;
+    boolean blueLedOff = true;
 
 
 
@@ -264,17 +270,21 @@ public class BigSurTeleopx2Drive extends OpMode {
     /* Initialize standard Hardware interfaces */
     public void init() { //use hardwaremap here instead of hwmap or ahwmap provided in sample code
 
+        cdim = hardwareMap.deviceInterfaceModule.get("cdim");
+        cdim.setLED(1, redLedOn);
+        cdim.setLED(0, blueLedOff);
+
         //configuration of the LED indicators
         //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
         //if the RPM is within an acceptable range
         ledShootGreen = hardwareMap.digitalChannel.get("led1");
-        ledDontShootRed = hardwareMap.digitalChannel.get("led2");
+       // ledDontShootRed = hardwareMap.digitalChannel.get("led2");
         ledBallBlue = hardwareMap.digitalChannel.get("led3");
         ledShootGreen.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
-        ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
+        //ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
         ledBallBlue.setMode(DigitalChannelController.Mode.OUTPUT);
         ledShootGreen.setState(greenLEDIsOn);                                     //LEDs are initialized to "ON"
-        ledDontShootRed.setState(redLEDIsOn);
+        //ledDontShootRed.setState(redLEDIsOn);
         ledBallBlue.setState(blueLEDIsOn);
 
         beamBreak = hardwareMap.touchSensor.get("bb");
@@ -574,7 +584,9 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         }
         //telemetry for rpm and averages
-        telemetry.addData("WeightedRPM: ", tempWeightedAvg);
+//        telemetry.addData("WeightedRPM: ", tempWeightedAvg);
+        rpm = rpm * 22/16; //we have a 16:22 gear ratio
+        avgRpm = avgRpm * 22/16;
         telemetry.addData("RPM : ", rpm);
         telemetry.addData("AvgRPM : ", avgRpm);
 
@@ -587,6 +599,20 @@ public class BigSurTeleopx2Drive extends OpMode {
         //***************************************************
 
 
+        if (gamepad2.dpad_up)
+        {
+            rightIntake.setPosition(.95);
+            leftIntake.setPosition(.05);
+        }
+        else if (gamepad2.dpad_down)
+        {
+            leftIntake.setPosition(.95);
+            rightIntake.setPosition(.05);
+        }
+        else {
+            leftIntake.setPosition(.5);
+            rightIntake.setPosition(.5);
+        }
 
 
         if (gamepad2.right_trigger > 0.6) { //triggers act like an axis, so to make them behave like buttons
@@ -603,11 +629,6 @@ public class BigSurTeleopx2Drive extends OpMode {
             intakeSpeed=0;
         }
 
-
-
-
-        //increment shooter motor power based on dpad commands
-        shooterSpeed+= rpmGain * (2000-avgRpm);
 
 
 
@@ -637,22 +658,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //Set the elevator and intake's speed to the values specified above
 
-
-
-//    if (shooterOff)
-//    {
-//        shooterSpeed = 0;
-//    }
-
-//        //no longer used because of Range.clip right below
-//        if (shooterSpeed>1)
-//        {
-//            shooterSpeed=1;
-//        }
-//        if (shooterSpeed<0)
-//        {
-//            shooterSpeed=0;
-//        }
+        //increment shooter motor power based on dpad commands
+        shooterSpeed+= rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
 
         shooterSpeed = Range.clip(shooterSpeed,0,1);
 
@@ -660,7 +667,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         shooter.setPower(shooterSpeed);
 
         intake.setPower(intakeSpeed);
-        telemetry.addData("shooter speed: ", shooterSpeed);
+        telemetry.addData("Shooter Speed: ", shooterSpeed);
 
 
 
@@ -669,12 +676,12 @@ public class BigSurTeleopx2Drive extends OpMode {
         //***************************************************
 
         //LED Notifications
-        if (avgRpm < (2000 +100)  || avgRpm > (2000 -100)) {
-            ledDontShootRed.setState(!redLEDIsOn);
+        if (avgRpm < (targetRPM +100)  && avgRpm > (targetRPM -100)) {
+           // ledDontShootRed.setState(!redLEDIsOn);
             ledShootGreen.setState(greenLEDIsOn);
         }
         else {
-            ledDontShootRed.setState(redLEDIsOn);
+            //ledDontShootRed.setState(redLEDIsOn);
             ledShootGreen.setState(!greenLEDIsOn);
         }
         if (beamBreak.isPressed()) {
@@ -734,39 +741,26 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //Move both port side and battery side beacons based on actions on the dpad*/
         if (gamepad2.x) {
-            beaconPusherLeftPosition = .8;
+            beaconPusherLeftPosition = 1;
         }
         else {
-            beaconPusherLeftPosition = .2;
-        }
-
-
-
-        if (gamepad2.dpad_up)
-        {
-            rightIntake.setPosition(.95);
-            leftIntake.setPosition(.05);
-        }
-        if (gamepad2.dpad_down)
-        {
-            leftIntake.setPosition(.95);
-            rightIntake.setPosition(.05);
+            beaconPusherLeftPosition = 0;
         }
 
         if (gamepad1.b) {
-            beaconPusherRightPosition = .8;
+            beaconPusherRightPosition = 0;
         }
         else
         {
-            beaconPusherRightPosition=.2;
+            beaconPusherRightPosition = 1;
         }
-
 
         //set the position of each beacon to its respective position determined above
         beaconPusherLeft.setPosition(beaconPusherLeftPosition);
         beaconPusherRight.setPosition(beaconPusherRightPosition);
 
 
-        telemetry.update(); //update telemetryKEEP IN OOP
+
+        telemetry.update(); //update telemetryKEEP IN LOOP
     }
 }
