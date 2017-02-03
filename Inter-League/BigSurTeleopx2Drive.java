@@ -63,22 +63,6 @@ public class BigSurTeleopx2Drive extends OpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
-
-
-    Servo leftIntake;
-    Servo rightIntake;
-    Servo kicker;
-
-
-
-
-
-
-
-
-
-
-
     DcMotor encode; //Hypothetical Motor
 
 
@@ -98,7 +82,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     Servo beaconPusherLeft;
     Servo beaconPusherRight;
     Servo ballControl;
-
+    Servo leftIntake;
+    Servo rightIntake;
+    Servo kicker;
 
 
 
@@ -156,15 +142,15 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //values for the gears of the turret
-    final double SMALL_GEAR_TEETH = 16.0;
-    final double BIG_GEAR_TEETH = 72.0;
+    final double SMALL_GEAR_TEETH = 32.0;
+    final double BIG_GEAR_TEETH = 89.0;
     final double GEAR_RATIO = SMALL_GEAR_TEETH/BIG_GEAR_TEETH;
 
 
 
 
     //hood variables
-    final double HOOD_INITIAL = .12;          //initial hood position all the way at the bottom
+    final double HOOD_INITIAL = 1;          //initial hood position all the way at the bottom
     double hoodPositioning;  //hood positioning initially set
 
 
@@ -268,13 +254,6 @@ public class BigSurTeleopx2Drive extends OpMode {
     /* Initialize standard Hardware interfaces */
     public void init() { //use hardwaremap here instead of hwmap or ahwmap provided in sample code
 
-
-
-
-
-
-
-
         //motor configurations in the hardware map
         rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
         rightMotor2 = hardwareMap.dcMotor.get("m4");//port 2
@@ -285,36 +264,21 @@ public class BigSurTeleopx2Drive extends OpMode {
         encode = hardwareMap.dcMotor.get("m8");
 
 
-
-
-
-
-
-
         //Stop and reset encoder, declare intention to run using encoder
         encode.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-
-
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
 
 
         //encoder count for turret at the init phase
         initialEncoderCount = encode.getCurrentPosition();
 
 
-
-
         //encoder counts for shooter at init phase
         encoderClicksOne=shooter.getCurrentPosition();
         encoderClicksTwo=shooter.getCurrentPosition();
-
-
 
 
         // right side set to FORWARD, left set to REVERSE using our custom west coast driving gearbox
@@ -331,9 +295,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         intake.setDirection(DcMotor.Direction.REVERSE);
 
 
-        ballControl.setPosition(0);
-
-
 
         //Servo configurations
         turret = hardwareMap.servo.get("s1");
@@ -341,21 +302,21 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherRight = hardwareMap.servo.get("s3");
         beaconPusherLeft = hardwareMap.servo.get("s4");
         ballControl = hardwareMap.servo.get("s5");
-
         leftIntake = hardwareMap.servo.get("s6");
         rightIntake = hardwareMap.servo.get("s7");
         kicker = hardwareMap.servo.get("s8");
 
 
-
+        hoodPositioning = HOOD_INITIAL;
         //Servo initial positions
         turret.setPosition(TURRET_INITIAL);
-        hood.setPosition(HOOD_INITIAL);
-        beaconPusherRight.setPosition(.5);
-        beaconPusherLeft.setPosition(.5);
-
-
-
+        hood.setPosition(hoodPositioning);
+        beaconPusherRight.setPosition(1);
+        beaconPusherLeft.setPosition(0);
+        ballControl.setPosition(0);
+        leftIntake.setPosition(.5);
+        rightIntake.setPosition(.5);
+        kicker.setPosition(0);
 
         //Shooter initially running at shooterSpeed power
         shooter.setPower(shooterSpeed);
@@ -392,80 +353,83 @@ public class BigSurTeleopx2Drive extends OpMode {
         //  A S S I G N  G A I N  M O D E S @@
         //********************************
 
-
-        if (gamepad1.right_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
-            justBumped = true;
-        }
-        if (!gamepad1.right_bumper&&justBumped)
-        {
-            halfGain= !halfGain;
-            justBumped = false;
-        }
-
-
-        if (halfGain) //If we are on half gain then
-        { //set the gain to .5 and show telemetry showing that
-            gain = .5;
-            telemetry.addData("On half gain (true/false)", halfGain);
-        } else {
-            gain = 1;
-            telemetry.addData("On half gain (true/false)", halfGain);
-        }
-
-
-//        if (gamepad1.left_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
 //
-//
-//            shooterOff = !shooterOff;
-//            telemetry.addData("On shooterOff (true/false)", shooterOff);
+//        if (gamepad1.right_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
+//            justBumped = true;
 //        }
+//        if (!gamepad1.right_bumper&&justBumped)
+//        {
+//            halfGain= !halfGain;
+//            justBumped = false;
+//        }
+//
+//
+//        if (halfGain) //If we are on half gain then
+//        { //set the gain to .5 and show telemetry showing that
+//            gain = .5;
+//            telemetry.addData("On half gain (true/false)", halfGain);
+//        } else {
+//            gain = 1;
+//            telemetry.addData("On half gain (true/false)", halfGain);
+//        }
+//
+//
+////        if (gamepad1.left_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
+////
+////
+////            shooterOff = !shooterOff;
+////            telemetry.addData("On shooterOff (true/false)", shooterOff);
+////        }
+//
+//        //set leftPower and rightPower to .95 * the value of joystick1ValueLeft and joystick1ValueRight cubed, respectively, in order to
+//        //allow fine control for driving
+//        leftPower = .95 * (Math.pow(joystick1ValueLeft, 3)) * gain;
+//        rightPower = .95 * (Math.pow(joystick1ValueRight, 3)) * gain;
+//
+//
+//        //POSSIBLE DRIVING GAIN OPTIONS TO TEST
+//        //leftPower = Math.sin((Math.PI/2)*joystick1ValueLeft);
+//        //rightPower = Math.sin((Math.PI/2)*joystick2ValueRight);
+//        //leftPower = .95 * (Math.pow (joystick1ValueLeft,3));
+//        //rightPower = .95 * (Math.pow (joystick1ValueLeft,3));
+//        //leftPower = Math.pow(joystick1ValueLeft, exponent);
+//        //rightPower = Math.pow(joystick2ValueRight,exponent);
+//        //leftPower = 1- Math.pow(1-joystick1ValueLeft*joystick1ValueLeft, .5);
+//        //rightPower = 1- Math.pow(1-joystick2ValueRight*joystick2ValueRight, .5);
+//        //leftPower = ((Math.pow(base, joystick1ValueLeft)-1)/(base-1));
+//        //rightPower = ((Math.pow(base,joystick2ValueRight)-1)/(base-1));
+//        //leftPower = .64 * Math.tan(joystick1ValueLeft);
+//        //rightPower = .64 * Math.tan(joystick2ValueRight);
+//
+//
+//        //*****************
+//        // D R I V I N G **  ASSUME THIS WORKS, ANOTHER VERSION WILL HAVE SIMPLE DRIVE CODE
+//        //*****************
+//
+//
+//        //ensures the value of the joystick, if negative, will result in a negative value of power
+//
+//
+//        if (joystick1ValueLeft < 0) {
+//            leftPower *= -Math.abs(leftPower);
+//        }
+//        if (joystick1ValueRight < 0) {
+//            rightPower *= -Math.abs(rightPower);
+//        }
+//
+//
+//        //set left motors and right motors to leftPower and rightPower, respectively
+//        leftMotor1.setPower(leftPower);
+//        leftMotor2.setPower(leftPower);
+//
+//
+//        rightMotor1.setPower(rightPower);
+//        rightMotor2.setPower(rightPower);
 
-        //set leftPower and rightPower to .95 * the value of joystick1ValueLeft and joystick1ValueRight cubed, respectively, in order to
-        //allow fine control for driving
-        leftPower = .95 * (Math.pow(joystick1ValueLeft, 3)) * gain;
-        rightPower = .95 * (Math.pow(joystick1ValueRight, 3)) * gain;
-
-
-        //POSSIBLE DRIVING GAIN OPTIONS TO TEST
-        //leftPower = Math.sin((Math.PI/2)*joystick1ValueLeft);
-        //rightPower = Math.sin((Math.PI/2)*joystick2ValueRight);
-        //leftPower = .95 * (Math.pow (joystick1ValueLeft,3));
-        //rightPower = .95 * (Math.pow (joystick1ValueLeft,3));
-        //leftPower = Math.pow(joystick1ValueLeft, exponent);
-        //rightPower = Math.pow(joystick2ValueRight,exponent);
-        //leftPower = 1- Math.pow(1-joystick1ValueLeft*joystick1ValueLeft, .5);
-        //rightPower = 1- Math.pow(1-joystick2ValueRight*joystick2ValueRight, .5);
-        //leftPower = ((Math.pow(base, joystick1ValueLeft)-1)/(base-1));
-        //rightPower = ((Math.pow(base,joystick2ValueRight)-1)/(base-1));
-        //leftPower = .64 * Math.tan(joystick1ValueLeft);
-        //rightPower = .64 * Math.tan(joystick2ValueRight);
-
-
-        //*****************
-        // D R I V I N G **  ASSUME THIS WORKS, ANOTHER VERSION WILL HAVE SIMPLE DRIVE CODE
-        //*****************
-
-
-        //ensures the value of the joystick, if negative, will result in a negative value of power
-
-
-        if (joystick1ValueLeft < 0) {
-            leftPower *= -Math.abs(leftPower);
-        }
-        if (joystick1ValueRight < 0) {
-            rightPower *= -Math.abs(rightPower);
-        }
-
-
-        //set left motors and right motors to leftPower and rightPower, respectively
-        leftMotor1.setPower(leftPower);
-        leftMotor2.setPower(leftPower);
-
-
-        rightMotor1.setPower(rightPower);
-        rightMotor2.setPower(rightPower);
-
-
+        leftMotor1.setPower(.95*joystick1ValueLeft);
+        leftMotor2.setPower(.95*joystick1ValueLeft);
+        rightMotor1.setPower(.95*joystick1ValueRight);
+        rightMotor2.setPower(.95*joystick1ValueRight);
 
 
         //*****************
@@ -672,13 +636,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         // H O O D @@
         //*****************
 
-
-
-
-
-
-
-
         //increase/decrease hood positioning at a slow rate to allow fine tune adjustment because the code will cycle approx. 100-150 times a second
 
 
@@ -686,24 +643,17 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         if (gamepad2.y) { //If y is being pressed, move the hood down
             mode=0;
-            hoodPositioning += .001;
+            hoodPositioning -= .005;
         }
         if (gamepad2.a) { //If a is being pressed, move the hood up
             mode=0;
-            hoodPositioning -= .001;
+            hoodPositioning += .005;
         }
         //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
         //ensure the hoodPositioning value is in the correct range
         if (hoodPositioning > .35) {
             hoodPositioning = .35;
         }
-
-
-
-
-
-
-
 
         if (hoodPositioning < .09) {
             hoodPositioning = .09;
@@ -759,12 +709,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         //set the position of each beacon to its respective position determined above
         beaconPusherLeft.setPosition(beaconPusherLeftPosition);
         beaconPusherRight.setPosition(beaconPusherRightPosition);
-
-
-
-
-
-
 
 
         telemetry.update(); //update telemetryKEEP IN OOP
