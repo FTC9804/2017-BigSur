@@ -104,7 +104,7 @@ public class DriveTrain {
     //drive gain to multiply the power by
     //toggle variables
     boolean halfGain = false;
-//    boolean previousStatus = false;
+    //    boolean previousStatus = false;
 //    boolean currentStatus = false;
     boolean justBumped = false;
 
