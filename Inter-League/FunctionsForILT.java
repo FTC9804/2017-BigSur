@@ -51,11 +51,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
     double COUNTS=0;          //Encoder counts necessary to drive the above amount of inches/rotations
 
     //Color sensor, located
-    ColorSensor colorSensorLeft;
-    ColorSensor colorSensorRight;
+    ColorSensor colorSensor;
 
-    //Touch sensor for the beacon
-    TouchSensor touchSensor;
 
     //Optical distance sensors to detect white light
     OpticalDistanceSensor whiteLineSensorRight;
@@ -470,13 +467,17 @@ public abstract class FunctionsForILT extends LinearOpMode {
         whiteLineSensorRight.enableLed(true);
         whiteLineSensorLeft.enableLed(true);
 
-        colorSensorLeft = hardwareMap.colorSensor.get("colorLeft");     //I2C port 1
-        colorSensorLeft.enableLed(false); //
+        //colorSensorLeft = hardwareMap.colorSensor.get("colorLeft");     //I2C port 1
+       // colorSensorLeft.enableLed(false); //
 
-        colorSensorRight = hardwareMap.colorSensor.get("colorRight");     //I2C port 2
-        colorSensorRight.enableLed(false); //
+        //requires moving connection based on alliance color
+        colorSensor = hardwareMap.colorSensor.get("color");     //I2C port 1
+        colorSensor.enableLed(false); //
 
-        touchSensor = hardwareMap.touchSensor.get("touch");
+
+        // colorSensorRight = hardwareMap.colorSensor.get("colorRight");     //I2C port 2
+       // colorSensorRight.enableLed(false); //
+
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
@@ -617,23 +618,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         intake.setPower(0);
     }
-
-    public void driveToTouch (double speed)
-    {
-        timeOne=this.getRuntime();
-        timeTwo= this.getRuntime();
-
-        while (!touchSensor.isPressed()&& (timeTwo-timeOne<4)){
-            leftMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor1.setPower(speed);
-            rightMotor2.setPower(speed);
-            timeTwo=this.getRuntime();
-        }
-
-        stopDriving();
-    }
-
 
     public void lineUpFasterLeft ()
     {
@@ -1177,7 +1161,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
         while (timeTwo-timeOne<4) {
-            if (colorSensorRight.red() > 1.5 && colorSensorRight.blue() < 1.5 && !push) {
+            if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5 && !push) {
                 beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
                 push = true;
             }
@@ -1200,7 +1184,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 }
             }
 
-            telemetry.addData("Red color", colorSensorRight.red());
+            telemetry.addData("Red color", colorSensor.red());
             telemetry.update();
 
             timeTwo = this.getRuntime();
@@ -1234,7 +1218,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
 
         while (timeTwo-timeOne<4) {
-            if (colorSensorLeft.blue() > 1.5 && colorSensorLeft.red() < 1.5 && !push) {
+            if (colorSensor.blue() > 1.5 && colorSensor.red() < 1.5 && !push) {
                 beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
                 push = true;
             }
@@ -1257,7 +1241,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 }
             }
 
-            telemetry.addData("Blue color", colorSensorLeft.blue());
+            telemetry.addData("Blue color", colorSensor.blue());
             telemetry.update();
 
             timeTwo = this.getRuntime();;
