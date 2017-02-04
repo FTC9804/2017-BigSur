@@ -300,7 +300,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         //encoder count for turret at the init phase
