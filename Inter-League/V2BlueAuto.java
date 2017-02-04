@@ -1,7 +1,17 @@
-/* V2 created for the new Drogon robot with adaptations to the driving with the 
- * redesigned west coast drive and updated chassis.
- * Separate codes for red and blue
- */
+
+
+//Version 1.0 coded Jan. 15, 2017 by Rylan and Marcus.  Designed to test the new autonomous concept
+//of driving forward, shooting, turning to 45, finding the white line, turning to 90
+//and then driving forward and pressing the beacon.  In version 1.0 we solely tested driving
+//forward, turning to 45, finding the white line, and turning to 90, which was accomplished.
+
+
+
+
+
+
+
+
 
 
 //package declaration
@@ -10,7 +20,7 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "V2BLUEAUTO", group = "AutoWithFunctions")
+@Autonomous(name = "V2BLUEAUTO1.01", group = "AutoWithFunctions")
 //@Disabled
 public class V2BlueAuto extends FunctionsForILT {
 
@@ -23,37 +33,39 @@ public class V2BlueAuto extends FunctionsForILT {
         waitForStart();
 
         //Calibrate the Gyro
-        calibrateGyro();
+        //calibrateGyro();
 
         driveBack(20, .2);
 
 
-        shootAndLift(10, 2025, .95, .95);
+        shootAndLift(10, 2800, .95, .95);
+
+        encoderTurnClockwise(.62, .15);
 
 
-        spinMove(-25);
-
-
-        driveMoreRightBack(40, .25, 0);
-
-
-        lineUpFasterRightBack();
-
-
-        pressBeaconFrontBlueNew(true);
-
-
-        driveMoreRight (29, .5, 0);
-
-
-        lineUpFasterRight();
-
-
-        pressBeaconFrontBlueNew(false);
-
-        spinMove(-18);
-
-        drive(33, .6);
+//        spinMove(-25);
+//
+//
+//        driveMoreRightBack(40, .25, 0);
+//
+//
+//        lineUpFasterRightBack();
+//
+//
+//        pressBeaconFrontBlueNew(true);
+//
+//
+//        driveMoreRight (29, .5, 0);
+//
+//
+//        lineUpFasterRight();
+//
+//
+//        pressBeaconFrontBlueNew(false);
+//
+//        spinMove(-18);
+//
+//        drive(33, .6);
     }
 
 }
