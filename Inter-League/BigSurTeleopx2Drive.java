@@ -83,7 +83,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     //old rpm
     //double rpmGain = .0000001;
 
-    double rpmGain = .000001;
+    double rpmGain = .000000125;
     double targetRPM = 2700;
 
     int mode;
@@ -144,7 +144,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //shooter variables;
-    double shooterSpeed = 0.24;    // 0.23 is for 1850 RPM, 0.24 is for 2500 RPM, 0.235 is for 2100
+    double shooterSpeed = 0.75;    // 0.23 is for 1850 RPM, 0.24 is for 2500 RPM, 0.235 is for 2100
     double elevatorSpeed;        //power given to the loading elevator
 
 
@@ -299,8 +299,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         encode.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+       // shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  need to do more research here
+       // shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         //encoder count for turret at the init phase
@@ -323,6 +323,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor2.setDirection(DcMotor.Direction.FORWARD);
 
         shooter.setDirection(DcMotor.Direction.FORWARD);
+
         intake.setDirection(DcMotor.Direction.FORWARD);
 
 
@@ -655,9 +656,18 @@ public class BigSurTeleopx2Drive extends OpMode {
         //Set the elevator and intake's speed to the values specified above
 
         //increment shooter motor power based on dpad commands
-        shooterSpeed+= rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
+        shooterSpeed += rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
 
         shooterSpeed = Range.clip(shooterSpeed,0,1);
+
+//        if (shooterSpeed>1)
+//        {
+//            shooterSpeed=1;
+//        }
+//        if (shooterSpeed<0)
+//        {
+//            shooterSpeed=0;
+//        }
 
 
         shooter.setPower(shooterSpeed);
