@@ -48,7 +48,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
 
-    double shooterPower = 0.95; //initial power applied to the shooter
+    double shooterPower = 0.85; //initial power applied to the shooter
 
     double turretPosition=.5;  //initial position set to the turret servo
 
@@ -65,7 +65,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
     OpticalDistanceSensor whiteLineSensorLeft;
     OpticalDistanceSensor whiteLineSensorRight;
 
-    double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true
+    double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true USED TO BE .4
     boolean wlsRightlight = false; //Boolean expressing whether the whiteLineSensorRight has seen a sufficient amount of white light
     boolean wlsLeftlight = false;  //Boolean expressing whether the whiteLineSensorLeft has seen a sufficient amount of white light
 
@@ -163,6 +163,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     boolean push;
 
+    boolean whiteLineNotDetected = true;
+
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -248,7 +250,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
 
     }
-
 
     public void gyroTelemetry ()
     {
@@ -479,7 +480,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         ballControl.setPosition(.7);
 
-        hood.setPosition(.07);
+        hood.setPosition(1);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
@@ -509,7 +510,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         leftIntake.setPosition(.5);
         rightIntake.setPosition(.5);
 
-        shooter.setPower(shooterPower);
     }
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
@@ -519,9 +519,15 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
+        while (timeTwo - timeOne < 2) {
+            timeTwo = this.getRuntime();
+        }
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (timeTwo<(timeRunningLoop+5.5)) {
+        while (timeTwo<(timeRunningLoop+4)) {
 
             //Current Run Time
             timeTwo = this.getRuntime();
@@ -607,12 +613,12 @@ public abstract class FunctionsForILT extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < 1.2)
+        while (timeTwo - timeOne < 0.5)
         {
             timeTwo= this.getRuntime();
         }
 
-        while (timeTwo<(timeRunningLoop+11))
+        while (timeTwo<(timeRunningLoop+6))
         {
             timeTwo = this.getRuntime();
             intake.setPower(.95);
@@ -622,11 +628,12 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         stopShooting();
 
+
+        kicker.setPosition(0);
         shooter.setPower(0);
         intake.setPower(0);
         //driveNext();
     }
-
 
     public void stopDrivingAndPause ()
     {
@@ -640,8 +647,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
             telemetry.addData("Time", (timeTwo - timeOne));
         }
     }
-
-
 
     public void runIntakeOnly(double intakeSpeed, double time)
     {
@@ -902,6 +907,53 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 timeTwo = this.getRuntime();
             }
         }
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+    }
+
+    public void driveToWhiteLineLeftBackwards(double speed)
+    {
+
+        whiteLineNotDetected = true;
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(-speed);
+        rightMotor1.setPower(-speed);
+        leftMotor2.setPower(-speed);
+        rightMotor2.setPower(-speed);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            loopCounter++;
+
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
+                whiteLineNotDetected = false;
+            }
+
+
+
+            leftMotor1.setPower(-speed);
+            rightMotor1.setPower(-speed);
+            leftMotor2.setPower(-speed);
+            rightMotor2.setPower(-speed);
+
+
+        }
+        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
 
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
@@ -1199,8 +1251,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     }
 
-
-
     public void pressBeaconFrontRedNew (boolean goingForward)
     {
         timeOne = this.getRuntime();
@@ -1250,10 +1300,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
         telemetry.addData("Done", telemetryVariable);
     }
 
-
-
-
-    public void pressBeaconFrontBlueNew (boolean goingForward) {
+    public void pressBeaconFrontBlueNew (boolean goingForward)
+    {
         timeOne = this.getRuntime();
         push = false;
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
