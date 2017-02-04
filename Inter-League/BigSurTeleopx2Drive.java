@@ -60,7 +60,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     TouchSensor beamBreak;
 
     DigitalChannel ledShootGreen;
-    //DigitalChannel ledDontShootRed;
+    DigitalChannel ledDontShootRed;
     DigitalChannel ledBallBlue;
     boolean greenLEDIsOn = true;
     boolean redLEDIsOn = true;
@@ -273,14 +273,14 @@ public class BigSurTeleopx2Drive extends OpMode {
         //configuration of the LED indicators
         //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
         //if the RPM is within an acceptable range
-        ledShootGreen = hardwareMap.digitalChannel.get("led1");
-        // ledDontShootRed = hardwareMap.digitalChannel.get("led2");
+        ledShootGreen = hardwareMap.digitalChannel.get("led2");
+        ledDontShootRed = hardwareMap.digitalChannel.get("led1");
         ledBallBlue = hardwareMap.digitalChannel.get("led3");
         ledShootGreen.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
-        //ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
+        ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
         ledBallBlue.setMode(DigitalChannelController.Mode.OUTPUT);
         ledShootGreen.setState(greenLEDIsOn);                                     //LEDs are initialized to "ON"
-        //ledDontShootRed.setState(redLEDIsOn);
+        ledDontShootRed.setState(redLEDIsOn);
         ledBallBlue.setState(blueLEDIsOn);
 
         beamBreak = hardwareMap.touchSensor.get("bb");
@@ -675,11 +675,11 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //LED Notifications
         if (avgRpm < (targetRPM +100)  && avgRpm > (targetRPM -100)) {
-            // ledDontShootRed.setState(!redLEDIsOn);
+            ledDontShootRed.setState(!redLEDIsOn);
             ledShootGreen.setState(greenLEDIsOn);
         }
         else {
-            //ledDontShootRed.setState(redLEDIsOn);
+            ledDontShootRed.setState(redLEDIsOn);
             ledShootGreen.setState(!greenLEDIsOn);
         }
         if (beamBreak.isPressed()) {
