@@ -442,14 +442,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 //        //ensures the value of the joystick, if negative, will result in a negative value of power
 //
 //
-//        if (joystick1ValueLeft < 0) {
-//            leftPower *= -Math.abs(leftPower);
-//        }
-//        if (joystick1ValueRight < 0) {
-//            rightPower *= -Math.abs(rightPower);
-//        }
-//
-//
 //        //set left motors and right motors to leftPower and rightPower, respectively
 //        leftMotor1.setPower(leftPower);
 //        leftMotor2.setPower(leftPower);
