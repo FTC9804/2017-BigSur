@@ -84,7 +84,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     //double rpmGain = .0000001;
 
     double rpmGain = .000000125;
-    double targetRPM = 2700;
+    double targetRPM = 2900;
 
     int mode;
 
@@ -712,8 +712,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         }
         //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
         //ensure the hoodPositioning value is in the correct range
-        if (hoodPositioning > .35) {
-            hoodPositioning = .35;
+        if (hoodPositioning > .71) {
+            hoodPositioning = .71;
         }
 
         if (hoodPositioning < .09) {
@@ -738,19 +738,20 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
         //Move both port side and battery side beacons based on actions on the dpad*/
+        //.1 and .9  for testing
         if (gamepad2.x) {
-            beaconPusherLeftPosition = 1;
+            beaconPusherLeftPosition = .9;
         }
         else {
-            beaconPusherLeftPosition = 0;
+            beaconPusherLeftPosition = .1;
         }
 
         if (gamepad1.b) {
-            beaconPusherRightPosition = 0;
+            beaconPusherRightPosition = .1;
         }
         else
         {
-            beaconPusherRightPosition = 1;
+            beaconPusherRightPosition = .9;
         }
 
         //set the position of each beacon to its respective position determined above
