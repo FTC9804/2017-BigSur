@@ -84,7 +84,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     //double rpmGain = .0000001;
 
     double rpmGain = .000000125;
-    double targetRPM = 2900;
+    double targetRPM = 3050;
 
     int mode;
 
@@ -126,7 +126,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     //drive gain to multiply the power by
     //toggle variables
     boolean halfGain = false;
-//    boolean previousStatus = false;
+    //    boolean previousStatus = false;
 //    boolean currentStatus = false;
     boolean justBumped = false;
 
@@ -274,7 +274,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
         //if the RPM is within an acceptable range
         ledShootGreen = hardwareMap.digitalChannel.get("led1");
-       // ledDontShootRed = hardwareMap.digitalChannel.get("led2");
+        // ledDontShootRed = hardwareMap.digitalChannel.get("led2");
         ledBallBlue = hardwareMap.digitalChannel.get("led3");
         ledShootGreen.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
         //ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
@@ -299,8 +299,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         encode.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-       // shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  need to do more research here
-       // shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  need to do more research here
+        // shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         //encoder count for turret at the init phase
@@ -675,7 +675,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //LED Notifications
         if (avgRpm < (targetRPM +100)  && avgRpm > (targetRPM -100)) {
-           // ledDontShootRed.setState(!redLEDIsOn);
+            // ledDontShootRed.setState(!redLEDIsOn);
             ledShootGreen.setState(greenLEDIsOn);
         }
         else {
