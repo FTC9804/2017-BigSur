@@ -30,6 +30,13 @@ public abstract class FunctionsForILT extends LinearOpMode {
     Servo hood;       //position servo for 180º, adjust angle of shooter
     Servo turret;     //Continuous Rotation
 
+    Servo kicker;
+
+    Servo ballControl;
+
+    Servo leftIntake;
+    Servo rightIntake;
+
     Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
     Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
 
@@ -41,7 +48,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
 
-    double shooterPower = 0.62; //initial power applied to the shooter
+    double shooterPower = 0.95; //initial power applied to the shooter
 
     double turretPosition=.5;  //initial position set to the turret servo
 
@@ -55,8 +62,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
     //Optical distance sensors to detect white light
-    OpticalDistanceSensor whiteLineSensorRight;
     OpticalDistanceSensor whiteLineSensorLeft;
+    OpticalDistanceSensor whiteLineSensorRight;
 
     double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true
     boolean wlsRightlight = false; //Boolean expressing whether the whiteLineSensorRight has seen a sufficient amount of white light
@@ -114,7 +121,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
     double straightGyroGain = .0005;
 
     //Gain to control rpm on the robot
-    double rpmGain = .000003;
+    double rpmGain = .0000099;
 
     //(not being used) The necesarry correction to power applied to motors when driving forward, based on the proximity between current and desired gyro headings
     double speedCorrection;
@@ -447,7 +454,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         shooter = hardwareMap.dcMotor.get("m5");
 
         intake = hardwareMap.dcMotor.get("m6");
-        intake.setDirection(DcMotorSimple.Direction.REVERSE);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
@@ -457,9 +464,22 @@ public abstract class FunctionsForILT extends LinearOpMode {
         beaconPusherLeft = hardwareMap.servo.get("s3");
         beaconPusherRight = hardwareMap.servo.get("s4");
 
+        ballControl = hardwareMap.servo.get("s5");
+
+        leftIntake = hardwareMap.servo.get("s6");
+        rightIntake = hardwareMap.servo.get("s7");
+
+        kicker = hardwareMap.servo.get("s8");
+
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
         turret.setPosition(turretPosition);
+
+        kicker.setPosition(0);
+
+        hood.setPosition(.18);
+
+        ballControl.setPosition(.7);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
@@ -468,7 +488,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         whiteLineSensorLeft.enableLed(true);
 
         //colorSensorLeft = hardwareMap.colorSensor.get("colorLeft");     //I2C port 1
-       // colorSensorLeft.enableLed(false); //
+        // colorSensorLeft.enableLed(false); //
 
         //requires moving connection based on alliance color
         colorSensor = hardwareMap.colorSensor.get("color");     //I2C port 1
@@ -476,7 +496,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
         // colorSensorRight = hardwareMap.colorSensor.get("colorRight");     //I2C port 2
-       // colorSensorRight.enableLed(false); //
+        // colorSensorRight.enableLed(false); //
 
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
@@ -485,6 +505,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
         pushOne=false;
         pushTwo=false;
         push=false;
+
+        leftIntake.setPosition(.5);
+        rightIntake.setPosition(.5);
     }
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
@@ -496,7 +519,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (timeTwo-timeOne<time) {
+        while (timeTwo<(timeRunningLoop+11)) {
 
             //Current Run Time
             timeTwo = this.getRuntime();
@@ -529,7 +552,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 }
                 tempWeightedAvg = weightedAvg;
 
-                if (weightedAvg + 50 > targetRPM) {
+                if (avgRpm + 50 > targetRPM) {
                     intake.setPower(intakeSpeed);
                 } else {
                     intake.setPower(0);
@@ -548,7 +571,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
                 //rpmGain now equal to .0000001 which is what we use in teleop.  may need to be adjusted
-                shooterPower+= rpmGain * (targetRPM - weightedAvg);
+                shooterPower += rpmGain * (targetRPM - weightedAvg);
 
 
 
@@ -577,6 +600,14 @@ public abstract class FunctionsForILT extends LinearOpMode {
             telemetry.addData("AvgRPM : ", avgRpm);
             telemetry.update();
 
+        }
+
+        while (timeTwo<(timeRunningLoop+15))
+        {
+            timeTwo = this.getRuntime();
+            intake.setPower(.95);
+            kicker.setPosition(1);
+            shooter.setPower (shooterPower);
         }
 
         stopShooting();
@@ -958,7 +989,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
             leftMotor2.setPower(-speed);
             rightMotor1.setPower(-speed-.05);
             rightMotor2.setPower(-speed-.05);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.addData("Current dmrb", leftMotor1.getCurrentPosition());
             telemetry.update();
 
 
@@ -992,7 +1023,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
             leftMotor2.setPower(-speed-.05);
             rightMotor1.setPower(-speed);
             rightMotor2.setPower(-speed);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.addData("Current dmlb", leftMotor1.getCurrentPosition());
             telemetry.update();
 
 
@@ -1036,6 +1067,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
                     wlsRightlight = true;
                 }
             }
+
+            telemetry.addData("Lining up", telemetryVariable);
+            telemetry.update();
             // Display the light level while we are looking for the line
             //telemetry.addData("ODS 1 Light Level", whiteLineSensor1.getLightDetected());
             //telemetry.update();
@@ -1110,6 +1144,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
                     wlsRightlight = true;
                 }
             }
+
+            telemetry.addData("Lining up", telemetryVariable);
+            telemetry.update();
             // Display the light level while we are looking for the line
             //telemetry.addData("ODS 1 Light Level", whiteLineSensor1.getLightDetected());
             //telemetry.update();
@@ -1202,12 +1239,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         telemetry.addData("Done", telemetryVariable);
     }
-
-
-
-
-
-
 
 
 
