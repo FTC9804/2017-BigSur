@@ -32,16 +32,19 @@ public class V2BlueAuto extends FunctionsForILT {
         //Wait until play button is pressed
         waitForStart();
 
+        shooter.setPower(shooterPower);
+
         //Calibrate the Gyro
         //calibrateGyro();
 
-        driveBack(20, .2);
+        driveBack(20, .4);
 
 
         shootAndLift(10, 2800, .95, .95);
 
-        encoderTurnClockwise(.62, .15);
+        encoderTurnClockwise(.75, .15);
 
+        driveToWhiteLineLeftBackwards(.8);
 
 //        spinMove(-25);
 //
