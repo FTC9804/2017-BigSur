@@ -144,7 +144,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
     //shooter variables;
-    double shooterSpeed = 0.75;    // 0.23 is for 1850 RPM, 0.24 is for 2500 RPM, 0.235 is for 2100
+    double shooterSpeed = 0.95;    // 0.23 is for 1850 RPM, 0.24 is for 2500 RPM, 0.235 is for 2100; 0.95 for initial value is best
     double elevatorSpeed;        //power given to the loading elevator
 
 
