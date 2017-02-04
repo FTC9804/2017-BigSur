@@ -477,9 +477,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         kicker.setPosition(0);
 
-        hood.setPosition(.18);
-
         ballControl.setPosition(.7);
+
+        hood.setPosition(.07);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
@@ -508,6 +508,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         leftIntake.setPosition(.5);
         rightIntake.setPosition(.5);
+
+        shooter.setPower(shooterPower);
     }
 
     public void shootAndLift (double time, double targetRPM, double elevatorSpeed, double intakeSpeed) throws InterruptedException
@@ -519,7 +521,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         timeTwo = this.getRuntime();
         timeRunningLoop = this.getRuntime();
 
-        while (timeTwo<(timeRunningLoop+11)) {
+        while (timeTwo<(timeRunningLoop+5.5)) {
 
             //Current Run Time
             timeTwo = this.getRuntime();
@@ -602,7 +604,15 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         }
 
-        while (timeTwo<(timeRunningLoop+15))
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1.2)
+        {
+            timeTwo= this.getRuntime();
+        }
+
+        while (timeTwo<(timeRunningLoop+11))
         {
             timeTwo = this.getRuntime();
             intake.setPower(.95);
