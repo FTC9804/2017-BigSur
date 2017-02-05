@@ -42,9 +42,24 @@ public class V2BlueAuto extends FunctionsForILT {
 
         shootAndLift(10, 2800, .95, .95);
 
-        encoderTurnClockwise(.75, .15);
+        encoderTurnClockwise(.78, .25);
 
-        driveToWhiteLineLeftBackwards(.8);
+        driveToWhiteLineLeft(-.8);
+
+        driveBack(15, .8);
+
+        encoderTurnCounterClockwise(.15, .25);
+
+        driveToWhiteLineLeftRightSideFaster(-1);
+
+        pressBeaconSideBlue(-.15);
+
+        driveMoreRight(48, .8);
+
+        pressBeaconSideBlue(.15);
+
+
+
 
 //        spinMove(-25);
 //

@@ -153,10 +153,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
     double rightPower;
 
     //Positions of the continuos rotation beacon pushers, based on wheter retracting or extending
-    double beaconPusherLeftRetractPosition = 0.05;
+    double beaconPusherLeftRetractPosition = .05;
     double beaconPusherLeftExtendPosition = .95;
-    double beaconPusherRightRetractPosition = 0.95;
-    double beaconPusherRightExtendPosition = 0.05;
+    double beaconPusherRightRetractPosition = .95;
+    double beaconPusherRightExtendPosition = .05;
 
     boolean pushOne;
     boolean pushTwo;
@@ -164,6 +164,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
     boolean push;
 
     boolean whiteLineNotDetected = true;
+    boolean beaconNotDetected = true;
 
 
 // F U N C T I O N S   F O R   A U T O   &   T E L E O P
@@ -462,8 +463,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         turret = hardwareMap.servo.get("s1");
         hood = hardwareMap.servo.get("s2");
-        beaconPusherLeft = hardwareMap.servo.get("s3");
-        beaconPusherRight = hardwareMap.servo.get("s4");
+        beaconPusherLeft = hardwareMap.servo.get("s4");
+        beaconPusherRight = hardwareMap.servo.get("s3");
 
         ballControl = hardwareMap.servo.get("s5");
 
@@ -914,17 +915,17 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-    public void driveToWhiteLineLeftBackwards(double speed)
+    public void driveToWhiteLineLeft(double speed)
     {
 
         whiteLineNotDetected = true;
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftMotor1.setPower(-speed);
-        rightMotor1.setPower(-speed);
-        leftMotor2.setPower(-speed);
-        rightMotor2.setPower(-speed);
+        leftMotor1.setPower(speed);
+        rightMotor1.setPower(speed);
+        leftMotor2.setPower(speed);
+        rightMotor2.setPower(speed);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -946,10 +947,57 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
 
-            leftMotor1.setPower(-speed);
-            rightMotor1.setPower(-speed);
-            leftMotor2.setPower(-speed);
-            rightMotor2.setPower(-speed);
+            leftMotor1.setPower(speed);
+            rightMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor2.setPower(speed);
+
+
+        }
+        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+    }
+
+    public void driveToWhiteLineLeftRightSideFaster(int plusOrNegative)
+    {
+        //for variable plusOrNegative put -1 for backwards and 1 for forwards
+        whiteLineNotDetected = true;
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(plusOrNegative * .5);
+        leftMotor2.setPower(plusOrNegative * .5);
+        rightMotor1.setPower(plusOrNegative * .55);
+        rightMotor2.setPower(plusOrNegative * .55);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            loopCounter++;
+
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
+                whiteLineNotDetected = false;
+            }
+
+
+
+            leftMotor1.setPower(plusOrNegative * .5);
+            leftMotor2.setPower(plusOrNegative * .5);
+            rightMotor1.setPower(plusOrNegative * .55);
+            rightMotor2.setPower(plusOrNegative * .55);
 
 
         }
@@ -995,9 +1043,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     }
     //checkrotations
-    public void driveMoreRight (double distance, double speed, double targetHeading)
+    public void driveMoreRight (double distance, double speed/*, double targetHeading*/)
     {
-        currentHeading = gyro.getIntegratedZValue();
+//        currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
         ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
         COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
@@ -1007,11 +1055,11 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         while (leftMotor1.getCurrentPosition()<COUNTS) {
 
-            currentHeading = gyro.getIntegratedZValue();
-            telemetry.addData("Current Heading = ", currentHeading);
-            telemetry.update();
-            headingError = targetHeading - currentHeading;
-            speedCorrection = headingError * straightGyroGain;
+//            currentHeading = gyro.getIntegratedZValue();
+//            telemetry.addData("Current Heading = ", currentHeading);
+//            telemetry.update();
+//            headingError = targetHeading - currentHeading;
+//            speedCorrection = headingError * straightGyroGain;
 
             leftMotor1.setPower(speed);
             leftMotor2.setPower(speed);
@@ -1029,9 +1077,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
     }
 
-    public void driveMoreRightBack (double distance, double speed, double targetHeading)
+    public void driveMoreRightBack (double distance, double speed /*, double targetHeading*/)
     {
-        currentHeading = gyro.getIntegratedZValue();
+//        currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
         ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
         COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
@@ -1041,11 +1089,11 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         while (Math.abs(leftMotor1.getCurrentPosition())<COUNTS) {
 
-            currentHeading = gyro.getIntegratedZValue();
-            telemetry.addData("Current Heading = ", currentHeading);
-            telemetry.update();
-            headingError = targetHeading - currentHeading;
-            speedCorrection = headingError * straightGyroGain;
+//            currentHeading = gyro.getIntegratedZValue();
+//            telemetry.addData("Current Heading = ", currentHeading);
+//            telemetry.update();
+////            headingError = targetHeading - currentHeading;
+////            speedCorrection = headingError * straightGyroGain;
 
             leftMotor1.setPower(-speed);
             leftMotor2.setPower(-speed);
@@ -1347,6 +1395,44 @@ public abstract class FunctionsForILT extends LinearOpMode {
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
         telemetry.addData("Done", telemetryVariable);
+    }
+
+    public void pressBeaconSideBlue (double speed){
+
+        beaconNotDetected = true;
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
+        do {
+
+            telemetry.addData("Blue Value: ", colorSensor.blue());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (colorSensor.blue() > 1.5 && colorSensor.red() < 1.5) {
+                beaconNotDetected = false;
+            }
+
+            leftMotor1.setPower(speed);
+            rightMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor2.setPower(speed);
+
+
+        } while (beaconNotDetected && this.opModeIsActive());
+
+        stopDriving();
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 4) {
+            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+            timeTwo = this.getRuntime();
+        }
+
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
     }
 
 
