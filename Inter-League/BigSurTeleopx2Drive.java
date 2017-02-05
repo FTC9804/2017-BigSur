@@ -1,51 +1,15 @@
-/*Code written by Steve on Friday Nov. 18, 2016.
-* edited by Steve and Marcus on Saturday Nov. 19, 2016
-* edited by Steve and Etienne on Saturday Nov. 26, 2016
-* edited by Marcus Sunday Nov. 27, 2016
-* edited by Marcus Wednesday Nov. 30, 2916
-* edited by Etienne Lunetta Thursday Dec. 1, 2016
-* code examined by Steve and Etienne on Friday 2 Dec. 2016
-* reedited Etienne Lunetta Sunday December 4 @ 2:01 AM
-* edited by steve and marcus on friday january 13 @ 5:50 in the afternoon
-*
-*  Purpose: Preliminary coding of the In N Out Project to create initial robot movement
-*
-*
-* FTC Team 9804 Bomb Squad
-* Made by the programmers of FTC Team 9804 Bomb Squad
-*
-* Version 1: logarithmic driving, turreting, shooting, intake, hood, storage
-* Version 2: Increased comments to show extent of code and additional gain options commented in for future use.
-* Version 3: Adjust forward/reverse setting and hood positioning to reflect physical attributes of the robot.
-* Version 4: Add more comments and ensure consistency and that java conventions are being adhered to.  Also adjust
-* the accepted range of hood servo values to ensure that servos do not get burned out.
-* Version 5: Add set rpms and hood angles for specific shot ranges, letting the gunner control these functions using the dpad.
-* Version 6.0: Fixed errors in past code regarding the elevator and turret and multiple speed declarations, deleted unnecessary spaces
-* version 7.0: fixed errors resulting from our last tournament and testing
-*
-*
-*/
+//Version 1.0 coded Feb. 4, 2017 by Steve, Etienne and Marcus.
+// Designed to run the teleop phase of the match, and to
+//allow our drivers and coaches to shoot balls into the
+//center vortex and press beacons.
 
-
-/*
-   Tracking Shortcuts:
-   ** = check again
-   @@ = all good
-*/
-
-
-
-
+//package declaration
 package org.firstinspires.ftc.teamcode;
 
-
-
-
+//import statements
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -57,17 +21,21 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
-    TouchSensor beamBreak;
+    //Variable declarations
 
-    DigitalChannel ledShootGreen;
-    DigitalChannel ledDontShootRed;
-    DigitalChannel ledBallBlue;
+    TouchSensor beamBreak; //Touch sensor to detect whether the robot currently is possessing a particle
+
+    DigitalChannel ledShootGreen; //led to shine green light if rpm is adequate
+    DigitalChannel ledDontShootRed; //led to shine red light if rpm is not adequate
+    DigitalChannel ledBallBlue; //led to shine blue light if beamBreak detects a ball in the robot
+
+    //booleans to detect whether led lights are on
     boolean greenLEDIsOn = true;
     boolean redLEDIsOn = true;
     boolean blueLEDIsOn = true;
 
 
-    //motors declared
+    //Motors
     DcMotor rightMotor1;   //right drive motor front
     DcMotor leftMotor1;    //left drive motor front
     DcMotor rightMotor2;   //right drive motor back
@@ -76,24 +44,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     DcMotor intake;       //intake system
     DcMotor encode; //Hypothetical Motor
 
-
-    double tempWeightedAvg;
-
-
-    //old rpm
-    //double rpmGain = .0000001;
-
-    double rpmGain = .000000125;
-    double targetRPM = 3050;
-
-    int mode;
-
-
-
-
-    //servos declared
-    Servo turret;       //crontinuous rotation servo, adjust direction of shooter
-    Servo hood;       //position servo for 180º, adjust angle of shooter
+    //Servos
+    Servo turret;
+    Servo hood;
     Servo beaconPusherLeft;
     Servo beaconPusherRight;
     Servo ballControl;
@@ -101,101 +54,52 @@ public class BigSurTeleopx2Drive extends OpMode {
     Servo rightIntake;
     Servo kicker;
 
+    //Variable to temporarily store the weighted average of the rpm of the shooter
+    double tempWeightedAvg;
 
+    //Gain to control rpm of shooter
+    double rpmGain = .000000125;
 
+    //Target rpm of shooter to be maintained
+    double targetRPM = 3050;
+
+    //Positions relating to the beacon pushers
     double beaconPusherRightPosition;
     double beaconPusherLeftPosition;
 
-
-
-
-
-
-
-
-    //Driving variables
-    //double joystick1ValueLeftYAxis;       //value taken in by left driving joystick
-    //double joystick1ValueRightYAxis;   //value taken in by right driving joystick
-    double leftPower;           //power given to left motors
-    double rightPower;       //power given to right motors
-
-
-
-
-    double gain = 1;
-    //drive gain to multiply the power by
-    //toggle variables
-    boolean halfGain = false;
-    //    boolean previousStatus = false;
-//    boolean currentStatus = false;
-    boolean justBumped = false;
-
-
-
-
     //Turret variables
-    double turretAxis;          //value taken in by left turreting joystick.
+    double turretAxis;          //value taken in by left turret joystick.
     final double TURRET_INITIAL = 0.5;          //position of turret not moving
     double turretRotationValue;       //value given to turret joystick
     final double TURRET_ROTATION_LEFT = 0.2;      //speed value of joystick moving to the left
     final double TURRET_ROTATION_RIGHT = 0.8;  //speed value of joystick moving to the right
 
-
-
-
     //shooter variables;
-    double shooterSpeed = 0.95;    // 0.23 is for 1850 RPM, 0.24 is for 2500 RPM, 0.235 is for 2100; 0.95 for initial value is best
-    double elevatorSpeed;        //power given to the loading elevator
-
-
-
+    double shooterSpeed = 0.95;    //Power applied to shooter in init method
 
     //intake variables
     double intakeSpeed;          //power given to the intake system
-
-
-
 
     //values for the gears of the turret
     final double SMALL_GEAR_TEETH = 32.0;
     final double BIG_GEAR_TEETH = 89.0;
     final double GEAR_RATIO = SMALL_GEAR_TEETH/BIG_GEAR_TEETH;
 
-
-
-
     //hood variables
     final double HOOD_INITIAL = 1;          //initial hood position all the way at the bottom
     double hoodPositioning;  //hood positioning initially set
 
-
-
-
     double joystick1ValueLeft;  //the raw value taken from the left joystick
     double joystick1ValueRight;  //the raw value taken from the right joystick
-
-
-
 
     int initialEncoderCount;  //the number of counts of the encoder on the turret initially
     int currentEncoderPosition; //the current number of counts of the encoder on the turret
 
-
-
-
     double countsPerRotation = 1440.0; //counts of the turret encoder per revolution
-
-
-
 
     double countDelta; //the absolute value of the difference between currentEncoderPosition and initialEncoderCount
 
-
-
-
     double rotations; //the amount of 360 degree rotations the turret has completed since the beginning of the match
-
-
 
 
     //rpm variables
@@ -219,52 +123,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     double baseWeight;
     //a boolean set to false unless outside force is currently being applied to the motor disturbing its rpm.  Reflective of how the motor will be disturbed when a ball is being shot in our actual robot.
 
-
-
-
+    //Run time variables
     double timeOne=0;
-
-
-
-
     double timeTwo=0;
-
-
-
-
-
-
-
-
-    //Standard rpms and hood angles for various shots
-    //Hood angle and rpm for near side short range shot, about 20 inches (from flywheel to center of goal)
-    double twentyInchHoodAngle = .09;
-    double twentyInchRPM = 2550;
-    //Hood angle and rpm for near side mid range shot, about 39 inches
-    double thirtyNineInchHoodAngle = .128;
-    double thirtyNineInchRPM = 2720;
-    //Hood angle and rpm for near side far range shot, about 54 inches
-    double fiftyFourInchHoodAngle = .176;
-    double fiftyFourInchRPM=2800;
-    //Hood angle and rpm for far side far range shot, about 88 inches
-    double eightyEightInchHoodAngle = .211;
-    double eightyEightInchRPM = 3250;
-
-
-
-
-    double driveGain = .000065;//gain for proportional driving NOT TRUE EDITS NEED TO BE MADE
-
-
-
-    //boolean shooterOff=false;
-
-    boolean redLedOn = true;
-    boolean blueLedOff = true;
-
-
-
-
 
 
     /* Initialize standard Hardware interfaces */
@@ -279,10 +140,11 @@ public class BigSurTeleopx2Drive extends OpMode {
         ledShootGreen.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
         ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
         ledBallBlue.setMode(DigitalChannelController.Mode.OUTPUT);
-        ledShootGreen.setState(greenLEDIsOn);                                     //LEDs are initialized to "ON"
+        ledShootGreen.setState(greenLEDIsOn);          //LEDs are initialized to "ON"
         ledDontShootRed.setState(redLEDIsOn);
         ledBallBlue.setState(blueLEDIsOn);
 
+        //beamBreak initialization
         beamBreak = hardwareMap.touchSensor.get("bb");
 
         //motor configurations in the hardware map
@@ -294,39 +156,24 @@ public class BigSurTeleopx2Drive extends OpMode {
         intake = hardwareMap.dcMotor.get("m6");
         encode = hardwareMap.dcMotor.get("m8");
 
-
         //Stop and reset encoder, declare intention to run using encoder
         encode.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  need to do more research here
-        // shooter.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
         //encoder count for turret at the init phase
         initialEncoderCount = encode.getCurrentPosition();
-
 
         //encoder counts for shooter at init phase
         encoderClicksOne=shooter.getCurrentPosition();
         encoderClicksTwo=shooter.getCurrentPosition();
 
-
-        // right side set to FORWARD, left set to REVERSE using our custom west coast driving gearbox
-        // Set shooter, intake an elevator to FORWARD, REVERSE, and FORWARD, respectively based on their orientations on the robot
-
-        //WE GIVE RIGHT SIDE FORWARD VALUES AND LEFT REVERSE VALUES BECAUSE JOYSTICK VALUES (UP/DOWN) ARE OPPOSITE (UP-> -1; DOWN -> 1)
-
+        //Motor directions
         rightMotor1.setDirection(DcMotor.Direction.REVERSE);
         rightMotor2.setDirection(DcMotor.Direction.REVERSE);
         leftMotor1.setDirection(DcMotor.Direction.FORWARD);
         leftMotor2.setDirection(DcMotor.Direction.FORWARD);
-
         shooter.setDirection(DcMotor.Direction.FORWARD);
-
         intake.setDirection(DcMotor.Direction.FORWARD);
-
-
 
         //Servo configurations
         turret = hardwareMap.servo.get("s1");
@@ -339,10 +186,9 @@ public class BigSurTeleopx2Drive extends OpMode {
         kicker = hardwareMap.servo.get("s8");
 
 
-        hoodPositioning = HOOD_INITIAL;
         //Servo initial positions
         turret.setPosition(TURRET_INITIAL);
-        hood.setPosition(hoodPositioning);
+        hood.setPosition(HOOD_INITIAL);
         beaconPusherRight.setPosition(1);
         beaconPusherLeft.setPosition(0);
         ballControl.setPosition(0);
@@ -352,123 +198,31 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //Shooter initially running at shooterSpeed power
         shooter.setPower(shooterSpeed);
-
     }
-
-
 
 
     @Override
     public void loop() {
 
-
-
-
-        //***************************************************
-        //  A S S I G N  J O Y S T I C K  V A L U E S @@
-        //***************************************************
-
-        //maybe change
+        //assign joystick values
         joystick1ValueLeft= gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
         joystick1ValueRight = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
 
-
-        //toggle gain
-
-
-        // Understood dysfunctional toggle code and rewrote with 1 boolean as opposed to 3 to achieve the same outcome
-//        previousStatus = currentStatus;
-//        currentStatus = gamepad1.right_bumper;
-
-
-        //********************************
-        //  A S S I G N  G A I N  M O D E S @@
-        //********************************
-
-//
-//        if (gamepad1.right_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
-//            justBumped = true;
-//        }
-//        if (!gamepad1.right_bumper&&justBumped)
-//        {
-//            halfGain= !halfGain;
-//            justBumped = false;
-//        }
-//
-//
-//        if (halfGain) //If we are on half gain then
-//        { //set the gain to .5 and show telemetry showing that
-//            gain = .5;
-//            telemetry.addData("On half gain (true/false)", halfGain);
-//        } else {
-//            gain = 1;
-//            telemetry.addData("On half gain (true/false)", halfGain);
-//        }
-//
-//
-////        if (gamepad1.left_bumper) { //If gamepad1 right bumper than switch current value of half gain boolean
-////
-////
-////            shooterOff = !shooterOff;
-////            telemetry.addData("On shooterOff (true/false)", shooterOff);
-////        }
-//
-//        //set leftPower and rightPower to .95 * the value of joystick1ValueLeft and joystick1ValueRight cubed, respectively, in order to
-//        //allow fine control for driving
-//        leftPower = .95 * (Math.pow(joystick1ValueLeft, 3)) * gain;
-//        rightPower = .95 * (Math.pow(joystick1ValueRight, 3)) * gain;
-//
-//
-//        //POSSIBLE DRIVING GAIN OPTIONS TO TEST
-//        //leftPower = Math.sin((Math.PI/2)*joystick1ValueLeft);
-//        //rightPower = Math.sin((Math.PI/2)*joystick2ValueRight);
-//        //leftPower = .95 * (Math.pow (joystick1ValueLeft,3));
-//        //rightPower = .95 * (Math.pow (joystick1ValueLeft,3));
-//        //leftPower = Math.pow(joystick1ValueLeft, exponent);
-//        //rightPower = Math.pow(joystick2ValueRight,exponent);
-//        //leftPower = 1- Math.pow(1-joystick1ValueLeft*joystick1ValueLeft, .5);
-//        //rightPower = 1- Math.pow(1-joystick2ValueRight*joystick2ValueRight, .5);
-//        //leftPower = ((Math.pow(base, joystick1ValueLeft)-1)/(base-1));
-//        //rightPower = ((Math.pow(base,joystick2ValueRight)-1)/(base-1));
-//        //leftPower = .64 * Math.tan(joystick1ValueLeft);
-//        //rightPower = .64 * Math.tan(joystick2ValueRight);
-//
-//
-//        //*****************
-//        // D R I V I N G **  ASSUME THIS WORKS, ANOTHER VERSION WILL HAVE SIMPLE DRIVE CODE
-//        //*****************
-//
-//
-//        //ensures the value of the joystick, if negative, will result in a negative value of power
-//
-//
-//        //set left motors and right motors to leftPower and rightPower, respectively
-//        leftMotor1.setPower(leftPower);
-//        leftMotor2.setPower(leftPower);
-//
-//
-//        rightMotor1.setPower(rightPower);
-//        rightMotor2.setPower(rightPower);
-
+        //Set motor powers, multiplying by .95
         leftMotor1.setPower(.95*joystick1ValueLeft);
         leftMotor2.setPower(.95*joystick1ValueLeft);
         rightMotor1.setPower(.95*joystick1ValueRight);
         rightMotor2.setPower(.95*joystick1ValueRight);
 
-
         //*****************
         // T U R R E T  @@
         //*****************
 
-
         //set turretAxis to the raw value of gamepad2.left_stick_x
         turretAxis = gamepad2.left_stick_x;
 
-
         //Assign turretRotationValues based on the value of turretAxis.  If turretAxis is significantly positive, rotate to the left.
         //If turretAxis is significantly negative, rotate to the right.  If neither, keep the turret still by setting its position to .5
-
-
         if (turretAxis < -0.1) {  //0.1 to set off the dead zone. FUTURE -> set gain for precise adjustments
             turretRotationValue = TURRET_ROTATION_RIGHT;  //declared above for easy editing
         } else if (turretAxis > 0.1) {
@@ -477,53 +231,18 @@ public class BigSurTeleopx2Drive extends OpMode {
             turretRotationValue = 0.5;
         }
 
-
-        //**********************************
-        // T U R R E T   R O T A T I O N S  @@
-        //**********************************
-
-
-
-
-        currentEncoderPosition = encode.getCurrentPosition();  //set current Encoder position
-        telemetry.addData("Turret Position" , currentEncoderPosition); //telemetry
-        countDelta = (double) Math.abs(currentEncoderPosition - initialEncoderCount); //set countDelta
-        rotations =   (countDelta / countsPerRotation) * (GEAR_RATIO); //set rotations to countDelta/countsPerRotation * GEAR_RATIO
-        //send telemetry concerning the status of the turret
-        if (rotations < 3) {
-            turret.setPosition(turretRotationValue);
-            telemetry.addData("Turret OK", rotations);
-        }
-        else if (rotations >= 3 && rotations < 5) {
-            turret.setPosition(turretRotationValue);
-            telemetry.addData("TURRET IN DANGER", rotations);
-        }
-        else {
-            turret.setPosition(.5);
-            telemetry.addData("ABORT TURRET", rotations);
-        }
-        telemetry.addData("Turett countDelta: ", countDelta);
-
-
         //*****************
         // S H O O T I N G **
         //*****************
-
-
 
         //Current Run Time
         timeTwo = this.getRuntime ();
         //Current Encoder Clicks
         encoderClicksTwo = shooter.getCurrentPosition();
 
-
-
-
+        //Telemetry for time variables
         telemetry.addData("Time Two", timeTwo);
         telemetry.addData("Time Difference", timeTwo-timeOne);
-
-
-
 
         //telemetry for shooting speed
         if (timeTwo - timeOne >= 0.1)
@@ -538,23 +257,18 @@ public class BigSurTeleopx2Drive extends OpMode {
         }
 
 
-
-
         if (arrayCount == 5) //if arrayCount equals 5
         {
             for (int i = 0; i < 5; i++) { //loop 5 times
                 totalRpm += averageRpmArray[i]; //increment totalRpm by the value at position i of averageRpmArray
             }
-            avgRpm = (int) totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
+            avgRpm = totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
             baseWeight = .1; //Set base weight to .1
             for (int i = 0; i < 5; i++) { //Loop 5 times
                 weightedAvg += (int) averageRpmArray[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
                 baseWeight += .05; //Increment base weight by .05
             }
             tempWeightedAvg = weightedAvg;
-
-
-
 
             //Telemetry
             weightedAvg = 0; //set weightedAvg to 0
@@ -567,27 +281,17 @@ public class BigSurTeleopx2Drive extends OpMode {
             averageRpmArray[4] = 0;
             //set totalRpm to 0;
             totalRpm = 0;
-
-
-
-
         }
-        //telemetry for rpm and averages
-//        telemetry.addData("WeightedRPM: ", tempWeightedAvg);
-//        rpm = rpm * 22/16; //we have a 16:22 gear ratio
-//        avgRpm = avgRpm * 22/16;
+
+        //telemetry for rpm
         telemetry.addData("RPM : ", rpm);
         telemetry.addData("AvgRPM : ", avgRpm);
-
-
-
-
 
         //***************************************************
         //E L E V A T O R  L O A D E R  &  I N T A K E **
         //***************************************************
 
-
+        //set intake servo powers
         if (gamepad2.dpad_up)
         {
             rightIntake.setPosition(.95);
@@ -603,7 +307,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             rightIntake.setPosition(.5);
         }
 
-
+        //set intake speeds
         if (gamepad2.right_trigger > 0.6) { //triggers act like an axis, so to make them behave like buttons
             // we set them to active when they reach beyond a certain value: .6.  If the right trigger's
             //value is above .6, activate elevator (going up) and intake (coming in)
@@ -618,18 +322,17 @@ public class BigSurTeleopx2Drive extends OpMode {
             intakeSpeed=0;
         }
 
-
-
-
+        //Ball control positions
         if (gamepad2.left_bumper)
-        {
-            ballControl.setPosition(.95);
-        }
-        else
         {
             ballControl.setPosition(0);
         }
+        else
+        {
+            ballControl.setPosition(.95);
+        }
 
+        //Kicker positions
         if (gamepad2.right_bumper)
         {
             kicker.setPosition(.95);
@@ -638,8 +341,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         {
             kicker.setPosition(0);
         }
-
-
 
         //*****************
         //SET ALL POWERS @@
@@ -652,22 +353,10 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         shooterSpeed = Range.clip(shooterSpeed,0,1);
 
-//        if (shooterSpeed>1)
-//        {
-//            shooterSpeed=1;
-//        }
-//        if (shooterSpeed<0)
-//        {
-//            shooterSpeed=0;
-//        }
-
-
         shooter.setPower(shooterSpeed);
 
         intake.setPower(intakeSpeed);
         telemetry.addData("Shooter Motor Power: ", shooterSpeed);
-
-
 
         //***************************************************
         // L E D   N O T I F I C A T I O N S
@@ -691,51 +380,35 @@ public class BigSurTeleopx2Drive extends OpMode {
             ledBallBlue.setState(blueLEDIsOn);
         }
 
-
-
         //*****************
         // H O O D @@
         //*****************
 
         //increase/decrease hood positioning at a slow rate to allow fine tune adjustment because the code will cycle approx. 100-150 times a second
 
-
-
-
         if (gamepad2.y) { //If y is being pressed, move the hood down
-            mode=0;
             hoodPositioning -= .005;
         }
         if (gamepad2.a) { //If a is being pressed, move the hood up
-            mode=0;
             hoodPositioning += .005;
         }
         //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
         //ensure the hoodPositioning value is in the correct range
-        if (hoodPositioning > .71) {
-            hoodPositioning = .71;
+        if (hoodPositioning > 1) {
+            hoodPositioning = 1;
         }
 
-        if (hoodPositioning < .09) {
-            hoodPositioning = .09;
+        if (hoodPositioning < .04) {
+            hoodPositioning = .04;
         }
-
-
-
 
         //Set the position of the hood to hoodPositioning
         hood.setPosition(hoodPositioning);
         telemetry.addData("hood" , hoodPositioning);
 
-
-
-
         //*****************
         // B E A C O N @@
         //*****************
-
-
-
 
         //Move both port side and battery side beacons based on actions on the dpad*/
         //.1 and .9  for testing
@@ -758,8 +431,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherLeft.setPosition(beaconPusherLeftPosition);
         beaconPusherRight.setPosition(beaconPusherRightPosition);
 
-
-
-        telemetry.update(); //update telemetryKEEP IN LOOP
+        telemetry.update(); //update telemetry
     }
 }
