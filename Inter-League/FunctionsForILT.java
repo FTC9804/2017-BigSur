@@ -520,7 +520,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (timeTwo - timeOne < 2) {
+        while (timeTwo - timeOne < 3) {
             timeTwo = this.getRuntime();
         }
 
@@ -1419,15 +1419,15 @@ public abstract class FunctionsForILT extends LinearOpMode {
             {
                 leftMotor1.setPower(speed);
                 leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed+.05);
-                rightMotor2.setPower(speed+.05);
+                rightMotor1.setPower(speed+.1);
+                rightMotor2.setPower(speed+.1);
             }
             else
             {
                 leftMotor1.setPower(speed);
                 leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed-.05);
-                rightMotor2.setPower(speed-.05);
+                rightMotor1.setPower(speed-.1);
+                rightMotor2.setPower(speed-.1);
             }
 
 
