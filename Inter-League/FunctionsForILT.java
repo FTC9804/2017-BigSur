@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 
-public abstract class FunctionsForILT extends LinearOpMode {
+public abstract class FuctionsForILTNew extends LinearOpMode {
     //Variable Declarations
 
     DcMotor rightMotor1;   //right drive motor front
@@ -635,7 +635,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         intake.setPower(0);
         //driveNext();
     }
-
+    
     public void stopDrivingAndPause ()
     {
 
@@ -962,6 +962,136 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
+    public void driveToWhiteLineRight(double speed)
+    {
+
+        whiteLineNotDetected = true;
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(speed);
+        rightMotor1.setPower(speed);
+        leftMotor2.setPower(speed);
+        rightMotor2.setPower(speed);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            loopCounter++;
+
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
+                whiteLineNotDetected = false;
+            }
+
+
+
+            leftMotor1.setPower(speed);
+            rightMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor2.setPower(speed);
+
+
+        }
+        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+    }
+
+
+    public void driveToWhiteLineRightLeftSideFaster(int plusOrNegative)
+    {
+        //for variable plusOrNegative put -1 for backwards and 1 for forwards
+        whiteLineNotDetected = true;
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(plusOrNegative * .4);
+        leftMotor2.setPower(plusOrNegative * .4);
+        rightMotor1.setPower(plusOrNegative * .35);
+        rightMotor2.setPower(plusOrNegative * .35);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            loopCounter++;
+
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
+                whiteLineNotDetected = false;
+            }
+
+
+
+            leftMotor1.setPower(plusOrNegative * .4);
+            leftMotor2.setPower(plusOrNegative * .4);
+            rightMotor1.setPower(plusOrNegative * .35);
+            rightMotor2.setPower(plusOrNegative * .35);
+
+
+        }
+        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public void driveToWhiteLineLeftRightSideFaster(int plusOrNegative)
     {
         //for variable plusOrNegative put -1 for backwards and 1 for forwards
@@ -1009,7 +1139,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-    public void driveMoreLeft (double distance, double speed, double targetHeading)
+    public void driveMoreLeft (double distance, double speed)
     {
         currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
@@ -1020,12 +1150,6 @@ public abstract class FunctionsForILT extends LinearOpMode {
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (leftMotor1.getCurrentPosition()<COUNTS) {
-
-            currentHeading = gyro.getIntegratedZValue();
-            telemetry.addData("Current Heading = ", currentHeading);
-            telemetry.update();
-            headingError = targetHeading - currentHeading;
-            speedCorrection = headingError * straightGyroGain;
 
             leftMotor1.setPower(speed+.05);
             leftMotor2.setPower(speed+.05);
@@ -1419,15 +1543,64 @@ public abstract class FunctionsForILT extends LinearOpMode {
             {
                 leftMotor1.setPower(speed);
                 leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed+.1);
-                rightMotor2.setPower(speed+.1);
+                rightMotor1.setPower(speed+.15);
+                rightMotor2.setPower(speed+.15);
             }
             else
             {
                 leftMotor1.setPower(speed);
                 leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed-.1);
-                rightMotor2.setPower(speed-.1);
+                rightMotor1.setPower(speed-.15);
+                rightMotor2.setPower(speed-.15);
+            }
+
+
+        } while (beaconNotDetected && this.opModeIsActive());
+
+        stopDriving();
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 2) {
+            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+            timeTwo = this.getRuntime();
+        }
+
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
+    }
+
+    public void pressBeaconSideRed (double speed)
+    {
+
+        beaconNotDetected = true;
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+
+        do {
+
+            telemetry.addData("Red Value: ", colorSensor.red());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (colorSensor.red() > 1.5 && colorSensor.blue() < 1.5) {
+                beaconNotDetected = false;
+            }
+
+            if (speed>0)
+            {
+                leftMotor1.setPower(speed+.15);
+                leftMotor2.setPower(speed+.15);
+                rightMotor1.setPower(speed);
+                rightMotor2.setPower(speed);
+            }
+            else
+            {
+                leftMotor1.setPower(speed-.15);
+                leftMotor2.setPower(speed-.15);
+                rightMotor1.setPower(speed);
+                rightMotor2.setPower(speed);
             }
 
 
