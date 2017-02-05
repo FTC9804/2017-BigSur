@@ -520,7 +520,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (timeTwo - timeOne < 1.5) {
+        while (timeTwo - timeOne < 2) {
             timeTwo = this.getRuntime();
         }
 
@@ -561,7 +561,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 }
                 tempWeightedAvg = weightedAvg;
 
-                if (avgRpm + 50 > targetRPM) {
+                if (avgRpm > targetRPM) {
                     intake.setPower(intakeSpeed);
                 } else {
                     intake.setPower(0);
@@ -969,10 +969,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftMotor1.setPower(plusOrNegative * .4);
-        leftMotor2.setPower(plusOrNegative * .4);
-        rightMotor1.setPower(plusOrNegative * .45);
-        rightMotor2.setPower(plusOrNegative * .45);
+        leftMotor1.setPower(plusOrNegative * .35);
+        leftMotor2.setPower(plusOrNegative * .35);
+        rightMotor1.setPower(plusOrNegative * .4);
+        rightMotor2.setPower(plusOrNegative * .4);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -994,10 +994,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
 
-            leftMotor1.setPower(plusOrNegative * .4);
-            leftMotor2.setPower(plusOrNegative * .4);
-            rightMotor1.setPower(plusOrNegative * .45);
-            rightMotor2.setPower(plusOrNegative * .45);
+            leftMotor1.setPower(plusOrNegative * .35);
+            leftMotor2.setPower(plusOrNegative * .35);
+            rightMotor1.setPower(plusOrNegative * .4);
+            rightMotor2.setPower(plusOrNegative * .4);
 
 
         }
@@ -1415,10 +1415,20 @@ public abstract class FunctionsForILT extends LinearOpMode {
                 beaconNotDetected = false;
             }
 
-            leftMotor1.setPower(speed);
-            rightMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor2.setPower(speed);
+            if (speed>0)
+            {
+                leftMotor1.setPower(speed);
+                leftMotor2.setPower(speed);
+                rightMotor1.setPower(speed+.05);
+                rightMotor2.setPower(speed+.05);
+            }
+            else
+            {
+                leftMotor1.setPower(speed);
+                leftMotor2.setPower(speed);
+                rightMotor1.setPower(speed-.05);
+                rightMotor2.setPower(speed-.05);
+            }
 
 
         } while (beaconNotDetected && this.opModeIsActive());
