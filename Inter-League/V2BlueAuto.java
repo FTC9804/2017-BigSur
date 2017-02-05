@@ -54,11 +54,15 @@ public class V2BlueAuto extends FunctionsForILT {
 
         pressBeaconSideBlue(-.15);
 
-        driveMoreRight(48, .8);
+        encoderTurnCounterClockwise(.15, .25);
 
-        pressBeaconSideBlue(.15);
+        driveMoreRight(24, .8);
 
+        pressBeaconSideBlue(.175);
 
+        encoderTurnClockwise(.78, .25);
+
+        drive(20, .8);
 
 
 //        spinMove(-25);

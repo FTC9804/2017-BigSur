@@ -520,7 +520,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
-        while (timeTwo - timeOne < 2) {
+        while (timeTwo - timeOne < 1.5) {
             timeTwo = this.getRuntime();
         }
 
@@ -969,10 +969,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        leftMotor1.setPower(plusOrNegative * .5);
-        leftMotor2.setPower(plusOrNegative * .5);
-        rightMotor1.setPower(plusOrNegative * .55);
-        rightMotor2.setPower(plusOrNegative * .55);
+        leftMotor1.setPower(plusOrNegative * .4);
+        leftMotor2.setPower(plusOrNegative * .4);
+        rightMotor1.setPower(plusOrNegative * .45);
+        rightMotor2.setPower(plusOrNegative * .45);
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -994,10 +994,10 @@ public abstract class FunctionsForILT extends LinearOpMode {
 
 
 
-            leftMotor1.setPower(plusOrNegative * .5);
-            leftMotor2.setPower(plusOrNegative * .5);
-            rightMotor1.setPower(plusOrNegative * .55);
-            rightMotor2.setPower(plusOrNegative * .55);
+            leftMotor1.setPower(plusOrNegative * .4);
+            leftMotor2.setPower(plusOrNegative * .4);
+            rightMotor1.setPower(plusOrNegative * .45);
+            rightMotor2.setPower(plusOrNegative * .45);
 
 
         }
@@ -1047,8 +1047,9 @@ public abstract class FunctionsForILT extends LinearOpMode {
     {
 //        currentHeading = gyro.getIntegratedZValue();
         INCHES_TO_MOVE = distance;
-        ROTATIONS = distance/ (Math.PI*WHEEL_DIAMETER);
+        ROTATIONS = INCHES_TO_MOVE / (Math.PI * WHEEL_DIAMETER);
         COUNTS = ENCODER_CPR * ROTATIONS * GEAR_RATIO;  //math to calculate total counts robot should travel
+
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -1397,7 +1398,8 @@ public abstract class FunctionsForILT extends LinearOpMode {
         telemetry.addData("Done", telemetryVariable);
     }
 
-    public void pressBeaconSideBlue (double speed){
+    public void pressBeaconSideBlue (double speed)
+    {
 
         beaconNotDetected = true;
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
@@ -1426,7 +1428,7 @@ public abstract class FunctionsForILT extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < 4) {
+        while (timeTwo - timeOne < 2) {
             beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
             timeTwo = this.getRuntime();
         }
