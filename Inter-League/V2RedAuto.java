@@ -50,7 +50,7 @@ public class V2RedAuto extends FuctionsForILTNew {
         pressBeaconSideRed(-.15);
 
         //Turn cw .2 rotations at .25 power
-        encoderTurnClockwise(.2, .25);
+        encoderTurnClockwise(.1, .25);
 
         //Run driveMoreLeft method for 24 inches at .8 power
         driveMoreLeft(24, .8);
