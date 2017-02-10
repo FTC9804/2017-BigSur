@@ -14,8 +14,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
-public abstract class FuctionsForLA extends LinearOpMode {
+public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //Variable Declarations
 
@@ -27,6 +29,8 @@ public abstract class FuctionsForLA extends LinearOpMode {
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
 
+    TouchSensor touchSensor;
+
     //Servos
     Servo hood;       //position servo for 180º, adjust angle of shooter
     Servo turret;     //Continuous Rotation
@@ -37,18 +41,22 @@ public abstract class FuctionsForLA extends LinearOpMode {
     Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
     Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
 
+    boolean telemetryVariable = true;
+
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
     final static double GEAR_RATIO = 0.75;     //Gear ratio used in Big Sur in 24/18, so in code we multiply by 18/24
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
-    double shooterPower = 0.85; //initial power applied to the shooter
+    double shooterPower = 0.95; //initial power applied to the shooter
     double turretPosition=.5;  //initial position set to the turret servo
 
     //Driving variables, initialized to 0
     double inches=0;  //Desired number of inches to drive
     double rotations=0;       //Wheel rotations necessary to drive the above amount of inches
-    double counts=0;          //Encoder counts necessary to drive the above amount of inches/rotations
+    double counts=0;//Encoder counts necessary to drive the above amount of inches/rotations
+
+    double turnSpeed = 0;
 
     //Color sensor, located
     ColorSensor colorSensor;
@@ -59,7 +67,7 @@ public abstract class FuctionsForLA extends LinearOpMode {
 
     int loopCounter = 0; //Variable to count how many times a given loop has been entered
 
-    double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true USED TO BE .4
+    double whiteThreshold = .25; //The threshold of white light necessary to set the below variables to true USED TO BE .4
 
     //rpm variables
     //shooter variables
@@ -91,7 +99,7 @@ public abstract class FuctionsForLA extends LinearOpMode {
 
 
     //Gain to control rpm on the robot
-    double rpmGain = .0000099;
+    double rpmGain = .0000125;
 
     //Positions of the beacon pushers, based on whether retracting or extending
     double beaconPusherLeftRetractPosition = .05;
@@ -111,6 +119,25 @@ public abstract class FuctionsForLA extends LinearOpMode {
     //Boolean that is true when a beacon has not been detected and is false otherwise
     boolean beaconNotDetected = true;
 
+    //Gyro sensor declaration
+    ModernRoboticsI2cGyro gyro;
+
+    //measure gyro heading/position
+    double currentHeading;
+
+    //measure difference between current and desired gyro heading
+    double headingError;
+
+    //variable to measure the gyro heading at the beginning of a method
+    double initialHeading;
+
+    //Gain for the gyro when executing a spin move
+    final double GYRO_GAIN =.005;
+
+    //Gain for the gyro when driving straight
+    double straightGyroGain = .002;
+
+    double straightDriveAdjust = 0;
 
     // F U N C T I O N S   F O R   A U T O   &   T E L E O P
 
@@ -170,8 +197,9 @@ public abstract class FuctionsForLA extends LinearOpMode {
 
     //Drives straight and backwards for a provided distance, in inches
     //and at a given speed
-    public void driveBack (double distance, double speed)
+    public void driveBack (double distance, double speed, double targetHeading)
     {
+        initialHeading = gyro.getIntegratedZValue();
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
@@ -181,10 +209,12 @@ public abstract class FuctionsForLA extends LinearOpMode {
 
 
         while (Math.abs(leftMotor1.getCurrentPosition())<counts) {
-            leftMotor1.setPower(-speed);
-            leftMotor2.setPower(-speed);
-            rightMotor1.setPower(-speed);
-            rightMotor2.setPower(-speed);
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
+            leftMotor1.setPower(-speed+straightDriveAdjust);
+            leftMotor2.setPower(-speed+straightDriveAdjust);
+            rightMotor1.setPower(-speed-straightDriveAdjust);
+            rightMotor2.setPower(-speed-straightDriveAdjust);
             telemetry.addData("Current", leftMotor1.getCurrentPosition());
             telemetry.update();
         }
@@ -211,6 +241,103 @@ public abstract class FuctionsForLA extends LinearOpMode {
         shooter.setPower(0);
     }
 
+    public void spinMove (double desiredHeading)
+    {
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        initialHeading = gyro.getIntegratedZValue();
+
+        if (desiredHeading < initialHeading)
+        {
+            do{
+                currentHeading= gyro.getIntegratedZValue();
+                headingError = desiredHeading - currentHeading;
+                turnSpeed = -headingError * GYRO_GAIN;
+
+                if (turnSpeed < 0.12) {
+                    turnSpeed = 0.12;
+                }
+                if (turnSpeed > .5) {
+                    turnSpeed = .5;
+                }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
+
+                rightMotor1.setPower(-turnSpeed);
+                rightMotor2.setPower(-turnSpeed);
+                leftMotor1.setPower(turnSpeed);
+                leftMotor2.setPower(turnSpeed);
+                gyroTelemetry();
+
+            }
+            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
+        }
+        else
+        {
+            do {
+
+                currentHeading= gyro.getIntegratedZValue();
+                headingError = desiredHeading - currentHeading;
+                turnSpeed = headingError * GYRO_GAIN;
+
+                if (turnSpeed < .2) {
+                    turnSpeed = 0.2;
+                }
+                if (turnSpeed > .82) {
+                    turnSpeed = .82;
+                }
+
+                telemetry.addData("Current Heading:",currentHeading);
+                telemetry.addData("TurnSpeed: ",turnSpeed);
+                telemetry.update();
+
+                rightMotor1.setPower(turnSpeed);
+                rightMotor2.setPower(turnSpeed);
+                leftMotor1.setPower(-turnSpeed);
+                leftMotor2.setPower(-turnSpeed);
+                gyroTelemetry();
+            }
+            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
+        }
+        stopDriving();
+    }
+
+    public void pivot (double time, double speed, boolean clockwise)
+    {
+        timeOne=this.getRuntime();
+        timeTwo=this.getRuntime();
+
+        if (clockwise)
+        {
+            while (timeTwo-timeOne<time)
+            {
+                timeTwo=this.getRuntime();
+                leftMotor1.setPower(speed);
+                leftMotor2.setPower(speed);
+            }
+        }
+        else
+        {
+            while (timeTwo-timeOne<time)
+            {
+                timeTwo=this.getRuntime();
+                rightMotor1.setPower(speed);
+                rightMotor2.setPower(speed);
+            }
+        }
+    }
+
+    public void gyroTelemetry ()
+    {
+        telemetry.addData("Heading", gyro.getIntegratedZValue());
+        telemetry.addData("Turn Speed", turnSpeed);
+        telemetry.update();
+    }
+
+
+
 
     //Configures all hardware devices, and sets them to their initial
     //values, if necessary
@@ -236,6 +363,8 @@ public abstract class FuctionsForLA extends LinearOpMode {
         turret = hardwareMap.servo.get("s1");
         hood = hardwareMap.servo.get("s2");
 
+        touchSensor = hardwareMap.touchSensor.get("touch");
+
         beaconPusherLeft = hardwareMap.servo.get("s4");
         beaconPusherRight = hardwareMap.servo.get("s3");
 
@@ -246,12 +375,18 @@ public abstract class FuctionsForLA extends LinearOpMode {
 
         kicker = hardwareMap.servo.get("s8");
 
+
+
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
         turret.setPosition(turretPosition);
         kicker.setPosition(0);
         ballControl.setPosition(.7);
         hood.setPosition(1);
+
+        gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
+
+
 
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
         whiteLineSensorLeft= hardwareMap.opticalDistanceSensor.get("ods1");     //Analog import port 4
@@ -272,6 +407,19 @@ public abstract class FuctionsForLA extends LinearOpMode {
         leftIntake.setPosition(.5);
         rightIntake.setPosition(.5);
     }
+
+    public void calibrateGyro () throws InterruptedException
+    {
+        gyro.calibrate();
+
+        while (gyro.isCalibrating())
+        {
+            sleep(100);
+            telemetry.addData("Gyro is not calibrated", telemetryVariable);
+            telemetry.update();
+        }
+    }
+
 
     //Runs the flywheel shooter, attempting to maintain a constant
     //rpm of the shooter, and also a constant speed of the intake
@@ -384,6 +532,51 @@ public abstract class FuctionsForLA extends LinearOpMode {
         shooter.setPower(0);
         intake.setPower(0);
         //driveNext();
+    }
+
+    public void drive (double distance, double speed, double targetHeading)
+    {
+        initialHeading = gyro.getIntegratedZValue();
+        inches = distance;
+        rotations = distance/ (Math.PI*WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (leftMotor1.getCurrentPosition()<counts) {
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
+            leftMotor1.setPower(speed + straightDriveAdjust);
+            leftMotor2.setPower(speed + straightDriveAdjust);
+            rightMotor1.setPower(speed - straightDriveAdjust);
+            rightMotor2.setPower(speed - straightDriveAdjust);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+
+
+        }
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+
+    }
+
+    public void driveToTouch (double speed)
+    {
+        timeOne=this.getRuntime();
+        timeTwo= this.getRuntime();
+
+        while (!touchSensor.isPressed()&& (timeTwo-timeOne<4)){
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
+            timeTwo=this.getRuntime();
+        }
+
+        stopDriving();
     }
 
 
@@ -664,15 +857,15 @@ public abstract class FuctionsForLA extends LinearOpMode {
             {
                 leftMotor1.setPower(speed);
                 leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed+.15);
-                rightMotor2.setPower(speed+.15);
+                rightMotor1.setPower(speed+.05);
+                rightMotor2.setPower(speed+.05);
             }
             else
             {
-                leftMotor1.setPower(speed);
-                leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed-.15);
-                rightMotor2.setPower(speed-.15);
+                leftMotor1.setPower(speed+ .05);
+                leftMotor2.setPower(speed + .05);
+                rightMotor1.setPower(speed);
+                rightMotor2.setPower(speed);
             }
 
 
@@ -743,4 +936,6 @@ public abstract class FuctionsForLA extends LinearOpMode {
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
     }
+
+
 }
