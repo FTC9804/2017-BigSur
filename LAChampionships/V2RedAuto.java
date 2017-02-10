@@ -8,7 +8,6 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-
 @Autonomous(name = "V2RED", group = "AutoWithFunctions")
 
 //@Disabled
@@ -22,40 +21,24 @@ public class V2RedAuto extends FuctionsForILTNew {
         //Wait until play button is pressed
         waitForStart();
 
-        //Set shooter to variable shooterPower
-        shooter.setPower(shooterPower);
+        calibrateGyro();
 
-        //Drive back for 20 inches at .4 power
-        driveBack(20, .4);
+        driveBack(20, .4, 0);
 
-        //Shoot and Lift function: 2800 rpm, .95 intake
-        shootAndLift(2800, .95);
+        spinMove(-75);
 
-        //Turn ccw .35 rotations at .25 power
-        encoderTurnCounterClockwise(.35, .25);
+        spinMove(-90);
 
-        //Drive at -.5 power until right ods sees adequate white light
-        driveToWhiteLineRight(-.5);
+        driveBack(20, .4, 0);
 
-        //Drive back 7 inches at .8 power
-        driveBack(7, .8);
+        driveToTouch(.1);
 
-        //Turn cw .22 rotations at .25 power
-        encoderTurnClockwise(.22, .25);
+        pivot (3, .2, true);
 
-        //Drive back, applying higher power to the right side until the left ods sees adequate white light
-        driveToWhiteLineRightLeftSideFaster(-1);
+        drive (25, .3, -185);
 
-        //Run press beacon side red method at -.15 power
-        pressBeaconSideRed(-.15);
+        pressBeaconSideRed(.15);
 
-        //Turn cw .2 rotations at .25 power
-        encoderTurnClockwise(.1, .25);
-
-        //Run driveMoreLeft method for 24 inches at .8 power
-        driveMoreLeft(24, .8);
-
-        //Run press beacon side red method at .175 power
-        pressBeaconSideRed(.175);
     }
+
 }
