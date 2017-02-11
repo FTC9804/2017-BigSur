@@ -31,6 +31,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
     TouchSensor touchSensor;
 
+    boolean wlsRightlight = false;
+    boolean wlsLeftlight = false;
+
     //Servos
     Servo hood;       //position servo for 180º, adjust angle of shooter
     Servo turret;     //Continuous Rotation
@@ -45,7 +48,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
-    final static double GEAR_RATIO = 0.75;     //Gear ratio used in Big Sur in 24/18, so in code we multiply by 18/24
+    final static double GEAR_RATIO = 0.6;     //Gear ratio used in Big Sur in 30/18, so in code we multiply by 18/30
     final static double WHEEL_DIAMETER = 4; //wheel diameter in inches
 
     double shooterPower = 0.95; //initial power applied to the shooter
@@ -207,8 +210,11 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        timeOne=this.getRuntime();
+        timeTwo=this.getRuntime();
 
-        while (Math.abs(leftMotor1.getCurrentPosition())<counts) {
+
+        while (Math.abs(leftMotor1.getCurrentPosition())<counts && (timeTwo-timeOne<4)) {
             currentHeading = gyro.getIntegratedZValue();
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
             leftMotor1.setPower(-speed+straightDriveAdjust);
@@ -217,6 +223,15 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             rightMotor2.setPower(-speed-straightDriveAdjust);
             telemetry.addData("Current", leftMotor1.getCurrentPosition());
             telemetry.update();
+            timeTwo= this.getRuntime();
+        }
+        if (timeTwo-timeOne>4)
+        {
+            while (this.opModeIsActive())
+            {
+                stopDriving();
+                timeTwo=this.getRuntime();
+            }
         }
 
         leftMotor1.setPower(0);
@@ -247,6 +262,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
         initialHeading = gyro.getIntegratedZValue();
 
+        timeOne= this.getRuntime();
+        timeTwo=this.getRuntime();
+
         if (desiredHeading < initialHeading)
         {
             do{
@@ -271,8 +289,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 leftMotor2.setPower(turnSpeed);
                 gyroTelemetry();
 
+                timeTwo=this.getRuntime();
+
             }
-            while (currentHeading > desiredHeading); //for clockwise heading you are going to a more positive number
+            while (currentHeading > desiredHeading && (timeTwo-timeOne<4)); //for clockwise heading you are going to a more positive number
         }
         else
         {
@@ -299,7 +319,15 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 leftMotor2.setPower(-turnSpeed);
                 gyroTelemetry();
             }
-            while (currentHeading < desiredHeading); //for counter-clockwise heading you are going to a more negative number
+            while (currentHeading < desiredHeading && (timeTwo-timeOne<4)); //for counter-clockwise heading you are going to a more negative number
+        }
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
         }
         stopDriving();
     }
@@ -448,7 +476,6 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             //Current Encoder Clicks
             encoderClicksTwo = shooter.getCurrentPosition();
 
-
             //telemetry for shooting speed
             if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
                 timeTwo = this.getRuntime();//set time Two to curret runtime
@@ -496,9 +523,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 //set totalRpm to 0;
                 totalRpm = 0;
 
-
                 shooter.setPower(shooterPower);
-
             }
 
             //telemetry for rpm and averages
@@ -527,7 +552,6 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
         stopShooting();
 
-
         kicker.setPosition(0);
         shooter.setPower(0);
         intake.setPower(0);
@@ -544,6 +568,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        timeOne = this.getRuntime();
+        timeTwo= this.getRuntime();
+
         while (leftMotor1.getCurrentPosition()<counts) {
             currentHeading = gyro.getIntegratedZValue();
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
@@ -553,9 +580,53 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             rightMotor2.setPower(speed - straightDriveAdjust);
             telemetry.addData("Current", leftMotor1.getCurrentPosition());
             telemetry.update();
-
-
+            timeTwo = this.getRuntime();
         }
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+        stopDriving();
+
+    }
+
+    public void driveNoGyro (double distance, double speed)
+    {
+
+        inches = distance;
+        rotations = distance/ (Math.PI*WHEEL_DIAMETER);
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
+
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        timeOne = this.getRuntime();
+        timeTwo= this.getRuntime();
+
+        while (leftMotor1.getCurrentPosition()<counts && (timeTwo-timeOne<3)) {
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
+            telemetry.addData("Current", leftMotor1.getCurrentPosition());
+            telemetry.update();
+            timeTwo = this.getRuntime();
+        }
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
@@ -611,7 +682,14 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 whiteLineNotDetected = false;
             }
 
-
+            if (timeTwo-timeOne>4)
+            {
+                stopDriving();
+                while (this.opModeIsActive())
+                {
+                    timeTwo=this.getRuntime();
+                }
+            }
 
             leftMotor1.setPower(speed);
             rightMotor1.setPower(speed);
@@ -619,14 +697,110 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             rightMotor2.setPower(speed);
 
 
+
         }
-        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
+        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4));  //Repeat do loop until both odss have detected enough white light
+
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
 
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
     }
+
+
+    public void driveToWhiteLine (double speed, double targetHeading)
+    {
+        wlsRightlight = false;
+        wlsLeftlight = false;
+
+        initialHeading = gyro.getIntegratedZValue();
+
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftMotor1.setPower(speed);
+        rightMotor1.setPower(speed);
+        leftMotor2.setPower(speed);
+        rightMotor2.setPower(speed);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
+        do {
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
+
+            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the ods boolean to true
+            if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
+                wlsRightlight = true;
+            }
+            if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
+                wlsLeftlight = true;
+            }
+
+            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
+            if (wlsRightlight == false) {
+                rightMotor1.setPower(speed - straightDriveAdjust);
+                rightMotor2.setPower(speed - straightDriveAdjust);
+            } else {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+
+            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
+            if (wlsLeftlight == false) {
+                leftMotor1.setPower(speed + straightDriveAdjust);
+                leftMotor2.setPower(speed + straightDriveAdjust);
+            } else {
+                leftMotor1.setPower(0);
+                leftMotor2.setPower(0);
+            }
+
+        }
+        while ( (wlsRightlight == false
+                || wlsLeftlight == false)
+                && this.opModeIsActive()
+                && (timeTwo-timeOne < 4) );  //Repeat do loop until both odss have detected enough white light
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
+
+        leftMotor1.setPower(0);
+        leftMotor2.setPower(0);
+        rightMotor1.setPower(0);
+        rightMotor2.setPower(0);
+
+
+    }
+
+
+
+
+
 
     //Drive at a given speed until the right ods sees adequate white light
     public void driveToWhiteLineRight(double speed)
@@ -668,7 +842,16 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
 
         }
-        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
+        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4));  //Repeat do loop until both odss have detected enough white light
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
 
         leftMotor1.setPower(0);
         leftMotor2.setPower(0);
@@ -868,10 +1051,20 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 rightMotor2.setPower(speed);
             }
 
+            timeTwo=this.getRuntime();
 
-        } while (beaconNotDetected && this.opModeIsActive());
+        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 4));
 
         stopDriving();
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
@@ -907,21 +1100,31 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
             if (speed>0)
             {
-                leftMotor1.setPower(speed+.15);
-                leftMotor2.setPower(speed+.15);
+                leftMotor1.setPower(speed+.05);
+                leftMotor2.setPower(speed+.05);
                 rightMotor1.setPower(speed);
                 rightMotor2.setPower(speed);
             }
             else
             {
-                leftMotor1.setPower(speed-.15);
-                leftMotor2.setPower(speed-.15);
+                leftMotor1.setPower(speed-.05);
+                leftMotor2.setPower(speed-.05);
                 rightMotor1.setPower(speed);
                 rightMotor2.setPower(speed);
             }
 
+            timeTwo=this.getRuntime();
 
-        } while (beaconNotDetected && this.opModeIsActive());
+        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 4));
+
+        if (timeTwo-timeOne>4)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                timeTwo=this.getRuntime();
+            }
+        }
 
         stopDriving();
 
