@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name = "TeleOpV7Variable", group = "LA Championships")
+@TeleOp(name = "TeleOpV73200", group = "InNOut Testing")
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
@@ -50,35 +50,18 @@ public class BigSurTeleopx2Drive extends OpMode {
     Servo beaconPusherLeft;
     Servo beaconPusherRight;
     Servo ballControl;
-    Servo leftDrawbridge;
-    Servo rightDrawbridge;
+    Servo leftIntake;
+    Servo rightIntake;
     Servo kicker;
 
     //Variable to temporarily store the weighted average of the rpm of the shooter
     double tempWeightedAvg;
 
     //Gain to control rpm of shooter
-    double rpmGain =                    .000000125;
-    double desiredRPMGain =             .000000125;
-    double rpmGainExtremeValuesChange = .00000025;
-    double rpmGainCloseValuesChange =   .000000125;
-    double rpmGainFarSteady =               .000000125;
-    double rpmGainMidSteady =               .00000015;
-    double rpmGainNearSteady =              .000000175;
-
+    double rpmGain = .000000125;
 
     //Target rpm of shooter to be maintained
-    double shootRPMFar = 3000;
-    double shootRPMMid = 2700;
-    double shootRPMNear = 2500;
-    double targetRPM = shootRPMMid;
-    double deltaRPM;
-    boolean farModeEngaged = false;
-    boolean midModeEngaged = true;
-    boolean nearModeEngaged = false;
-
-    double pastShootingRPM;
-
+    double targetRPM = 2900;
 
     //Positions relating to the beacon pushers
     double beaconPusherRightPosition;
@@ -104,10 +87,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     //hood variables
     final double HOOD_INITIAL = 1;          //initial hood position all the way at the bottom
-    double hoodPositionFar = .25;
-    double hoodPositionMid = .125;
-    double hoodPositionNear = 1;
-    double hoodPositioning = hoodPositionMid;  //hood positioning initially set
+    double hoodPositioning;  //hood positioning initially set
 
     double joystick1ValueLeft;  //the raw value taken from the left joystick
     double joystick1ValueRight;  //the raw value taken from the right joystick
@@ -146,7 +126,6 @@ public class BigSurTeleopx2Drive extends OpMode {
     //Run time variables
     double timeOne=0;
     double timeTwo=0;
-
 
 
     /* Initialize standard Hardware interfaces */
@@ -202,8 +181,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherRight = hardwareMap.servo.get("s3");
         beaconPusherLeft = hardwareMap.servo.get("s4");
         ballControl = hardwareMap.servo.get("s5");
-        leftDrawbridge = hardwareMap.servo.get("s6");
-        rightDrawbridge = hardwareMap.servo.get("s7");
+        leftIntake = hardwareMap.servo.get("s6");
+        rightIntake = hardwareMap.servo.get("s7");
         kicker = hardwareMap.servo.get("s8");
 
 
@@ -213,8 +192,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherRight.setPosition(1);
         beaconPusherLeft.setPosition(0);
         ballControl.setPosition(0);
-        leftDrawbridge.setPosition(.5);
-        rightDrawbridge.setPosition(.5);
+        leftIntake.setPosition(.5);
+        rightIntake.setPosition(.5);
         kicker.setPosition(0);
 
         //Shooter initially running at shooterSpeed power
@@ -252,6 +231,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             turretRotationValue = 0.5;
         }
 
+        turret.setPosition(turretRotationValue);
         //*****************
         // S H O O T I N G **
         //*****************
@@ -313,19 +293,19 @@ public class BigSurTeleopx2Drive extends OpMode {
         //***************************************************
 
         //set intake servo powers
-        if (gamepad2.x)
+        if (gamepad2.dpad_up)
         {
-            rightDrawbridge.setPosition(.95);
-            leftDrawbridge.setPosition(.05);
+            rightIntake.setPosition(.95);
+            leftIntake.setPosition(.05);
         }
-        else if (gamepad2.b)
+        else if (gamepad2.dpad_down)
         {
-            leftDrawbridge.setPosition(.95);
-            rightDrawbridge.setPosition(.05);
+            leftIntake.setPosition(.95);
+            rightIntake.setPosition(.05);
         }
         else {
-            leftDrawbridge.setPosition(.5);
-            rightDrawbridge.setPosition(.5);
+            leftIntake.setPosition(.5);
+            rightIntake.setPosition(.5);
         }
 
         //set intake speeds
@@ -346,11 +326,11 @@ public class BigSurTeleopx2Drive extends OpMode {
         //Ball control positions
         if (gamepad2.left_bumper)
         {
-            ballControl.setPosition(.95);
+            ballControl.setPosition(0);
         }
         else
         {
-            ballControl.setPosition(0);
+            ballControl.setPosition(.95);
         }
 
         //Kicker positions
@@ -363,113 +343,14 @@ public class BigSurTeleopx2Drive extends OpMode {
             kicker.setPosition(0);
         }
 
-        /******************
+        //*****************
         //SET ALL POWERS @@
-        //*****************/
+        //*****************
 
+        //Set the elevator and intake's speed to the values specified above
 
-//        //Set the elevator and intake's speed to the values specified above
-//        if (gamepad2.dpad_up) {
-//            pastShootingRPM = targetRPM;
-//            targetRPM = shootRPMFar;
-//            hoodPositioning = hoodPositionFar;
-//            farModeEngaged = true;
-//            midModeEngaged = false;
-//            nearModeEngaged = false;
-//        }
-//        else if (gamepad2.dpad_left) {
-//            pastShootingRPM = targetRPM;
-//            targetRPM = shootRPMMid;
-//            hoodPositioning = hoodPositionMid;
-//            farModeEngaged = false;
-//            midModeEngaged = true;
-//            nearModeEngaged = false;
-//        }
-//        else if (gamepad2.dpad_down) {
-//            pastShootingRPM = targetRPM;
-//            targetRPM = shootRPMNear;
-//            hoodPositioning = hoodPositionNear;
-//            farModeEngaged = false;
-//            midModeEngaged = false;
-//            nearModeEngaged = true;
-//        }
-//
-//
-//        if (pastShootingRPM != targetRPM){
-//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMMid) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMFar) {
-//                rpmGain = rpmGainExtremeValuesChange;
-//                telemetry.addLine("RPM Extreme Change");
-//            }
-//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMNear) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMFar) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMNear) {
-//                rpmGain = rpmGainExtremeValuesChange;
-//                telemetry.addLine("RPM Extreme Change");
-//            }
-//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMMid) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//        }
-//
-//        if (avgRpm < targetRPM + 50 && avgRpm > targetRPM - 50) {
-//            pastShootingRPM = targetRPM;
-//
-//            if (farModeEngaged) {
-//                rpmGain = rpmGainFarSteady;
-//                telemetry.addLine("RPM Far Steady");
-//            }
-//            if (midModeEngaged) {
-//                rpmGain = rpmGainMidSteady;
-//                telemetry.addLine("RPM Mid Steady");
-//            }
-//            if (nearModeEngaged) {
-//                rpmGain = rpmGainNearSteady;
-//                telemetry.addLine("RPM Near Steady");
-//            }
-//
-//        }
-
-        if (gamepad2.dpad_up) {
-            rpmGain += rpmGain * .1;
-        } else if (gamepad2.dpad_down) {
-            rpmGain -= rpmGain * .1;
-        } else if (gamepad2.dpad_right) {
-            rpmGain += rpmGain * .25;
-        } else if (gamepad2.dpad_left) {
-            rpmGain -= rpmGain * .25;
-        }
-
-
-
-//        //linear adjustment of RPM Gain
-//        if (gamepad2.dpad_up) {
-//            targetRPM = shootRPMFar;
-//            hoodPositioning = hoodPositionFar;
-//        }
-//        else if (gamepad2.dpad_left) {
-//            targetRPM = shootRPMMid;
-//            hoodPositioning = hoodPositionMid;
-//        }
-//        else if (gamepad2.dpad_down) {
-//            targetRPM = shootRPMNear;
-//            hoodPositioning = hoodPositionNear;
-//        }
-//
-//        deltaRPM = Math.abs(avgRpm - targetRPM);
-//        rpmGain = (desiredRPMGain/150)*deltaRPM + desiredRPMGain;
-
-        shooterSpeed += rpmGain * (targetRPM-avgRpm);
+        //increment shooter motor power based on dpad commands
+        shooterSpeed += rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
 
         shooterSpeed = Range.clip(shooterSpeed,0,1);
 
@@ -477,7 +358,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         intake.setPower(intakeSpeed);
         telemetry.addData("Shooter Motor Power: ", shooterSpeed);
-        telemetry.addData("RPM Gain", rpmGain);
 
         //***************************************************
         // L E D   N O T I F I C A T I O N S
@@ -515,7 +395,13 @@ public class BigSurTeleopx2Drive extends OpMode {
         }
         //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
         //ensure the hoodPositioning value is in the correct range
-        hoodPositioning = Range.clip(hoodPositioning, 0.04, 1);
+        if (hoodPositioning > 1) {
+            hoodPositioning = 1;
+        }
+
+        if (hoodPositioning < .04) {
+            hoodPositioning = .04;
+        }
 
         //Set the position of the hood to hoodPositioning
         hood.setPosition(hoodPositioning);
@@ -525,9 +411,9 @@ public class BigSurTeleopx2Drive extends OpMode {
         // B E A C O N @@
         //*****************
 
-        //Move both port side and battery side beacons based on actions on the driver gamepad
+        //Move both port side and battery side beacons based on actions on the dpad*/
         //.1 and .9  for testing
-        if (gamepad1.x) {
+        if (gamepad2.x) {
             beaconPusherLeftPosition = .9;
         }
         else {
