@@ -29,6 +29,24 @@ public class DriveTrain {
 
     TouchSensor touchSensor;
 
+    Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
+    Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
+
+    //Color sensor, located
+    ColorSensor colorSensorLeft;
+    ColorSensor colorSensorRight;
+
+
+    //Positions of the continuos rotation beacon pushers, based on wheter retracting or extending
+    double beaconPusherLeftRetractPosition = 0.05;
+    double beaconPusherLeftExtendPosition = .95;
+    double beaconPusherRightRetractPosition = 0.95;
+    double beaconPusherRightExtendPosition = 0.05;
+
+    boolean push;
+
+
+
     double leftPower=0;
     double rightPower=0;
 
@@ -60,8 +78,8 @@ public class DriveTrain {
     int whitesCounterRight;
 
     //time variables set to current run time throughout the code
-    double timeOne;
-    double timeTwo;
+    double timeOne = 0;
+    double timeTwo = 0;
 
     //Gyro sensor declaration
     ModernRoboticsI2cGyro gyro;
@@ -104,7 +122,7 @@ public class DriveTrain {
     //drive gain to multiply the power by
     //toggle variables
     boolean halfGain = false;
-    //    boolean previousStatus = false;
+//    boolean previousStatus = false;
 //    boolean currentStatus = false;
     boolean justBumped = false;
 
@@ -136,6 +154,15 @@ public class DriveTrain {
         whiteLineSensorLeft.enableLed(true);
 
         touchSensor = hwMap.touchSensor.get("touch");
+
+        beaconPusherLeft = hwMap.servo.get("s3");
+        beaconPusherRight = hwMap.servo.get("s4");
+
+        colorSensorLeft = hwMap.colorSensor.get("color");     //I2C port 1
+        colorSensorLeft.enableLed(false); //
+
+        colorSensorRight = hwMap.colorSensor.get("color");     //I2C port 2
+        colorSensorRight.enableLed(false); //
 
         clock.reset();
 
@@ -1024,6 +1051,103 @@ public class DriveTrain {
         rightMotor2.setPower(rightPower);
     }
 
+
+    public void pressBeaconFrontRed (boolean goingForward)
+    {
+        timeOne = clock.seconds();
+        push = false;
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
+        while (timeTwo-timeOne<4) {
+            if (colorSensorLeft.red() > 1.5 && colorSensorLeft.blue() < 1.5 && !push) {
+                beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+                push = true;
+            }
+
+            if (!push)
+            {
+                if (goingForward)
+                {
+                    leftMotor1.setPower(.2);
+                    leftMotor2.setPower (.2);
+                    rightMotor1.setPower(.2);
+                    rightMotor2.setPower(.2);
+                }
+                else
+                {
+                    leftMotor1.setPower(-.2);
+                    leftMotor2.setPower (-.2);
+                    rightMotor1.setPower(-.2);
+                    rightMotor2.setPower(-.2);
+                }
+            }
+
+            telemetry.addData("Red color", colorSensorLeft.red());
+            telemetry.update();
+
+            timeTwo = clock.seconds();
+        }
+
+        if (timeTwo-timeOne>6)
+        {
+            while (clock.seconds()<40)
+            {
+                timeTwo = clock.seconds();
+            }
+        }
+
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+
+        telemetry.addData("Done", telemetryVariable);
+    }
+
+    public void pressBeaconFrontBlue (boolean goingForward) {
+        timeOne = clock.seconds();
+        push = false;
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+
+        while (timeTwo-timeOne<4) {
+            if (colorSensorLeft.blue() > 1.5 && colorSensorLeft.red() < 1.5 && !push) {
+                beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
+                push = true;
+            }
+
+            if (!push)
+            {
+                if (goingForward)
+                {
+                    leftMotor1.setPower(.2);
+                    leftMotor2.setPower (.2);
+                    rightMotor1.setPower(.2);
+                    rightMotor2.setPower(.2);
+                }
+                else
+                {
+                    leftMotor1.setPower(-.2);
+                    leftMotor2.setPower (-.2);
+                    rightMotor1.setPower(-.2);
+                    rightMotor2.setPower(-.2);
+                }
+            }
+
+            telemetry.addData("Red color", colorSensorLeft.red());
+            telemetry.update();
+
+            timeTwo = clock.seconds();
+        }
+
+        if (timeTwo-timeOne>6)
+        {
+            while (clock.seconds()<40)
+            {
+                timeTwo = clock.seconds();
+            }
+        }
+
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+
+        telemetry.addData("Done", telemetryVariable);
+    }
 
 
 
