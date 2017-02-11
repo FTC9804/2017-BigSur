@@ -59,11 +59,12 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     //Gain to control rpm of shooter
     double rpmGain =                    .000000125;
+    double desiredRPMGain =             .000000125;
     double rpmGainExtremeValuesChange = .00000025;
     double rpmGainCloseValuesChange =   .000000125;
-    double rpmFarSteady =               .000000125;
-    double rpmMidSteady =               .00000015;
-    double rpmNearSteady =              .000000175;
+    double rpmGainFarSteady =               .000000125;
+    double rpmGainMidSteady =               .00000015;
+    double rpmGainNearSteady =              .000000175;
 
 
     //Target rpm of shooter to be maintained
@@ -71,7 +72,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     double shootRPMMid = 2700;
     double shootRPMNear = 2500;
     double targetRPM = shootRPMMid;
-
+    double deltaRPM;
     boolean farModeEngaged = false;
     boolean midModeEngaged = true;
     boolean nearModeEngaged = false;
@@ -362,85 +363,113 @@ public class BigSurTeleopx2Drive extends OpMode {
             kicker.setPosition(0);
         }
 
-        //*****************
+        /******************
         //SET ALL POWERS @@
-        //*****************
+        //*****************/
 
-        //Set the elevator and intake's speed to the values specified above
+
+//        //Set the elevator and intake's speed to the values specified above
+//        if (gamepad2.dpad_up) {
+//            pastShootingRPM = targetRPM;
+//            targetRPM = shootRPMFar;
+//            hoodPositioning = hoodPositionFar;
+//            farModeEngaged = true;
+//            midModeEngaged = false;
+//            nearModeEngaged = false;
+//        }
+//        else if (gamepad2.dpad_left) {
+//            pastShootingRPM = targetRPM;
+//            targetRPM = shootRPMMid;
+//            hoodPositioning = hoodPositionMid;
+//            farModeEngaged = false;
+//            midModeEngaged = true;
+//            nearModeEngaged = false;
+//        }
+//        else if (gamepad2.dpad_down) {
+//            pastShootingRPM = targetRPM;
+//            targetRPM = shootRPMNear;
+//            hoodPositioning = hoodPositionNear;
+//            farModeEngaged = false;
+//            midModeEngaged = false;
+//            nearModeEngaged = true;
+//        }
+//
+//
+//        if (pastShootingRPM != targetRPM){
+//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMMid) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMFar) {
+//                rpmGain = rpmGainExtremeValuesChange;
+//                telemetry.addLine("RPM Extreme Change");
+//            }
+//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMNear) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMFar) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMNear) {
+//                rpmGain = rpmGainExtremeValuesChange;
+//                telemetry.addLine("RPM Extreme Change");
+//            }
+//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMMid) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//        }
+//
+//        if (avgRpm < targetRPM + 50 && avgRpm > targetRPM - 50) {
+//            pastShootingRPM = targetRPM;
+//
+//            if (farModeEngaged) {
+//                rpmGain = rpmGainFarSteady;
+//                telemetry.addLine("RPM Far Steady");
+//            }
+//            if (midModeEngaged) {
+//                rpmGain = rpmGainMidSteady;
+//                telemetry.addLine("RPM Mid Steady");
+//            }
+//            if (nearModeEngaged) {
+//                rpmGain = rpmGainNearSteady;
+//                telemetry.addLine("RPM Near Steady");
+//            }
+//
+//        }
+
         if (gamepad2.dpad_up) {
-            pastShootingRPM = targetRPM;
-            targetRPM = shootRPMFar;
-            hoodPositioning = hoodPositionFar;
-            farModeEngaged = true;
-            midModeEngaged = false;
-            nearModeEngaged = false;
-        }
-        else if (gamepad2.dpad_left) {
-            pastShootingRPM = targetRPM;
-            targetRPM = shootRPMMid;
-            hoodPositioning = hoodPositionMid;
-            farModeEngaged = false;
-            midModeEngaged = true;
-            nearModeEngaged = false;
-        }
-        else if (gamepad2.dpad_down) {
-            pastShootingRPM = targetRPM;
-            targetRPM = shootRPMNear;
-            hoodPositioning = hoodPositionNear;
-            farModeEngaged = false;
-            midModeEngaged = false;
-            nearModeEngaged = true;
+            rpmGain += rpmGain * .1;
+        } else if (gamepad2.dpad_down) {
+            rpmGain -= rpmGain * .1;
+        } else if (gamepad2.dpad_right) {
+            rpmGain += rpmGain * .25;
+        } else if (gamepad2.dpad_left) {
+            rpmGain -= rpmGain * .25;
         }
 
 
-        if (pastShootingRPM != targetRPM){
-            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMMid) {
-                rpmGain = rpmGainCloseValuesChange;
-                telemetry.addLine("RPM Close Change");
-            }
-            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMFar) {
-                rpmGain = rpmGainExtremeValuesChange;
-                telemetry.addLine("RPM Extreme Change");
-            }
-            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMNear) {
-                rpmGain = rpmGainCloseValuesChange;
-                telemetry.addLine("RPM Close Change");
-            }
-            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMFar) {
-                rpmGain = rpmGainCloseValuesChange;
-                telemetry.addLine("RPM Close Change");
-            }
-            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMNear) {
-                rpmGain = rpmGainExtremeValuesChange;
-                telemetry.addLine("RPM Extreme Change");
-            }
-            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMMid) {
-                rpmGain = rpmGainCloseValuesChange;
-                telemetry.addLine("RPM Close Change");
-            }
-        }
 
-        if (avgRpm < targetRPM + 50 && avgRpm > targetRPM - 50) {
-            pastShootingRPM = targetRPM;
+//        //linear adjustment of RPM Gain
+//        if (gamepad2.dpad_up) {
+//            targetRPM = shootRPMFar;
+//            hoodPositioning = hoodPositionFar;
+//        }
+//        else if (gamepad2.dpad_left) {
+//            targetRPM = shootRPMMid;
+//            hoodPositioning = hoodPositionMid;
+//        }
+//        else if (gamepad2.dpad_down) {
+//            targetRPM = shootRPMNear;
+//            hoodPositioning = hoodPositionNear;
+//        }
+//
+//        deltaRPM = Math.abs(avgRpm - targetRPM);
+//        rpmGain = (desiredRPMGain/150)*deltaRPM + desiredRPMGain;
 
-            if (farModeEngaged) {
-                rpmGain = rpmFarSteady;
-                telemetry.addLine("RPM Far Steady");
-            }
-            if (midModeEngaged) {
-                rpmGain = rpmMidSteady;
-                telemetry.addLine("RPM Mid Steady");
-            }
-            if (nearModeEngaged) {
-                rpmGain = rpmNearSteady;
-                telemetry.addLine("RPM Near Steady");
-            }
-
-        }
-
-
-        //increment shooter motor power based on dpad commands
-        shooterSpeed += rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
+        shooterSpeed += rpmGain * (targetRPM-avgRpm);
 
         shooterSpeed = Range.clip(shooterSpeed,0,1);
 
@@ -496,7 +525,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         // B E A C O N @@
         //*****************
 
-        //Move both port side and battery side beacons based on actions on the dpad*/
+        //Move both port side and battery side beacons based on actions on the driver gamepad
         //.1 and .9  for testing
         if (gamepad1.x) {
             beaconPusherLeftPosition = .9;
