@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name = "TeleOpV73200", group = "InNOut Testing")
+@TeleOp(name = "TeleOpV7Variable", group = "LA Championships")
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
@@ -437,7 +437,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             }
 
         }
-        
+
 
         //increment shooter motor power based on dpad commands
         shooterSpeed += rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
@@ -520,14 +520,3 @@ public class BigSurTeleopx2Drive extends OpMode {
         telemetry.update(); //update telemetry
     }
 }
-
-
-/*
-
-dpad commands
-    up = far shooting 3000 RPM
-    left = mid shooting 2700 RPM
-    down = near shooting 2500 RPM
-
-
-*/
