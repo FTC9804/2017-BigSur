@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.Range;
 
 public abstract class FuctionsForILTNew extends LinearOpMode {
 
@@ -28,6 +29,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
+    DcMotor cap1;
+    DcMotor cap2;
+
 
     TouchSensor touchSensor;
 
@@ -39,12 +43,15 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     Servo turret;     //Continuous Rotation
     Servo kicker;
     Servo ballControl;
-    Servo leftIntake;
-    Servo rightIntake;
+    Servo leftDrawbridge;
+    Servo rightDrawbridge;
     Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
     Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
+    Servo capGrab1;
+    Servo capGrab2;
 
     boolean telemetryVariable = true;
+
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
@@ -135,7 +142,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     double initialHeading;
 
     //Gain for the gyro when executing a spin move
-    final double GYRO_GAIN =.005;
+    final double GYRO_GAIN =.0178;
 
     //Gain for the gyro when driving straight
     double straightGyroGain = .002;
@@ -259,29 +266,30 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     public void spinMove (double desiredHeading)
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         initialHeading = gyro.getIntegratedZValue();
 
         timeOne= this.getRuntime();
         timeTwo=this.getRuntime();
 
-        if (desiredHeading < initialHeading)
+        if (desiredHeading < initialHeading) //CLOCKWISE TURN
         {
             do{
                 currentHeading= gyro.getIntegratedZValue();
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = -headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.12) {
-                    turnSpeed = 0.12;
+                if (turnSpeed < 0.2) {
+                    turnSpeed = 0.2;
                 }
-                if (turnSpeed > .5) {
-                    turnSpeed = .5;
+                if (turnSpeed > .8) {
+                    turnSpeed = .8;
                 }
 
-                telemetry.addData("Current Heading:",currentHeading);
-                telemetry.addData("TurnSpeed: ",turnSpeed);
-                telemetry.update();
+                //turnSpeed = Range.clip(turnSpeed,.12,.5);
 
                 rightMotor1.setPower(-turnSpeed);
                 rightMotor2.setPower(-turnSpeed);
@@ -291,10 +299,11 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
                 timeTwo=this.getRuntime();
 
+
             }
-            while (currentHeading > desiredHeading && (timeTwo-timeOne<4)); //for clockwise heading you are going to a more positive number
+            while (currentHeading > desiredHeading && (timeTwo-timeOne<30)); //for clockwise heading you are going to a more negatoive number
         }
-        else
+        else //CCW TURN
         {
             do {
 
@@ -302,16 +311,13 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * GYRO_GAIN;
 
-                if (turnSpeed < .2) {
+                if (turnSpeed < 0.2) {
                     turnSpeed = 0.2;
                 }
-                if (turnSpeed > .82) {
-                    turnSpeed = .82;
+                if (turnSpeed > .8) {
+                    turnSpeed = .8;
                 }
 
-                telemetry.addData("Current Heading:",currentHeading);
-                telemetry.addData("TurnSpeed: ",turnSpeed);
-                telemetry.update();
 
                 rightMotor1.setPower(turnSpeed);
                 rightMotor2.setPower(turnSpeed);
@@ -319,7 +325,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 leftMotor2.setPower(-turnSpeed);
                 gyroTelemetry();
             }
-            while (currentHeading < desiredHeading && (timeTwo-timeOne<4)); //for counter-clockwise heading you are going to a more negative number
+            while (currentHeading < desiredHeading && (timeTwo-timeOne<30)); //for counter-clockwise heading you are going to a more negative number
         }
         if (timeTwo-timeOne>4)
         {
@@ -328,6 +334,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             {
                 timeTwo=this.getRuntime();
             }
+
+            telemetry.addData("Timed out", telemetryVariable);
+            telemetry.update();
         }
         stopDriving();
     }
@@ -346,6 +355,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 leftMotor2.setPower(speed);
             }
         }
+
         else
         {
             while (timeTwo-timeOne<time)
@@ -396,14 +406,24 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         beaconPusherLeft = hardwareMap.servo.get("s4");
         beaconPusherRight = hardwareMap.servo.get("s3");
 
+        cap1 = hardwareMap.dcMotor.get("m7");
+        cap2 = hardwareMap.dcMotor.get("m8");
+
+        cap1.setDirection(DcMotor.Direction.FORWARD);
+        cap2.setDirection(DcMotor.Direction.REVERSE);
+
         ballControl = hardwareMap.servo.get("s5");
 
-        leftIntake = hardwareMap.servo.get("s6");
-        rightIntake = hardwareMap.servo.get("s7");
+        leftDrawbridge = hardwareMap.servo.get("s6");
+        rightDrawbridge = hardwareMap.servo.get("s7");
 
         kicker = hardwareMap.servo.get("s8");
 
+        capGrab1 = hardwareMap.servo.get("s9");
+        capGrab2 = hardwareMap.servo.get("s10");
 
+        capGrab1.setDirection(Servo.Direction.FORWARD);
+        capGrab2.setDirection(Servo.Direction.REVERSE);
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
@@ -411,6 +431,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         kicker.setPosition(0);
         ballControl.setPosition(.7);
         hood.setPosition(1);
+        leftDrawbridge.setPosition(.5);
+        rightDrawbridge.setPosition(.5);
+        capGrab1.setPosition(.5);
+        capGrab2.setPosition(.5);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
 
@@ -432,8 +456,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         pushTwo=false;
         push=false;
 
-        leftIntake.setPosition(.5);
-        rightIntake.setPosition(.5);
+        leftDrawbridge.setPosition(.5);
+        rightDrawbridge.setPosition(.5);
     }
 
     public void calibrateGyro () throws InterruptedException
@@ -1139,6 +1163,5 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
     }
-
 
 }
