@@ -211,8 +211,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor2.setDirection(DcMotor.Direction.FORWARD);
         shooter.setDirection(DcMotor.Direction.FORWARD);
         intake.setDirection(DcMotor.Direction.FORWARD);
-        cap1.setDirection(DcMotor.Direction.FORWARD);
-        cap2.setDirection(DcMotor.Direction.REVERSE);
+        cap1.setDirection(DcMotor.Direction.REVERSE);
+        cap2.setDirection(DcMotor.Direction.FORWARD);
 
 
 
@@ -359,12 +359,12 @@ public class BigSurTeleopx2Drive extends OpMode {
                 kicker.setPosition(0);
             }
 
-            /******************
+             //******************
              //SET ALL POWERS @@
              //*****************/
 
 
-//        //Set the elevator and intake's speed to the values specified above
+            //        //Set the elevator and intake's speed to the values specified above
 //        if (gamepad2.dpad_up) {
 //            pastShootingRPM = targetRPM;
 //            targetRPM = shootRPMFar;
@@ -447,7 +447,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             }
 
 
-//        //linear adjustment of RPM Gain
+            //        //linear adjustment of RPM Gain
 //        if (gamepad2.dpad_up) {
 //            targetRPM = shootRPMFar;
 //            hoodPositioning = hoodPositionFar;
@@ -573,33 +573,32 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
-        //C A P   B A L L
+        //*****************
+        // C A P   B A L L @@
+        //*****************
 
         if (capBallState) {
+
             servoControllerNoCap.pwmDisable();
-
-
             shooter.setPower(0);
-            turret.setPosition(.5);
             intake.setPower(0);
-            hood.setPosition(.05);
 
             capMotorValue = gamepad2.right_stick_y;
             cap1.setPower(capMotorValue);
             cap2.setPower(capMotorValue);
 
             if (gamepad2.left_bumper ) {
-                capGrabValueLeft -= .003;
+                capGrabValueLeft += .003;
             }
             else {
-                capGrabValueLeft = .5 + gamepad2.left_trigger / 2;
+                capGrabValueLeft = .5 - gamepad2.left_trigger / 2;
             }
 
             if (gamepad2.right_bumper) {
-                capGrabValueRight -= .003;
+                capGrabValueRight += .003;
             }
             else {
-                capGrabValueRight = .5 + gamepad2.right_trigger/2;
+                capGrabValueRight = .5 - gamepad2.right_trigger / 2;
             }
 
             capGrabValueLeft = Range.clip(capGrabValueLeft, 0, 1);
