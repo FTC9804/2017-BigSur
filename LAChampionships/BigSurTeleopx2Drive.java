@@ -262,23 +262,6 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         if (!capBallState) {
             servoControllerNoCap.pwmEnable();
-            //*****************
-            // T U R R E T  @@
-            //*****************
-
-            //set turretAxis to the raw value of gamepad2.left_stick_x
-            turretAxis = gamepad2.left_stick_x;
-
-            //Assign turretRotationValues based on the value of turretAxis.  If turretAxis is significantly positive, rotate to the left.
-            //If turretAxis is significantly negative, rotate to the right.  If neither, keep the turret still by setting its position to .5
-            if (turretAxis < -0.1) {  //0.1 to set off the dead zone. FUTURE -> set gain for precise adjustments
-                turretRotationValue = TURRET_ROTATION_RIGHT;  //declared above for easy editing
-            } else if (turretAxis > 0.1) {
-                turretRotationValue = TURRET_ROTATION_LEFT;
-            } else {
-                turretRotationValue = 0.5;
-            }
-
 
             //*****************
             // S H O O T I N G **
@@ -534,6 +517,25 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         }
 
+        //*****************
+        // T U R R E T  @@
+        //*****************
+
+        //set turretAxis to the raw value of gamepad2.left_stick_x
+        turretAxis = gamepad2.left_stick_x;
+
+        //Assign turretRotationValues based on the value of turretAxis.  If turretAxis is significantly positive, rotate to the left.
+        //If turretAxis is significantly negative, rotate to the right.  If neither, keep the turret still by setting its position to .5
+        if (turretAxis < -0.1) {  //0.1 to set off the dead zone. FUTURE -> set gain for precise adjustments
+            turretRotationValue = TURRET_ROTATION_RIGHT;  //declared above for easy editing
+        } else if (turretAxis > 0.1) {
+            turretRotationValue = TURRET_ROTATION_LEFT;
+        } else {
+            turretRotationValue = 0.5;
+        }
+
+
+
         //assign joystick values
         joystick1ValueLeft = gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
         joystick1ValueRight = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
@@ -569,6 +571,8 @@ public class BigSurTeleopx2Drive extends OpMode {
 
 
 
+
+
         //C A P   B A L L
 
         if (capBallState) {
@@ -598,6 +602,8 @@ public class BigSurTeleopx2Drive extends OpMode {
                 capGrabValueRight = .5 + gamepad2.right_trigger/2;
             }
 
+            capGrabValueLeft = Range.clip(capGrabValueLeft, 0, 1);
+            capGrabValueRight = Range.clip(capGrabValueRight, 0, 1);
 
 
             telemetry.addData("Cap Grab Value Left", capGrabValueLeft);
