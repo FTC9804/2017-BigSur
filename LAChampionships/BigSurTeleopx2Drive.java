@@ -10,14 +10,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name = "TeleOpV73200", group = "InNOut Testing")
+@TeleOp(name = "TeleOpV7Variable", group = "LA Championships")
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
@@ -42,7 +44,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
-    DcMotor encode; //Hypothetical Motor
+    DcMotor cap1;
+    DcMotor cap2;
+
 
     //Servos
     Servo turret;
@@ -50,18 +54,42 @@ public class BigSurTeleopx2Drive extends OpMode {
     Servo beaconPusherLeft;
     Servo beaconPusherRight;
     Servo ballControl;
-    Servo leftIntake;
-    Servo rightIntake;
+    Servo leftDrawbridge;
+    Servo rightDrawbridge;
     Servo kicker;
+    Servo capGrab1;
+    Servo capGrab2;
+
+    ServoController servoControllerNoCap;
 
     //Variable to temporarily store the weighted average of the rpm of the shooter
     double tempWeightedAvg;
 
     //Gain to control rpm of shooter
     double rpmGain = .000000125;
+    double desiredRPMGain = .000000125;
+    double rpmGainExtremeValuesChange = .00000025;
+    double rpmGainCloseValuesChange = .000000125;
+    double rpmGainFarSteady = .000000125;
+    double rpmGainMidSteady = .00000015;
+    double rpmGainNearSteady = .000000175;
+
 
     //Target rpm of shooter to be maintained
-    double targetRPM = 2900;
+    double shootRPMFar = 3000;
+    double shootRPMMid = 2700;
+    double shootRPMNear = 2500;
+    double targetRPM = shootRPMMid;
+    double deltaRPM;
+    boolean farModeEngaged = false;
+    boolean midModeEngaged = true;
+    boolean nearModeEngaged = false;
+
+    double pastShootingRPM;
+
+    double capMotorValue = 0;
+
+    boolean capBallState = false;
 
     //Positions relating to the beacon pushers
     double beaconPusherRightPosition;
@@ -83,11 +111,14 @@ public class BigSurTeleopx2Drive extends OpMode {
     //values for the gears of the turret
     final double SMALL_GEAR_TEETH = 32.0;
     final double BIG_GEAR_TEETH = 89.0;
-    final double GEAR_RATIO = SMALL_GEAR_TEETH/BIG_GEAR_TEETH;
+    final double GEAR_RATIO = SMALL_GEAR_TEETH / BIG_GEAR_TEETH;
 
     //hood variables
     final double HOOD_INITIAL = 1;          //initial hood position all the way at the bottom
-    double hoodPositioning;  //hood positioning initially set
+    double hoodPositionFar = .25;
+    double hoodPositionMid = .125;
+    double hoodPositionNear = 1;
+    double hoodPositioning = hoodPositionMid;  //hood positioning initially set
 
     double joystick1ValueLeft;  //the raw value taken from the left joystick
     double joystick1ValueRight;  //the raw value taken from the right joystick
@@ -100,6 +131,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     double countDelta; //the absolute value of the difference between currentEncoderPosition and initialEncoderCount
 
     double rotations; //the amount of 360 degree rotations the turret has completed since the beginning of the match
+
+    double capGrabValueLeft = .5;
+    double capGrabValueRight = .5;
 
 
     //rpm variables
@@ -124,8 +158,8 @@ public class BigSurTeleopx2Drive extends OpMode {
     //a boolean set to false unless outside force is currently being applied to the motor disturbing its rpm.  Reflective of how the motor will be disturbed when a ball is being shot in our actual robot.
 
     //Run time variables
-    double timeOne=0;
-    double timeTwo=0;
+    double timeOne = 0;
+    double timeTwo = 0;
 
 
     /* Initialize standard Hardware interfaces */
@@ -154,18 +188,21 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor2 = hardwareMap.dcMotor.get("m2");
         shooter = hardwareMap.dcMotor.get("m5");
         intake = hardwareMap.dcMotor.get("m6");
-        encode = hardwareMap.dcMotor.get("m8");
+        cap1 = hardwareMap.dcMotor.get("m7");
+        cap2 = hardwareMap.dcMotor.get("m8");
+
+
 
         //Stop and reset encoder, declare intention to run using encoder
-        encode.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encode.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        cap2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        cap2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //encoder count for turret at the init phase
-        initialEncoderCount = encode.getCurrentPosition();
+        //initialEncoderCount = cap2.getCurrentPosition();
 
         //encoder counts for shooter at init phase
-        encoderClicksOne=shooter.getCurrentPosition();
-        encoderClicksTwo=shooter.getCurrentPosition();
+        encoderClicksOne = shooter.getCurrentPosition();
+        encoderClicksTwo = shooter.getCurrentPosition();
 
         //Motor directions
         rightMotor1.setDirection(DcMotor.Direction.REVERSE);
@@ -174,6 +211,10 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor2.setDirection(DcMotor.Direction.FORWARD);
         shooter.setDirection(DcMotor.Direction.FORWARD);
         intake.setDirection(DcMotor.Direction.FORWARD);
+        cap1.setDirection(DcMotor.Direction.FORWARD);
+        cap2.setDirection(DcMotor.Direction.REVERSE);
+
+
 
         //Servo configurations
         turret = hardwareMap.servo.get("s1");
@@ -181,10 +222,16 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherRight = hardwareMap.servo.get("s3");
         beaconPusherLeft = hardwareMap.servo.get("s4");
         ballControl = hardwareMap.servo.get("s5");
-        leftIntake = hardwareMap.servo.get("s6");
-        rightIntake = hardwareMap.servo.get("s7");
+        leftDrawbridge = hardwareMap.servo.get("s6");
+        rightDrawbridge = hardwareMap.servo.get("s7");
         kicker = hardwareMap.servo.get("s8");
+        capGrab1 = hardwareMap.servo.get("s9");
+        capGrab2 = hardwareMap.servo.get("s10");
 
+        capGrab1.setDirection(Servo.Direction.FORWARD);
+        capGrab2.setDirection(Servo.Direction.REVERSE);
+
+        servoControllerNoCap = hardwareMap.servoController.get("Servo Controller 1");
 
         //Servo initial positions
         turret.setPosition(TURRET_INITIAL);
@@ -192,9 +239,11 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherRight.setPosition(1);
         beaconPusherLeft.setPosition(0);
         ballControl.setPosition(0);
-        leftIntake.setPosition(.5);
-        rightIntake.setPosition(.5);
+        leftDrawbridge.setPosition(.5);
+        rightDrawbridge.setPosition(.5);
         kicker.setPosition(0);
+        capGrab1.setPosition(.5);
+        capGrab2.setPosition(.5);
 
         //Shooter initially running at shooterSpeed power
         shooter.setPower(shooterSpeed);
@@ -204,227 +253,313 @@ public class BigSurTeleopx2Drive extends OpMode {
     @Override
     public void loop() {
 
+        if (gamepad2.start) {
+            capBallState = true;
+        }
+        if (gamepad2.back) {
+            capBallState = false;
+        }
+
+        if (!capBallState) {
+            servoControllerNoCap.pwmEnable();
+            //*****************
+            // T U R R E T  @@
+            //*****************
+
+            //set turretAxis to the raw value of gamepad2.left_stick_x
+            turretAxis = gamepad2.left_stick_x;
+
+            //Assign turretRotationValues based on the value of turretAxis.  If turretAxis is significantly positive, rotate to the left.
+            //If turretAxis is significantly negative, rotate to the right.  If neither, keep the turret still by setting its position to .5
+            if (turretAxis < -0.1) {  //0.1 to set off the dead zone. FUTURE -> set gain for precise adjustments
+                turretRotationValue = TURRET_ROTATION_RIGHT;  //declared above for easy editing
+            } else if (turretAxis > 0.1) {
+                turretRotationValue = TURRET_ROTATION_LEFT;
+            } else {
+                turretRotationValue = 0.5;
+            }
+
+
+            //*****************
+            // S H O O T I N G **
+            //*****************
+
+            //Current Run Time
+            timeTwo = this.getRuntime();
+            //Current Encoder Clicks
+            encoderClicksTwo = shooter.getCurrentPosition();
+
+            //Telemetry for time variables
+            telemetry.addData("Time Two", timeTwo);
+            telemetry.addData("Time Difference", timeTwo - timeOne);
+
+            //telemetry for shooting speed
+            if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
+                timeTwo = this.getRuntime();//set time Two to curret runtime
+                encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
+                rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
+                averageRpmArray[arrayCount] = rpm; //Set position arrayCount of averageRpmArray to current rpm
+                timeOne = this.getRuntime(); //set timeOne to current run time
+                encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
+                arrayCount++;//increment arrayCount by 1
+            }
+
+
+            if (arrayCount == 5) //if arrayCount equals 5
+            {
+                for (int i = 0; i < 5; i++) { //loop 5 times
+                    totalRpm += averageRpmArray[i]; //increment totalRpm by the value at position i of averageRpmArray
+                }
+                avgRpm = totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
+                baseWeight = .1; //Set base weight to .1
+                for (int i = 0; i < 5; i++) { //Loop 5 times
+                    weightedAvg += (int) averageRpmArray[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
+                    baseWeight += .05; //Increment base weight by .05
+                }
+                tempWeightedAvg = weightedAvg;
+
+                //Telemetry
+                weightedAvg = 0; //set weightedAvg to 0
+                arrayCount = 0; //set arrayCount to 0
+                //set each value in averageRpmArray to 0
+                averageRpmArray[0] = 0;
+                averageRpmArray[1] = 0;
+                averageRpmArray[2] = 0;
+                averageRpmArray[3] = 0;
+                averageRpmArray[4] = 0;
+                //set totalRpm to 0;
+                totalRpm = 0;
+            }
+
+            //telemetry for rpm
+            telemetry.addData("RPM : ", rpm);
+            telemetry.addData("AvgRPM : ", avgRpm);
+
+            //***************************************************
+            //E L E V A T O R  L O A D E R  &  I N T A K E **
+            //***************************************************
+
+            //set intake servo powers
+            if (gamepad2.x) {
+                rightDrawbridge.setPosition(.95);
+                leftDrawbridge.setPosition(.05);
+            } else if (gamepad2.b) {
+                leftDrawbridge.setPosition(.95);
+                rightDrawbridge.setPosition(.05);
+            } else {
+                leftDrawbridge.setPosition(.5);
+                rightDrawbridge.setPosition(.5);
+            }
+
+            //set intake speeds
+            if (gamepad2.right_trigger > 0.6) { //triggers act like an axis, so to make them behave like buttons
+                // we set them to active when they reach beyond a certain value: .6.  If the right trigger's
+                //value is above .6, activate elevator (going up) and intake (coming in)
+                intakeSpeed = 1.0;
+            } else if (gamepad2.left_trigger > .6) {
+                intakeSpeed = -1;
+            } else {
+                intakeSpeed = 0;
+            }
+
+            //Ball control positions
+            if (gamepad2.left_bumper) {
+                ballControl.setPosition(.95);
+            } else {
+                ballControl.setPosition(0);
+            }
+
+            //Kicker positions
+            if (gamepad2.right_bumper) {
+                kicker.setPosition(.95);
+            } else {
+                kicker.setPosition(0);
+            }
+
+            /******************
+             //SET ALL POWERS @@
+             //*****************/
+
+
+//        //Set the elevator and intake's speed to the values specified above
+//        if (gamepad2.dpad_up) {
+//            pastShootingRPM = targetRPM;
+//            targetRPM = shootRPMFar;
+//            hoodPositioning = hoodPositionFar;
+//            farModeEngaged = true;
+//            midModeEngaged = false;
+//            nearModeEngaged = false;
+//        }
+//        else if (gamepad2.dpad_left) {
+//            pastShootingRPM = targetRPM;
+//            targetRPM = shootRPMMid;
+//            hoodPositioning = hoodPositionMid;
+//            farModeEngaged = false;
+//            midModeEngaged = true;
+//            nearModeEngaged = false;
+//        }
+//        else if (gamepad2.dpad_down) {
+//            pastShootingRPM = targetRPM;
+//            targetRPM = shootRPMNear;
+//            hoodPositioning = hoodPositionNear;
+//            farModeEngaged = false;
+//            midModeEngaged = false;
+//            nearModeEngaged = true;
+//        }
+//
+//
+//        if (pastShootingRPM != targetRPM){
+//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMMid) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMFar) {
+//                rpmGain = rpmGainExtremeValuesChange;
+//                telemetry.addLine("RPM Extreme Change");
+//            }
+//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMNear) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMFar) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMNear) {
+//                rpmGain = rpmGainExtremeValuesChange;
+//                telemetry.addLine("RPM Extreme Change");
+//            }
+//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMMid) {
+//                rpmGain = rpmGainCloseValuesChange;
+//                telemetry.addLine("RPM Close Change");
+//            }
+//        }
+//
+//        if (avgRpm < targetRPM + 50 && avgRpm > targetRPM - 50) {
+//            pastShootingRPM = targetRPM;
+//
+//            if (farModeEngaged) {
+//                rpmGain = rpmGainFarSteady;
+//                telemetry.addLine("RPM Far Steady");
+//            }
+//            if (midModeEngaged) {
+//                rpmGain = rpmGainMidSteady;
+//                telemetry.addLine("RPM Mid Steady");
+//            }
+//            if (nearModeEngaged) {
+//                rpmGain = rpmGainNearSteady;
+//                telemetry.addLine("RPM Near Steady");
+//            }
+//
+//        }
+
+            if (gamepad2.dpad_up) {
+                rpmGain += rpmGain * .1;
+            } else if (gamepad2.dpad_down) {
+                rpmGain -= rpmGain * .1;
+            } else if (gamepad2.dpad_right) {
+                rpmGain += rpmGain * .25;
+            } else if (gamepad2.dpad_left) {
+                rpmGain -= rpmGain * .25;
+            }
+
+
+//        //linear adjustment of RPM Gain
+//        if (gamepad2.dpad_up) {
+//            targetRPM = shootRPMFar;
+//            hoodPositioning = hoodPositionFar;
+//        }
+//        else if (gamepad2.dpad_left) {
+//            targetRPM = shootRPMMid;
+//            hoodPositioning = hoodPositionMid;
+//        }
+//        else if (gamepad2.dpad_down) {
+//            targetRPM = shootRPMNear;
+//            hoodPositioning = hoodPositionNear;
+//        }
+//
+//        deltaRPM = Math.abs(avgRpm - targetRPM);
+//        rpmGain = (desiredRPMGain/150)*deltaRPM + desiredRPMGain;
+
+            shooterSpeed += rpmGain * (targetRPM - avgRpm);
+
+            shooterSpeed = Range.clip(shooterSpeed, 0, 1);
+
+            shooter.setPower(shooterSpeed);
+
+            intake.setPower(intakeSpeed);
+            telemetry.addData("Shooter Motor Power: ", shooterSpeed);
+            telemetry.addData("RPM Gain", rpmGain);
+
+            //***************************************************
+            // L E D   N O T I F I C A T I O N S
+            //***************************************************
+
+            //LED Notifications
+            if (avgRpm < (targetRPM + 100) && avgRpm > (targetRPM - 100)) {
+                ledDontShootRed.setState(!redLEDIsOn);
+                ledShootGreen.setState(greenLEDIsOn);
+            } else {
+                ledDontShootRed.setState(redLEDIsOn);
+                ledShootGreen.setState(!greenLEDIsOn);
+            }
+            if (beamBreak.isPressed()) {
+                telemetry.addLine("No Ball");
+                ledBallBlue.setState(!blueLEDIsOn);
+            } else {
+                telemetry.addLine("Ball");
+                ledBallBlue.setState(blueLEDIsOn);
+            }
+
+            //*****************
+            // H O O D @@
+            //*****************
+
+            //increase/decrease hood positioning at a slow rate to allow fine tune adjustment because the code will cycle approx. 100-150 times a second
+
+            if (gamepad2.y) { //If y is being pressed, move the hood down
+                hoodPositioning -= .005;
+            }
+            if (gamepad2.a) { //If a is being pressed, move the hood up
+                hoodPositioning += .005;
+            }
+            //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
+            //ensure the hoodPositioning value is in the correct range
+            hoodPositioning = Range.clip(hoodPositioning, 0.04, 1);
+
+            //Set the position of the hood to hoodPositioning
+            hood.setPosition(hoodPositioning);
+            telemetry.addData("hood", hoodPositioning);
+
+
+        }
+
         //assign joystick values
-        joystick1ValueLeft= gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
+        joystick1ValueLeft = gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
         joystick1ValueRight = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
 
         //Set motor powers, multiplying by .95
-        leftMotor1.setPower(.95*joystick1ValueLeft);
-        leftMotor2.setPower(.95*joystick1ValueLeft);
-        rightMotor1.setPower(.95*joystick1ValueRight);
-        rightMotor2.setPower(.95*joystick1ValueRight);
+        leftMotor1.setPower(.95 * joystick1ValueLeft);
+        leftMotor2.setPower(.95 * joystick1ValueLeft);
+        rightMotor1.setPower(.95 * joystick1ValueRight);
+        rightMotor2.setPower(.95 * joystick1ValueRight);
 
-        //*****************
-        // T U R R E T  @@
-        //*****************
-
-        //set turretAxis to the raw value of gamepad2.left_stick_x
-        turretAxis = gamepad2.left_stick_x;
-
-        //Assign turretRotationValues based on the value of turretAxis.  If turretAxis is significantly positive, rotate to the left.
-        //If turretAxis is significantly negative, rotate to the right.  If neither, keep the turret still by setting its position to .5
-        if (turretAxis < -0.1) {  //0.1 to set off the dead zone. FUTURE -> set gain for precise adjustments
-            turretRotationValue = TURRET_ROTATION_RIGHT;  //declared above for easy editing
-        } else if (turretAxis > 0.1) {
-            turretRotationValue = TURRET_ROTATION_LEFT;
-        } else {
-            turretRotationValue = 0.5;
-        }
-
-        turret.setPosition(turretRotationValue);
-        //*****************
-        // S H O O T I N G **
-        //*****************
-
-        //Current Run Time
-        timeTwo = this.getRuntime ();
-        //Current Encoder Clicks
-        encoderClicksTwo = shooter.getCurrentPosition();
-
-        //Telemetry for time variables
-        telemetry.addData("Time Two", timeTwo);
-        telemetry.addData("Time Difference", timeTwo-timeOne);
-
-        //telemetry for shooting speed
-        if (timeTwo - timeOne >= 0.1)
-        {//if timeTwo and timeOne are more than .1 sec apart
-            timeTwo = this.getRuntime();//set time Two to curret runtime
-            encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
-            rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
-            averageRpmArray[arrayCount] = rpm; //Set position arrayCount of averageRpmArray to current rpm
-            timeOne = this.getRuntime(); //set timeOne to current run time
-            encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
-            arrayCount++;//increment arrayCount by 1
-        }
-
-
-        if (arrayCount == 5) //if arrayCount equals 5
-        {
-            for (int i = 0; i < 5; i++) { //loop 5 times
-                totalRpm += averageRpmArray[i]; //increment totalRpm by the value at position i of averageRpmArray
-            }
-            avgRpm = totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
-            baseWeight = .1; //Set base weight to .1
-            for (int i = 0; i < 5; i++) { //Loop 5 times
-                weightedAvg += (int) averageRpmArray[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
-                baseWeight += .05; //Increment base weight by .05
-            }
-            tempWeightedAvg = weightedAvg;
-
-            //Telemetry
-            weightedAvg = 0; //set weightedAvg to 0
-            arrayCount = 0; //set arrayCount to 0
-            //set each value in averageRpmArray to 0
-            averageRpmArray[0] = 0;
-            averageRpmArray[1] = 0;
-            averageRpmArray[2] = 0;
-            averageRpmArray[3] = 0;
-            averageRpmArray[4] = 0;
-            //set totalRpm to 0;
-            totalRpm = 0;
-        }
-
-        //telemetry for rpm
-        telemetry.addData("RPM : ", rpm);
-        telemetry.addData("AvgRPM : ", avgRpm);
-
-        //***************************************************
-        //E L E V A T O R  L O A D E R  &  I N T A K E **
-        //***************************************************
-
-        //set intake servo powers
-        if (gamepad2.dpad_up)
-        {
-            rightIntake.setPosition(.95);
-            leftIntake.setPosition(.05);
-        }
-        else if (gamepad2.dpad_down)
-        {
-            leftIntake.setPosition(.95);
-            rightIntake.setPosition(.05);
-        }
-        else {
-            leftIntake.setPosition(.5);
-            rightIntake.setPosition(.5);
-        }
-
-        //set intake speeds
-        if (gamepad2.right_trigger > 0.6) { //triggers act like an axis, so to make them behave like buttons
-            // we set them to active when they reach beyond a certain value: .6.  If the right trigger's
-            //value is above .6, activate elevator (going up) and intake (coming in)
-            intakeSpeed = 1.0;
-        }
-        else if (gamepad2.left_trigger>.6)
-        {
-            intakeSpeed=-1;
-        }
-        else
-        {
-            intakeSpeed=0;
-        }
-
-        //Ball control positions
-        if (gamepad2.left_bumper)
-        {
-            ballControl.setPosition(0);
-        }
-        else
-        {
-            ballControl.setPosition(.95);
-        }
-
-        //Kicker positions
-        if (gamepad2.right_bumper)
-        {
-            kicker.setPosition(.95);
-        }
-        else
-        {
-            kicker.setPosition(0);
-        }
-
-        //*****************
-        //SET ALL POWERS @@
-        //*****************
-
-        //Set the elevator and intake's speed to the values specified above
-
-        //increment shooter motor power based on dpad commands
-        shooterSpeed += rpmGain * (targetRPM-avgRpm);       //don't forget to change the LED stuff if you change target here
-
-        shooterSpeed = Range.clip(shooterSpeed,0,1);
-
-        shooter.setPower(shooterSpeed);
-
-        intake.setPower(intakeSpeed);
-        telemetry.addData("Shooter Motor Power: ", shooterSpeed);
-
-        //***************************************************
-        // L E D   N O T I F I C A T I O N S
-        //***************************************************
-
-        //LED Notifications
-        if (avgRpm < (targetRPM +100)  && avgRpm > (targetRPM -100)) {
-            ledDontShootRed.setState(!redLEDIsOn);
-            ledShootGreen.setState(greenLEDIsOn);
-        }
-        else {
-            ledDontShootRed.setState(redLEDIsOn);
-            ledShootGreen.setState(!greenLEDIsOn);
-        }
-        if (beamBreak.isPressed()) {
-            telemetry.addLine("No Ball");
-            ledBallBlue.setState(!blueLEDIsOn);
-        }
-        else {
-            telemetry.addLine("Ball");
-            ledBallBlue.setState(blueLEDIsOn);
-        }
-
-        //*****************
-        // H O O D @@
-        //*****************
-
-        //increase/decrease hood positioning at a slow rate to allow fine tune adjustment because the code will cycle approx. 100-150 times a second
-
-        if (gamepad2.y) { //If y is being pressed, move the hood down
-            hoodPositioning -= .005;
-        }
-        if (gamepad2.a) { //If a is being pressed, move the hood up
-            hoodPositioning += .005;
-        }
-        //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
-        //ensure the hoodPositioning value is in the correct range
-        if (hoodPositioning > 1) {
-            hoodPositioning = 1;
-        }
-
-        if (hoodPositioning < .04) {
-            hoodPositioning = .04;
-        }
-
-        //Set the position of the hood to hoodPositioning
-        hood.setPosition(hoodPositioning);
-        telemetry.addData("hood" , hoodPositioning);
 
         //*****************
         // B E A C O N @@
         //*****************
 
-        //Move both port side and battery side beacons based on actions on the dpad*/
+        //Move both port side and battery side beacons based on actions on the driver gamepad
         //.1 and .9  for testing
-        if (gamepad2.x) {
+        if (gamepad1.x) {
             beaconPusherLeftPosition = .9;
-        }
-        else {
+        } else {
             beaconPusherLeftPosition = .1;
         }
 
         if (gamepad1.b) {
             beaconPusherRightPosition = .1;
-        }
-        else
-        {
+        } else {
             beaconPusherRightPosition = .9;
         }
 
@@ -432,6 +567,50 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherLeft.setPosition(beaconPusherLeftPosition);
         beaconPusherRight.setPosition(beaconPusherRightPosition);
 
+
+
+        //C A P   B A L L
+
+        if (capBallState) {
+            servoControllerNoCap.pwmDisable();
+
+
+            shooter.setPower(0);
+            turret.setPosition(.5);
+            intake.setPower(0);
+            hood.setPosition(.05);
+
+            capMotorValue = gamepad2.right_stick_y;
+            cap1.setPower(capMotorValue);
+            cap2.setPower(capMotorValue);
+
+            if (gamepad2.left_bumper ) {
+                capGrabValueLeft -= .003;
+            }
+            else {
+                capGrabValueLeft = .5 + gamepad2.left_trigger / 2;
+            }
+
+            if (gamepad2.right_bumper) {
+                capGrabValueRight -= .003;
+            }
+            else {
+                capGrabValueRight = .5 + gamepad2.right_trigger/2;
+            }
+
+
+
+            telemetry.addData("Cap Grab Value Left", capGrabValueLeft);
+            telemetry.addData("Cap Grab Value Right", capGrabValueRight);
+
+            capGrab1.setPosition(capGrabValueLeft);
+            capGrab2.setPosition(capGrabValueRight);
+
+        }
+
         telemetry.update(); //update telemetry
+
     }
+
+
 }
