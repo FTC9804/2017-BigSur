@@ -18,7 +18,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FunctionsForLA extends LinearOpMode {
+public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //Variable Declarations
 
@@ -106,6 +106,11 @@ public abstract class FunctionsForLA extends LinearOpMode {
     double timeTwo;
     double timeRunningLoop;
 
+    double whitesCount = 0;
+
+    double whiteCountLeft = 0;
+    double whiteCountRight = 0;
+
 
 
     //Gain to control rpm on the robot
@@ -142,10 +147,10 @@ public abstract class FunctionsForLA extends LinearOpMode {
     double initialHeading;
 
     //Gain for the gyro when executing a spin move
-    final double GYRO_GAIN =.0178;
+    final double GYRO_GAIN =.0078;
 
     //Gain for the gyro when driving straight
-    double straightGyroGain = .002;
+    double straightGyroGain = .006;
 
     double straightDriveAdjust = 0;
 
@@ -381,10 +386,10 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //values, if necessary
     public void Configure ()
     {
-        rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
-        rightMotor2 = hardwareMap.dcMotor.get("m4");
-        leftMotor1 = hardwareMap.dcMotor.get("m1");
-        leftMotor2 = hardwareMap.dcMotor.get("m2");
+        rightMotor1 = hardwareMap.dcMotor.get("m3"); //Motor Controller 4, port 2, XV78
+        rightMotor2 = hardwareMap.dcMotor.get("m4"); //Motor Controller 4, port 1, XV78
+        leftMotor1 = hardwareMap.dcMotor.get("m1"); //Motor Controller 1, port 2, UVQF
+        leftMotor2 = hardwareMap.dcMotor.get("m2"); //Motor Controller 1, port 1, UVQF
         rightMotor1.setDirection(DcMotor.Direction.FORWARD);
         rightMotor2.setDirection(DcMotor.Direction.FORWARD);
         leftMotor1.setDirection(DcMotor.Direction.REVERSE);
@@ -392,35 +397,35 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        shooter = hardwareMap.dcMotor.get("m5");
+        shooter = hardwareMap.dcMotor.get("m5"); //Motor Controller 2, port 1, 9PCE
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
-        intake = hardwareMap.dcMotor.get("m6");
+        intake = hardwareMap.dcMotor.get("m6"); //Motor Controller 2, port 2, 9PCE
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        turret = hardwareMap.servo.get("s1");
-        hood = hardwareMap.servo.get("s2");
+        turret = hardwareMap.servo.get("s1"); //Servo Controller 1, port 2, VSI1
+        hood = hardwareMap.servo.get("s2"); //Servo Controller 1, port 1, VSI1
 
-        touchSensor = hardwareMap.touchSensor.get("touch");
+        touchSensor = hardwareMap.touchSensor.get("touch"); //Digital port 1
 
-        beaconPusherLeft = hardwareMap.servo.get("s4");
-        beaconPusherRight = hardwareMap.servo.get("s3");
+        beaconPusherLeft = hardwareMap.servo.get("s4"); //Servo Controller 3, port 1, VCT7
+        beaconPusherRight = hardwareMap.servo.get("s3"); //Servo Controller 3, port 2, VCT7
 
-        cap1 = hardwareMap.dcMotor.get("m7");
-        cap2 = hardwareMap.dcMotor.get("m8");
+        cap1 = hardwareMap.dcMotor.get("m7"); //Motor Controller 3, port 1, VF7F
+        cap2 = hardwareMap.dcMotor.get("m8"); //Motor Controller 3, port 2, VF7F
 
         cap1.setDirection(DcMotor.Direction.FORWARD);
         cap2.setDirection(DcMotor.Direction.REVERSE);
 
-        ballControl = hardwareMap.servo.get("s5");
+        ballControl = hardwareMap.servo.get("s5"); //Servo Controller 1, port 4, VSI1
 
-        leftDrawbridge = hardwareMap.servo.get("s6");
-        rightDrawbridge = hardwareMap.servo.get("s7");
+        leftDrawbridge = hardwareMap.servo.get("s6"); //Servo Controller 3, port 3, VCT7
+        rightDrawbridge = hardwareMap.servo.get("s7"); //Servo Controller 3, port 4, VCT7
 
-        kicker = hardwareMap.servo.get("s8");
+        kicker = hardwareMap.servo.get("s8"); //Servo Controller 1, port 3, VSI1
 
-        capGrab1 = hardwareMap.servo.get("s9");
-        capGrab2 = hardwareMap.servo.get("s10");
+        capGrab1 = hardwareMap.servo.get("s9"); //Servo Controller 3, port 5, VCT7
+        capGrab2 = hardwareMap.servo.get("s10"); //Servo Controller 3, port 6, VCT7
 
         capGrab1.setDirection(Servo.Direction.FORWARD);
         capGrab2.setDirection(Servo.Direction.REVERSE);
@@ -429,7 +434,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
         turret.setPosition(turretPosition);
         kicker.setPosition(0);
-        ballControl.setPosition(.7);
+        ballControl.setPosition(.75);
         hood.setPosition(1);
         leftDrawbridge.setPosition(.5);
         rightDrawbridge.setPosition(.5);
@@ -595,7 +600,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo= this.getRuntime();
 
-        while (leftMotor1.getCurrentPosition()<counts) {
+        while (leftMotor1.getCurrentPosition()<counts && (timeTwo-timeOne < 4)) {
             currentHeading = gyro.getIntegratedZValue();
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
             leftMotor1.setPower(speed + straightDriveAdjust);
@@ -642,7 +647,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             timeTwo = this.getRuntime();
         }
 
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>3)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -678,6 +683,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //Drive at a given speed until the left ods sees adequate white light
     public void driveToWhiteLineLeft(double speed)
     {
+        whitesCount= 0;
 
         whiteLineNotDetected = true;
 
@@ -704,6 +710,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             //If enough white light has been detected, set the ods boolean to true
             if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
                 whiteLineNotDetected = false;
+                whitesCount++;
             }
 
             if (timeTwo-timeOne>4)
@@ -723,7 +730,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
 
         }
-        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4));  //Repeat do loop until both odss have detected enough white light
+        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
 
 
         if (timeTwo-timeOne>4)
@@ -745,6 +752,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
     public void driveToWhiteLine (double speed, double targetHeading)
     {
+        whiteCountLeft=0;
+        whiteCountRight=0;
+
         wlsRightlight = false;
         wlsLeftlight = false;
 
@@ -773,10 +783,12 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
             //If enough white light has been detected, set the ods boolean to true
             if (whiteLineSensorLeft.getRawLightDetected() >= whiteThreshold) {
-                wlsRightlight = true;
+                wlsLeftlight = true;
+                whiteCountLeft++;
             }
             if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
-                wlsLeftlight = true;
+                wlsRightlight = true;
+                whiteCountRight++;
             }
 
             //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
@@ -802,7 +814,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
         while ( (wlsRightlight == false
                 || wlsLeftlight == false)
                 && this.opModeIsActive()
-                && (timeTwo-timeOne < 4) );  //Repeat do loop until both odss have detected enough white light
+                && (timeTwo-timeOne < 4)
+                && whiteCountLeft<3
+                && whiteCountRight<3);  //Repeat do loop until both odss have detected enough white light
 
         if (timeTwo-timeOne>4)
         {
@@ -829,6 +843,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //Drive at a given speed until the right ods sees adequate white light
     public void driveToWhiteLineRight(double speed)
     {
+        whitesCount = 0;
 
         whiteLineNotDetected = true;
 
@@ -855,9 +870,17 @@ public abstract class FunctionsForLA extends LinearOpMode {
             //If enough white light has been detected, set the ods boolean to true
             if (whiteLineSensorRight.getRawLightDetected() >= whiteThreshold) {
                 whiteLineNotDetected = false;
+                whitesCount++;
             }
 
-
+            if (timeTwo-timeOne>4)
+            {
+                stopDriving();
+                while (this.opModeIsActive())
+                {
+                    timeTwo=this.getRuntime();
+                }
+            }
 
             leftMotor1.setPower(speed);
             rightMotor1.setPower(speed);
@@ -866,7 +889,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
 
         }
-        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4));  //Repeat do loop until both odss have detected enough white light
+        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
 
         if (timeTwo-timeOne>4)
         {
@@ -1060,20 +1083,25 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 beaconNotDetected = false;
             }
 
-            if (speed>0)
-            {
-                leftMotor1.setPower(speed);
-                leftMotor2.setPower(speed);
-                rightMotor1.setPower(speed+.05);
-                rightMotor2.setPower(speed+.05);
-            }
-            else
-            {
-                leftMotor1.setPower(speed+ .05);
-                leftMotor2.setPower(speed + .05);
-                rightMotor1.setPower(speed);
-                rightMotor2.setPower(speed);
-            }
+//            if (speed>0)
+//            {
+//                leftMotor1.setPower(speed);
+//                leftMotor2.setPower(speed);
+//                rightMotor1.setPower(speed+.05);
+//                rightMotor2.setPower(speed+.05);
+//            }
+//            else
+//            {
+//                leftMotor1.setPower(speed+ .05);
+//                leftMotor2.setPower(speed + .05);
+//                rightMotor1.setPower(speed);
+//                rightMotor2.setPower(speed);
+//            }
+
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
 
             timeTwo=this.getRuntime();
 
@@ -1107,7 +1135,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //the beacon
     public void pressBeaconSideRed (double speed)
     {
-
         beaconNotDetected = true;
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
@@ -1122,20 +1149,26 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 beaconNotDetected = false;
             }
 
-            if (speed>0)
-            {
-                leftMotor1.setPower(speed+.05);
-                leftMotor2.setPower(speed+.05);
-                rightMotor1.setPower(speed);
-                rightMotor2.setPower(speed);
-            }
-            else
-            {
-                leftMotor1.setPower(speed-.05);
-                leftMotor2.setPower(speed-.05);
-                rightMotor1.setPower(speed);
-                rightMotor2.setPower(speed);
-            }
+//            if (speed>0)
+//            {
+//                leftMotor1.setPower(speed+.05);
+//                leftMotor2.setPower(speed+.05);
+//                rightMotor1.setPower(speed);
+//                rightMotor2.setPower(speed);
+//            }
+//            else
+//            {
+//                leftMotor1.setPower(speed-.05);
+//                leftMotor2.setPower(speed-.05);
+//                rightMotor1.setPower(speed);
+//                rightMotor2.setPower(speed);
+//            }
+
+
+            leftMotor1.setPower(speed);
+            leftMotor2.setPower(speed);
+            rightMotor1.setPower(speed);
+            rightMotor2.setPower(speed);
 
             timeTwo=this.getRuntime();
 
