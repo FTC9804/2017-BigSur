@@ -182,7 +182,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
-
     //Given a number of wheel rotations and target motor speed,
     //the robot spins counter-clockwise at the given speed for the given
     //amount of wheel rotations
@@ -208,7 +207,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
     }
-
 
     //Drives straight and backwards for a provided distance, in inches
     //and at a given speed
@@ -379,9 +377,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         telemetry.update();
     }
 
-
-
-
     //Configures all hardware devices, and sets them to their initial
     //values, if necessary
     public void Configure ()
@@ -476,7 +471,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
             telemetry.update();
         }
     }
-
 
     //Runs the flywheel shooter, attempting to maintain a constant
     //rpm of the shooter, and also a constant speed of the intake
@@ -679,7 +673,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         stopDriving();
     }
 
-
     //Drive at a given speed until the left ods sees adequate white light
     public void driveToWhiteLineLeft(double speed)
     {
@@ -748,7 +741,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         rightMotor1.setPower(0);
         rightMotor2.setPower(0);
     }
-
 
     public void driveToWhiteLine (double speed, double targetHeading)
     {
@@ -834,11 +826,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
 
     }
-
-
-
-
-
 
     //Drive at a given speed until the right ods sees adequate white light
     public void driveToWhiteLineRight(double speed)
@@ -1061,7 +1048,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         rightMotor2.setPower(0);
 
     }
-
 
     //Run method to drive at a given speed until adequate blue light is detected
     //at which time the appropriate beacon pusher extends and retracts to push
