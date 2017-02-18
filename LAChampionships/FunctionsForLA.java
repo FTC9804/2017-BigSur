@@ -18,7 +18,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FunctionsForLA extends LinearOpMode {
+public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //Variable Declarations
 
@@ -69,7 +69,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
     double turnSpeed = 0;
 
     //Color sensor, located
-    ColorSensor colorSensor;
+    ColorSensor colorSensorRight;
+    ColorSensor colorSensorLeft;
 
     //Optical distance sensors to detect white light
     OpticalDistanceSensor whiteLineSensorLeft;
@@ -110,8 +111,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
     double whiteCountLeft = 0;
     double whiteCountRight = 0;
-
-
 
     //Gain to control rpm on the robot
     double rpmGain = .0000125;
@@ -446,8 +445,11 @@ public abstract class FunctionsForLA extends LinearOpMode {
         whiteLineSensorLeft.enableLed(true);
 
         //requires moving connection based on alliance color
-        colorSensor = hardwareMap.colorSensor.get("color");     //I2C port 1
-        colorSensor.enableLed(false); //
+        colorSensorRight = hardwareMap.colorSensor.get("colorright");     //I2C port 2
+        colorSensorRight.enableLed(false);
+
+        colorSensorLeft = hardwareMap.colorSensor.get("colorleft");     //I2C port 5
+        colorSensorLeft.enableLed(false);
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
@@ -1060,12 +1062,12 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
         do {
 
-            telemetry.addData("Blue Value: ", colorSensor.blue());
+            telemetry.addData("Blue Value: ", colorSensorRight.blue());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
 
             //If enough white light has been detected, set the ods boolean to true
-            if (colorSensor.blue() >= 1 && colorSensor.red() < 1.5) {
+            if (colorSensorRight.blue() >= 1 && colorSensorRight.red() < 1.5) {
                 beaconNotDetected = false;
             }
 
@@ -1126,12 +1128,12 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
         do {
 
-            telemetry.addData("Red Value: ", colorSensor.red());
+            telemetry.addData("Red Value: ", colorSensorLeft.red());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
 
             //If enough white light has been detected, set the ods boolean to true
-            if (colorSensor.red() >= 1 && colorSensor.blue() < 1.5) {
+            if (colorSensorLeft.red() >= 1 && colorSensorLeft.blue() < 1.5) {
                 beaconNotDetected = false;
             }
 
