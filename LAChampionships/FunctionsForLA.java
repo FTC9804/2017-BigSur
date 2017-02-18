@@ -158,23 +158,23 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //Set run mode of leftMotor1 to RUN_USING_ENCODER
 
+        //while loop that is entered until leftMotor1 reaches its target encoder count
         while (leftMotor1.getCurrentPosition()<counts) {
+            //Set all driving powers
             leftMotor1.setPower(speed);
             leftMotor2.setPower(speed);
             rightMotor1.setPower(-speed);
             rightMotor2.setPower(-speed);
+            //Telemetry for robot rotations executed and encoder position
             telemetry.addData("Current encoder position = ", leftMotor1.getCurrentPosition());
             telemetry.addData("Current rotations travelled = ", (leftMotor1.getCurrentPosition())/(ENCODER_CPR*GEAR_RATIO));
             telemetry.update();
         }
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
+        //Execute stopDriving method
+        stopDriving();
     }
 
     //Given a number of wheel rotations and target motor speed,
@@ -454,8 +454,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
         push=false; //Set push variable to false
 
-        leftDrawbridge.setPosition(.5);
-        rightDrawbridge.setPosition(.5);
+        leftDrawbridge.setPosition(.5); //Set leftDrawbridge position to .5
+        rightDrawbridge.setPosition(.5); //Set rightDrawbridge positon to .5
     }
 
     //Calibrate the gyro sensor
@@ -843,6 +843,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         leftMotor2.setPower(speed);
         rightMotor2.setPower(speed);
 
+
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
@@ -1093,11 +1094,11 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
             timeTwo=this.getRuntime();
 
-        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 6));
+        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 12));
 
         stopDriving();
 
-        if (timeTwo-timeOne>6)
+        if (timeTwo-timeOne>12)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -1169,6 +1170,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
         } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 12));
 
+        stopDriving();
+
         if (timeTwo-timeOne>12)
         {
             stopDriving();
@@ -1178,14 +1181,12 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             }
         }
 
-        stopDriving();
 
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
         while (timeTwo - timeOne < 3) {
             beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
-            beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
             timeTwo = this.getRuntime();
         }
 
