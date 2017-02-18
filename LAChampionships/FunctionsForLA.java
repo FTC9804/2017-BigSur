@@ -29,29 +29,28 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
-    DcMotor cap1;
-    DcMotor cap2;
+    DcMotor cap1;         //Cap ball motor
+    DcMotor cap2;        //Cap ball motor
 
 
     TouchSensor touchSensor;
 
-    boolean wlsRightlight = false;
-    boolean wlsLeftlight = false;
+    boolean wlsRightlight = false;  //Boolean for whether right ods has seen white light, initially set to false
+    boolean wlsLeftlight = false;   //Boolean for whether left ods has seen white light, initially set to false
 
     //Servos
     Servo hood;       //position servo for 180º, adjust angle of shooter
     Servo turret;     //Continuous Rotation
-    Servo kicker;
-    Servo ballControl;
-    Servo leftDrawbridge;
-    Servo rightDrawbridge;
+    Servo kicker;     //Servo to kick balls into the flywheel area
+    Servo ballControl; //Servo to prevent unwanted balls from ascending
+    Servo leftDrawbridge;  //Servo to keep intake folded into robot when desired on the left of the robot
+    Servo rightDrawbridge;  //Servo to keep intake folded into robot when desired on the right of the robot
     Servo beaconPusherLeft;    //Servo on the left of the robot for beacon pushing
     Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
-    Servo capGrab1;
-    Servo capGrab2;
+    Servo capGrab1; //Servo to extend and retract cap ball grabbing arms
+    Servo capGrab2; //Servo to extend and retract cap ball grabbing arms
 
-    boolean telemetryVariable = true;
-
+    boolean telemetryVariable = true; //Placeholder variable for telemetry
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
@@ -66,19 +65,18 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     double rotations=0;       //Wheel rotations necessary to drive the above amount of inches
     double counts=0;//Encoder counts necessary to drive the above amount of inches/rotations
 
-    double turnSpeed = 0;
+    double turnSpeed = 0; //Turn speed outputted from gyro gain during spinMove method
 
-    //Color sensor, located
-    ColorSensor colorSensorRight;
-    ColorSensor colorSensorLeft;
+    ColorSensor colorSensorRight; //Right color sensor for beacon autonomous
+    ColorSensor colorSensorLeft; //Left color sensor for beacon autonomous
 
     //Optical distance sensors to detect white light
-    OpticalDistanceSensor whiteLineSensorLeft;
-    OpticalDistanceSensor whiteLineSensorRight;
+    OpticalDistanceSensor whiteLineSensorLeft; //left
+    OpticalDistanceSensor whiteLineSensorRight; //right
 
     int loopCounter = 0; //Variable to count how many times a given loop has been entered
 
-    double whiteThreshold = .25; //The threshold of white light necessary to set the below variables to true USED TO BE .4
+    double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true USED TO BE .4
 
     //rpm variables
     //shooter variables
@@ -102,27 +100,24 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     //a boolean set to false unless outside force is currently being applied to the motor disturbing its rpm.  Reflective of how the motor will be disturbed when a ball is being shot in our actual robot.
     double tempWeightedAvg = 0;
 
-    //time variables set to current run time throughout the code
+    //time variables set to current run time throughout the code, typically set to this.getRunTime()
     double timeOne;
     double timeTwo;
     double timeRunningLoop;
 
-    double whitesCount = 0;
-
-    double whiteCountLeft = 0;
-    double whiteCountRight = 0;
+    //Variables to count how many times white light has been seen in a given loop
+    double whitesCount = 0; //General
+    double whiteCountLeft = 0; //Specific to only left ods
+    double whiteCountRight = 0; //Specific to only right ods
 
     //Gain to control rpm on the robot
     double rpmGain = .0000125;
 
     //Positions of the beacon pushers, based on whether retracting or extending
-    double beaconPusherLeftRetractPosition = .05;
-    double beaconPusherLeftExtendPosition = .95;
-    double beaconPusherRightRetractPosition = .95;
-    double beaconPusherRightExtendPosition = .05;
-
-    boolean pushOne;
-    boolean pushTwo;
+    double beaconPusherLeftRetractPosition = .05; //left retract position
+    double beaconPusherLeftExtendPosition = .95; //left extend position
+    double beaconPusherRightRetractPosition = .95; //right retract position
+    double beaconPusherRightExtendPosition = .05; //right extend position
 
     //Boolean that is true when a beacon has been extended and is false otherwise
     boolean push;
@@ -149,8 +144,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     final double GYRO_GAIN =.0078;
 
     //Gain for the gyro when driving straight
-    double straightGyroGain = .006;
+    double straightGyroGain = .024; //.007
 
+    //Adjustment factor for motor powers when driving straight based on straightGyroGain
     double straightDriveAdjust = 0;
 
     // F U N C T I O N S   F O R   A U T O   &   T E L E O P
@@ -208,7 +204,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     }
 
     //Drives straight and backwards for a provided distance, in inches
-    //and at a given speed
+    //and at a given speed and a given gyro heading
     public void driveBack (double distance, double speed, double targetHeading)
     {
         initialHeading = gyro.getIntegratedZValue();
@@ -265,6 +261,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         shooter.setPower(0);
     }
 
+    //Execute a robot spin using both sides of the drive train and the gyro
     public void spinMove (double desiredHeading)
     {
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -343,6 +340,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         stopDriving();
     }
 
+    //Execute a robot spin using one side
     public void pivot (double time, double speed, boolean clockwise)
     {
         timeOne=this.getRuntime();
@@ -378,38 +376,40 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //Configures all hardware devices, and sets them to their initial
     //values, if necessary
+
+    //WRITE IN ENCODER PORTS
     public void Configure ()
     {
         rightMotor1 = hardwareMap.dcMotor.get("m3"); //Motor Controller 4, port 2, XV78
         rightMotor2 = hardwareMap.dcMotor.get("m4"); //Motor Controller 4, port 1, XV78
         leftMotor1 = hardwareMap.dcMotor.get("m1"); //Motor Controller 1, port 2, UVQF
         leftMotor2 = hardwareMap.dcMotor.get("m2"); //Motor Controller 1, port 1, UVQF
-        rightMotor1.setDirection(DcMotor.Direction.FORWARD);
-        rightMotor2.setDirection(DcMotor.Direction.FORWARD);
-        leftMotor1.setDirection(DcMotor.Direction.REVERSE);
-        leftMotor2.setDirection(DcMotor.Direction.REVERSE);
+        rightMotor1.setDirection(DcMotor.Direction.FORWARD); //Set direction of rightMotor1 to forward
+        rightMotor2.setDirection(DcMotor.Direction.FORWARD); //Set direction of rightMotor2 to forward
+        leftMotor1.setDirection(DcMotor.Direction.REVERSE); //Set direction of leftMotor1 to reverse
+        leftMotor2.setDirection(DcMotor.Direction.REVERSE); //Set direction of leftMotor2 to reverse
 
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Stop and reset encoder of leftMotor1
 
         shooter = hardwareMap.dcMotor.get("m5"); //Motor Controller 2, port 1, 9PCE
-        shooter.setDirection(DcMotor.Direction.FORWARD);
+        shooter.setDirection(DcMotor.Direction.FORWARD); //Set shooter motor to forward direction
 
         intake = hardwareMap.dcMotor.get("m6"); //Motor Controller 2, port 2, 9PCE
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD); //Set intake motor to forward direction
 
         turret = hardwareMap.servo.get("s1"); //Servo Controller 1, port 2, VSI1
         hood = hardwareMap.servo.get("s2"); //Servo Controller 1, port 1, VSI1
 
         touchSensor = hardwareMap.touchSensor.get("touch"); //Digital port 1
 
-        beaconPusherLeft = hardwareMap.servo.get("s4"); //Servo Controller 3, port 1, VCT7
-        beaconPusherRight = hardwareMap.servo.get("s3"); //Servo Controller 3, port 2, VCT7
+        beaconPusherLeft = hardwareMap.servo.get("s4"); //Servo Controller 3, port 2, VCT7
+        beaconPusherRight = hardwareMap.servo.get("s3"); //Servo Controller 3, port 1, VCT7
 
         cap1 = hardwareMap.dcMotor.get("m7"); //Motor Controller 3, port 1, VF7F
         cap2 = hardwareMap.dcMotor.get("m8"); //Motor Controller 3, port 2, VF7F
 
-        cap1.setDirection(DcMotor.Direction.FORWARD);
-        cap2.setDirection(DcMotor.Direction.REVERSE);
+        cap1.setDirection(DcMotor.Direction.FORWARD); //Set cap1 motor to forward setting
+        cap2.setDirection(DcMotor.Direction.REVERSE); //Set cap2 motor to reverse setting
 
         ballControl = hardwareMap.servo.get("s5"); //Servo Controller 1, port 4, VSI1
 
@@ -421,47 +421,44 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         capGrab1 = hardwareMap.servo.get("s9"); //Servo Controller 3, port 5, VCT7
         capGrab2 = hardwareMap.servo.get("s10"); //Servo Controller 3, port 6, VCT7
 
-        capGrab1.setDirection(Servo.Direction.FORWARD);
-        capGrab2.setDirection(Servo.Direction.REVERSE);
+        capGrab1.setDirection(Servo.Direction.FORWARD); //Set capGrab1 motor to forward position
+        capGrab2.setDirection(Servo.Direction.REVERSE); //Set capGrab2 motor to reverse position
 
-        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
-        turret.setPosition(turretPosition);
-        kicker.setPosition(0);
-        ballControl.setPosition(.75);
-        hood.setPosition(1);
-        leftDrawbridge.setPosition(.5);
-        rightDrawbridge.setPosition(.5);
-        capGrab1.setPosition(.5);
-        capGrab2.setPosition(.5);
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition); //Set beaconPusherLeft to beaconPusherLeftRetractPosition
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition); //Set beaconPusherRight to beaconPusherRightRetractPosition
+        turret.setPosition(turretPosition); //Set turret to turretPosition
+        kicker.setPosition(0); //Set kicker to 0
+        ballControl.setPosition(.75); //Set ballControl to .75
+        hood.setPosition(1); //Set hood to 1
+        leftDrawbridge.setPosition(.5); //Set leftDrawbridge to .5
+        rightDrawbridge.setPosition(.5); //Set rightDrawbridge to .5
+        capGrab1.setPosition(.5); //Set capGrab1 to .5
+        capGrab2.setPosition(.5); ////Set capGrab2 to .5
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
 
-
-
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
         whiteLineSensorLeft= hardwareMap.opticalDistanceSensor.get("ods1");     //Analog import port 4
-        whiteLineSensorRight.enableLed(true);
-        whiteLineSensorLeft.enableLed(true);
+        whiteLineSensorRight.enableLed(true); //Set enableLed of whiteLineSensorRight to true
+        whiteLineSensorLeft.enableLed(true); //Set enableLed of whiteLineSensorLeft to true
 
         //requires moving connection based on alliance color
         colorSensorRight = hardwareMap.colorSensor.get("colorright");     //I2C port 2
-        colorSensorRight.enableLed(false);
+        colorSensorRight.enableLed(false); //Set enableLed of colorSensorRight to false
 
         colorSensorLeft = hardwareMap.colorSensor.get("colorleft");     //I2C port 5
-        colorSensorLeft.enableLed(false);
+        colorSensorLeft.enableLed(false); //Set enableLed of colorSensorLeft to false
 
-        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
-        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition); //Set beaconPusherLeft to beaconPusherLeftRetractPosition
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition); //Set beaconPusherRight to beaconPusherRightRetractPosition
 
-        pushOne=false;
-        pushTwo=false;
-        push=false;
+        push=false; //Set push variable to false
 
         leftDrawbridge.setPosition(.5);
         rightDrawbridge.setPosition(.5);
     }
 
+    //Calibrate the gyro sensor
     public void calibrateGyro () throws InterruptedException
     {
         gyro.calibrate();
@@ -583,6 +580,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         //driveNext();
     }
 
+
+    //drive forward at a given distance, speed and gyro heading
     public void drive (double distance, double speed, double targetHeading)
     {
         initialHeading = gyro.getIntegratedZValue();
@@ -620,6 +619,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
     }
 
+    //drive forward at a given distance, speed, but without considering gyro heading
     public void driveNoGyro (double distance, double speed)
     {
 
@@ -659,6 +659,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
     }
 
+    //drive at a given speed until the touch sensor is pressed
     public void driveToTouch (double speed)
     {
         timeOne=this.getRuntime();
@@ -744,6 +745,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         rightMotor2.setPower(0);
     }
 
+    //Drive at a given speed until both ods sensors see adequate white light
     public void driveToWhiteLine (double speed, double targetHeading)
     {
         whiteCountLeft=0;
@@ -808,11 +810,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         while ( (wlsRightlight == false
                 || wlsLeftlight == false)
                 && this.opModeIsActive()
-                && (timeTwo-timeOne < 4)
-                && whiteCountLeft<3
-                && whiteCountRight<3);  //Repeat do loop until both odss have detected enough white light
+                && (timeTwo-timeOne < 8));  //Repeat do loop until both odss have detected enough white light
 
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>8)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -850,7 +850,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         do {
             loopCounter++;
 
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
             //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
@@ -1058,7 +1058,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     {
 
         beaconNotDetected = true;
-        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
         do {
 
@@ -1067,7 +1067,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             //updating time2 to prevent infinite running of this loop if game conditions are not met
 
             //If enough white light has been detected, set the ods boolean to true
-            if (colorSensorRight.blue() >= 1 && colorSensorRight.red() < 1.5) {
+            if (colorSensorRight.blue() >= 2 && colorSensorRight.red() < 1.5) {
                 beaconNotDetected = false;
             }
 
@@ -1093,11 +1093,11 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
             timeTwo=this.getRuntime();
 
-        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 4));
+        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 6));
 
         stopDriving();
 
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>6)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -1109,12 +1109,19 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < 2) {
-            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+        while (timeTwo - timeOne < 3) {
+            beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
             timeTwo = this.getRuntime();
         }
 
-        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+
+        while (timeTwo - timeOne < 1) {
+            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+            timeTwo = this.getRuntime();
+        }
 
     }
 
@@ -1124,7 +1131,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     public void pressBeaconSideRed (double speed)
     {
         beaconNotDetected = true;
-        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
 
         do {
 
@@ -1133,7 +1140,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             //updating time2 to prevent infinite running of this loop if game conditions are not met
 
             //If enough white light has been detected, set the ods boolean to true
-            if (colorSensorLeft.red() >= 1 && colorSensorLeft.blue() < 1.5) {
+            if (colorSensorLeft.red() >= 2 && colorSensorLeft.blue() < 1.5) { //change csensor to left
                 beaconNotDetected = false;
             }
 
@@ -1160,9 +1167,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
             timeTwo=this.getRuntime();
 
-        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 4));
+        } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 12));
 
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>12)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -1176,12 +1183,19 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-        while (timeTwo - timeOne < 2) {
+        while (timeTwo - timeOne < 3) {
+            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
             beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
             timeTwo = this.getRuntime();
         }
 
-        beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        while (timeTwo - timeOne < 1) {
+            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+            timeTwo = this.getRuntime();
+        }
 
     }
 
