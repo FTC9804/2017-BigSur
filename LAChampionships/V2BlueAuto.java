@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name = "V2BLUE", group = "AutoWithFunctions")
 
 //@Disabled
-public class V2BlueAuto extends FuctionsForILTNew {
+public class V2BlueAuto extends FunctionsForLA {
 
     public void runOpMode() throws InterruptedException {
 
@@ -25,42 +25,55 @@ public class V2BlueAuto extends FuctionsForILTNew {
         calibrateGyro();
 
         //public void drive (double distance, double speed, double targetHeading)
-        drive (20, .3, 0);
+        drive (18, .6, 0);
 
-        //spinMove (double desiredHeading), 35 deg clockwise
-        spinMove(-35);
+        //formerly 20 and .3
 
-        //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
-        driveToWhiteLineRight(.4);
+        //spinMove (double desiredHeading), 30 deg counter-clockwise
+        spinMove(-30);
 
-        //public void drive (double distance, double speed, double targetHeading), drive 4 inches at .2 power at -35 deg heading
-        drive (4, .2, -35);
+        spinMove(-30);
 
-        //spinMove (double desiredHeading) spin to -15 deg heading
-        spinMove (-15);
+//        drive(14, .8, -35);
+//
+//        //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
+//        driveToWhiteLineRight(.3);
+//
+//        //public void drive (double distance, double speed, double targetHeading), drive 4 inches at .2 power at -35 deg heading
+//        drive (13, .2, -32);
 
-        //public void drive (double distance, double speed, double targetHeading)  drive 12 inches at .2 power at -15 deg heading
-        drive (12, .2, -15);
+        drive (44, .5, -30);
 
+//        //spinMove (double desiredHeading) spin to -15 deg heading
+        spinMove (-16);
+//
         // public void driveNoGyro (double distance, double speed), hit the wall, drive without a gyro for 20 inches at .2 power
-        driveNoGyro(20, .2);
+        driveNoGyro(20, .25);
 
         //public void driveToWhiteLine (double speed, double targetHeading) drive at .3 power and -3 deg
-        driveToWhiteLine(.3, -3);
+        driveToWhiteLine(.3, -4);
 
 
-        //public void pressBeaconSideBlue (double speed) find and press blue beacon at -.1 power
-        pressBeaconSideBlue(-.1);
+        drive (3, .2, -4);
+//
+//wheels stay up/down color sensor in center of beacon pusher, color sensor farther out
+//        //public void pressBeaconSideBlue (double speed) find and press blue beacon at -.1 power
+        pressBeaconSideBlue(-.2, 4);
+//
+//        //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -3 deg
+        driveBack(32, .3, 4);
+//
+//
+//        //public void driveToWhiteLine (double speed, double targetHeading), drive at -.3 power and -3 heading
+        driveToWhiteLine(-.3, 4);
 
-        //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -3 deg
-        driveBack(32, .3, 3);
+        driveBack(2, .2, 4);
+//
+//        //public void pressBeaconSideBlue (double speed) find and press blue beacon at .1 power
+        pressBeaconSideRed (.2, -4);
 
 
-        //public void driveToWhiteLine (double speed, double targetHeading), drive at -.3 power and -3 heading
-        driveToWhiteLine(-.3, 3);
 
-        //public void pressBeaconSideBlue (double speed) find and press blue beacon at .1 power
-        pressBeaconSideBlue(.1);
     }
 
 }
