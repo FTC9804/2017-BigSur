@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
@@ -76,7 +77,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
     int loopCounter = 0; //Variable to count how many times a given loop has been entered
 
-    double whiteThreshold = .4; //The threshold of white light necessary to set the below variables to true USED TO BE .4
+    double whiteThreshold = .25; //The threshold of white light necessary to set the below variables to true USED TO BE .4
 
     //rpm variables
     //shooter variables
@@ -141,10 +142,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     double initialHeading;
 
     //Gain for the gyro when executing a spin move
-    final double GYRO_GAIN =.0078;
+    final double GYRO_GAIN =.0099;
 
     //Gain for the gyro when driving straight
-    double straightGyroGain = .024; //.007
+    double straightGyroGain = .025; //.007
 
     //Adjustment factor for motor powers when driving straight based on straightGyroGain
     double straightDriveAdjust = 0;
@@ -184,52 +185,64 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
-        rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of rightMotor1 to STOP_AND_RESET_ENCODER
+        rightMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //Set run mode of rightMotor1 to RUN_USING_ENCODER
 
+        //while loop that is entered until rightMotor1 reaches its target encoder count
         while ((Math.abs(rightMotor1.getCurrentPosition())<counts)) {
+            //Set all driving powers
             leftMotor1.setPower(-speed);
             leftMotor2.setPower(-speed);
             rightMotor1.setPower(speed);
             rightMotor2.setPower(speed);
+            //Telemetry for robot rotations executed and encoder position
             telemetry.addData("Current encoder position = ", rightMotor1.getCurrentPosition());
             telemetry.addData("Current rotations travelled = ", (rightMotor1.getCurrentPosition())/(ENCODER_CPR*GEAR_RATIO));
             telemetry.update();
         }
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
+        //Execute stopDriving method
+        stopDriving();
     }
 
     //Drives straight and backwards for a provided distance, in inches
     //and at a given speed and a given gyro heading
     public void driveBack (double distance, double speed, double targetHeading)
     {
+        //Set variable initialHeading to gyro's integrated z value
         initialHeading = gyro.getIntegratedZValue();
+        //math to calculate total counts robot should travel
         inches = distance;
         rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
+        counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
+        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //Set run mode of leftMotor1 to RUN_USING_ENCODER
 
+        //Set timeOne and timeTwo to this.getRuntime();
         timeOne=this.getRuntime();
         timeTwo=this.getRuntime();
 
-
+        //Execute loop while the absolute value of leftMotor1's current encoder position is under target encoeder count
+        //And while time ellapsed in loop is less than 4
         while (Math.abs(leftMotor1.getCurrentPosition())<counts && (timeTwo-timeOne<4)) {
+            //Set variable initialHeading to gyro's integrated z value
             currentHeading = gyro.getIntegratedZValue();
+            //Calculate motor power adjustment factor based on proportional control in order to maintain
+            //the desired gyro heading
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
+            //Set motor powers based on paramater speed and straightDriveAdjust
             leftMotor1.setPower(-speed+straightDriveAdjust);
             leftMotor2.setPower(-speed+straightDriveAdjust);
             rightMotor1.setPower(-speed-straightDriveAdjust);
             rightMotor2.setPower(-speed-straightDriveAdjust);
+            //Telemetry for encoder position
             telemetry.addData("Current", leftMotor1.getCurrentPosition());
             telemetry.update();
+            //Set timeTwo to this.getRuntime ()
             timeTwo= this.getRuntime();
         }
+        //Safety timeout based on if the loop above executed in under 4 seconds
+        //If it did not, do not execute the rest of the program
         if (timeTwo-timeOne>4)
         {
             while (this.opModeIsActive())
@@ -238,11 +251,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 timeTwo=this.getRuntime();
             }
         }
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
+        //Execute stopDriving method
+        stopDriving();
     }
 
     //Sets all drive train motors to 0 power
@@ -262,8 +272,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     }
 
     //Execute a robot spin using both sides of the drive train and the gyro
-    public void spinMove (double desiredHeading)
+    public void spinMove (double desiredHeading) //desired gyro heading
     {
+        //
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -281,8 +292,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = -headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.2) {
-                    turnSpeed = 0.2;
+                if (turnSpeed < 0.4) {
+                    turnSpeed = 0.4;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -300,7 +311,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
 
             }
-            while (currentHeading > desiredHeading && (timeTwo-timeOne<30)); //for clockwise heading you are going to a more negatoive number
+            while (currentHeading > desiredHeading && (timeTwo-timeOne<6)); //for clockwise heading you are going to a more negatoive number
         }
         else //CCW TURN
         {
@@ -310,8 +321,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 headingError = desiredHeading - currentHeading;
                 turnSpeed = headingError * GYRO_GAIN;
 
-                if (turnSpeed < 0.2) {
-                    turnSpeed = 0.2;
+                if (turnSpeed < 0.4) {
+                    turnSpeed = 0.4;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -324,9 +335,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 leftMotor2.setPower(-turnSpeed);
                 gyroTelemetry();
             }
-            while (currentHeading < desiredHeading && (timeTwo-timeOne<30)); //for counter-clockwise heading you are going to a more negative number
+            while (currentHeading < desiredHeading && (timeTwo-timeOne<6)); //for counter-clockwise heading you are going to a more negative number
         }
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>6)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -380,6 +391,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     //WRITE IN ENCODER PORTS
     public void Configure ()
     {
+
         rightMotor1 = hardwareMap.dcMotor.get("m3"); //Motor Controller 4, port 2, XV78
         rightMotor2 = hardwareMap.dcMotor.get("m4"); //Motor Controller 4, port 1, XV78
         leftMotor1 = hardwareMap.dcMotor.get("m1"); //Motor Controller 1, port 2, UVQF
@@ -442,11 +454,17 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         whiteLineSensorRight.enableLed(true); //Set enableLed of whiteLineSensorRight to true
         whiteLineSensorLeft.enableLed(true); //Set enableLed of whiteLineSensorLeft to true
 
+        I2cAddr i2cColorLeft = I2cAddr.create8bit(0x5c);
+        I2cAddr i2cColorRight = I2cAddr.create8bit(0x3c);
+
+
         //requires moving connection based on alliance color
         colorSensorRight = hardwareMap.colorSensor.get("colorright");     //I2C port 2
+        colorSensorRight.setI2cAddress(i2cColorRight);
         colorSensorRight.enableLed(false); //Set enableLed of colorSensorRight to false
 
         colorSensorLeft = hardwareMap.colorSensor.get("colorleft");     //I2C port 5
+        colorSensorLeft.setI2cAddress(i2cColorLeft);
         colorSensorLeft.enableLed(false); //Set enableLed of colorSensorLeft to false
 
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition); //Set beaconPusherLeft to beaconPusherLeftRetractPosition
@@ -1055,42 +1073,38 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     //Run method to drive at a given speed until adequate blue light is detected
     //at which time the appropriate beacon pusher extends and retracts to push
     //the beacon
-    public void pressBeaconSideBlue (double speed)
+    public void pressBeaconSideBlue (double speed, double targetHeading)
     {
+        initialHeading = gyro.getIntegratedZValue();
+
+        leftMotor1.setPower(speed);
+        rightMotor1.setPower(speed);
+        leftMotor2.setPower(speed);
+        rightMotor2.setPower(speed);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
 
         beaconNotDetected = true;
         beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
 
         do {
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
             telemetry.addData("Blue Value: ", colorSensorRight.blue());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
 
             //If enough white light has been detected, set the ods boolean to true
-            if (colorSensorRight.blue() >= 2 && colorSensorRight.red() < 1.5) {
+            if (colorSensorRight.blue() >= 2 && colorSensorRight.red() < 2) {
                 beaconNotDetected = false;
             }
 
-//            if (speed>0)
-//            {
-//                leftMotor1.setPower(speed);
-//                leftMotor2.setPower(speed);
-//                rightMotor1.setPower(speed+.05);
-//                rightMotor2.setPower(speed+.05);
-//            }
-//            else
-//            {
-//                leftMotor1.setPower(speed+ .05);
-//                leftMotor2.setPower(speed + .05);
-//                rightMotor1.setPower(speed);
-//                rightMotor2.setPower(speed);
-//            }
-
-            leftMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor1.setPower(speed);
-            rightMotor2.setPower(speed);
+            leftMotor1.setPower(speed + straightDriveAdjust);
+            leftMotor2.setPower(speed + straightDriveAdjust);
+            rightMotor1.setPower(speed - straightDriveAdjust);
+            rightMotor2.setPower(speed - straightDriveAdjust);
 
             timeTwo=this.getRuntime();
 
@@ -1129,42 +1143,38 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     //Run method to drive at a given speed until adequate red light is detected
     //at which time the appropriate beacon pusher extends and retracts to push
     //the beacon
-    public void pressBeaconSideRed (double speed)
+    public void pressBeaconSideRed (double speed, double targetHeading)
     {
+        initialHeading = gyro.getIntegratedZValue();
+
+        leftMotor1.setPower(speed);
+        rightMotor1.setPower(speed);
+        leftMotor2.setPower(speed);
+        rightMotor2.setPower(speed);
+
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
         beaconNotDetected = true;
         beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
 
         do {
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
             telemetry.addData("Red Value: ", colorSensorLeft.red());
             telemetry.update();
             //updating time2 to prevent infinite running of this loop if game conditions are not met
 
             //If enough white light has been detected, set the ods boolean to true
-            if (colorSensorLeft.red() >= 2 && colorSensorLeft.blue() < 1.5) { //change csensor to left
+            if (colorSensorLeft.red() >= 2 && colorSensorLeft.blue() < 2) { //change csensor to left
                 beaconNotDetected = false;
             }
 
-//            if (speed>0)
-//            {
-//                leftMotor1.setPower(speed+.05);
-//                leftMotor2.setPower(speed+.05);
-//                rightMotor1.setPower(speed);
-//                rightMotor2.setPower(speed);
-//            }
-//            else
-//            {
-//                leftMotor1.setPower(speed-.05);
-//                leftMotor2.setPower(speed-.05);
-//                rightMotor1.setPower(speed);
-//                rightMotor2.setPower(speed);
-//            }
-
-
-            leftMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor1.setPower(speed);
-            rightMotor2.setPower(speed);
+            leftMotor1.setPower(speed + straightDriveAdjust);
+            leftMotor2.setPower(speed + straightDriveAdjust);
+            rightMotor1.setPower(speed - straightDriveAdjust);
+            rightMotor2.setPower(speed - straightDriveAdjust);
 
             timeTwo=this.getRuntime();
 
