@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name = "V2RED", group = "AutoWithFunctions")
 
 //@Disabled
-public class V2RedAuto extends FuctionsForILTNew {
+public class V2RedAuto extends FunctionsForLA {
 
     public void runOpMode() throws InterruptedException {
 
@@ -29,7 +29,7 @@ public class V2RedAuto extends FuctionsForILTNew {
 
         //formerly 20 and .3
 
-        //spinMove (double desiredHeading), 35 deg clockwise
+        //spinMove (double desiredHeading), 30 deg clockwise
         spinMove(30);
 
         spinMove(30);
