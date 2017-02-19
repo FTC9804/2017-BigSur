@@ -19,7 +19,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FuctionsForILTNew extends LinearOpMode {
+public abstract class FunctionsForLA extends LinearOpMode {
 
     //Variable Declarations
 
@@ -364,7 +364,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 timeTwo=this.getRuntime();
             }
 
-            telemetry.addData("Timed out", TELEMETRY_VARIABLE);
+            telemetry.addLine("Timed out");
             telemetry.update();
         }
         //Execute stopDriving method
@@ -526,7 +526,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         while (gyro.isCalibrating())
         {
             sleep(100);
-            telemetry.addData("Gyro is not calibrated", TELEMETRY_VARIABLE);
+            telemetry.addLine("Gyro is not calibrated");
             telemetry.update();
         }
     }
