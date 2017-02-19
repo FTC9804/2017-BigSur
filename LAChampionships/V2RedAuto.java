@@ -30,46 +30,47 @@ public class V2RedAuto extends FuctionsForILTNew {
         //formerly 20 and .3
 
         //spinMove (double desiredHeading), 35 deg clockwise
-        spinMove(38);
+        spinMove(30);
 
-        spinMove(38);
+        spinMove(30);
 
-        drive(10, .8, 35);
+//        drive(14, .8, 35);
+//
+//        //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
+//        driveToWhiteLineLeft(.3);
+//
+//        //public void drive (double distance, double speed, double targetHeading), drive 4 inches at .2 power at -35 deg heading
+//        drive (13, .2, 32);
 
-        //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
-        driveToWhiteLineLeft(.3);
-
-        //public void drive (double distance, double speed, double targetHeading), drive 4 inches at .2 power at -35 deg heading
-        drive (13, .2, 32);
+        drive (44, .5, 30);
 
 //        //spinMove (double desiredHeading) spin to -15 deg heading
-        spinMove (12);
-//
+        spinMove (16);
 //
         // public void driveNoGyro (double distance, double speed), hit the wall, drive without a gyro for 20 inches at .2 power
         driveNoGyro(20, .25);
 
         //public void driveToWhiteLine (double speed, double targetHeading) drive at .3 power and -3 deg
-        driveToWhiteLine(.3, 5);
+        driveToWhiteLine(.3, 4);
 
 
-        drive (3, .2, 5);
+        drive (3, .2, 4);
 //
 //wheels stay up/down color sensor in center of beacon pusher, color sensor farther out
 //        //public void pressBeaconSideBlue (double speed) find and press blue beacon at -.1 power
-       pressBeaconSideRed(-.2, -5);
+       pressBeaconSideRed(-.2, -4);
 //
 //        //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -3 deg
-        driveBack(32, .3, -5);
+        driveBack(32, .3, -4);
 //
 //
 //        //public void driveToWhiteLine (double speed, double targetHeading), drive at -.3 power and -3 heading
-        driveToWhiteLine(-.3, -5);
+        driveToWhiteLine(-.3, -4);
 
-        driveBack(2, .2, -5);
+        driveBack(2, .2, -4);
 //
 //        //public void pressBeaconSideBlue (double speed) find and press blue beacon at .1 power
-       pressBeaconSideRed (.2, 5);
+       pressBeaconSideRed (.2, 4);
 
 
 
