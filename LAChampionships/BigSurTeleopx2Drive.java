@@ -359,9 +359,9 @@ public class BigSurTeleopx2Drive extends OpMode {
                 kicker.setPosition(0);
             }
 
-             //******************
-             //SET ALL POWERS @@
-             //*****************/
+            //******************
+            //SET ALL POWERS @@
+            //*****************/
 
 
             //        //Set the elevator and intake's speed to the values specified above
