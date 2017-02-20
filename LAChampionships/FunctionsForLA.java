@@ -19,7 +19,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FuctionsForILTNew extends LinearOpMode {
+public abstract class FunctionsForLA extends LinearOpMode {
 
     //Variable Declarations
 
@@ -32,7 +32,6 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     DcMotor intake;       //intake system
     DcMotor cap1;         //Cap ball motor
     DcMotor cap2;        //Cap ball motor
-
 
     TouchSensor touchSensor;
 
@@ -50,8 +49,6 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
     Servo capGrab1; //Servo to extend and retract cap ball grabbing arms
     Servo capGrab2; //Servo to extend and retract cap ball grabbing arms
-
-    final boolean TELEMETRY_VARIABLE = true; //Placeholder variable for telemetry
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
@@ -642,7 +639,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
 
     //drive forward at a given distance, speed and gyro heading
-    public void drive (double distance, double speed, double targetHeading)
+    public void drive (double distance, double speed, double targetHeading, boolean isStopAtEnd)
     {
         initialHeading = gyro.getIntegratedZValue();
         inches = distance;
@@ -675,7 +672,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 timeTwo=this.getRuntime();
             }
         }
-        stopDriving();
+        if (isStopAtEnd) {
+            stopDriving();
+        }
 
     }
 
@@ -737,7 +736,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     }
 
     //Drive at a given speed until the left ods sees adequate white light
-    public void driveToWhiteLineLeft(double speed)
+    public void driveToWhiteLineLeft(double speed, boolean isStopAtEnd)
     {
         whitesCount= 0;
 
@@ -786,10 +785,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
 
         }
-        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
+        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<3) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
 
 
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>3)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -798,11 +797,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             }
         }
 
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
+        if (isStopAtEnd)
+        {
+            stopDriving();
+        }
     }
 
     //Drive at a given speed until both ods sensors see adequate white light
@@ -890,7 +888,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     }
 
     //Drive at a given speed until the right ods sees adequate white light
-    public void driveToWhiteLineRight(double speed)
+    public void driveToWhiteLineRight(double speed, boolean isStopAtEnd)
     {
         whitesCount = 0;
 
@@ -937,11 +935,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             leftMotor2.setPower(speed);
             rightMotor2.setPower(speed);
 
-
         }
-        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<4) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
+        while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<3) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
 
-        if (timeTwo-timeOne>4)
+        if (timeTwo-timeOne>3)
         {
             stopDriving();
             while (this.opModeIsActive())
@@ -950,10 +947,11 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             }
         }
 
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
+        if (isStopAtEnd)
+        {
+            stopDriving();
+        }
+
     }
 
     //Drive forward or back, applying higher power to the right side until the left ods sees adequate white light
