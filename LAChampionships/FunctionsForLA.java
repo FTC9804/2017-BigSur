@@ -19,7 +19,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FunctionsForLA extends LinearOpMode {
+public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //Variable Declarations
 
@@ -160,7 +160,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //Set run mode of leftMotor1 to RUN_USING_ENCODER
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //while loop that is entered until leftMotor1 reaches its target encoder count
         while (leftMotor1.getCurrentPosition()<counts) {
@@ -186,7 +186,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
         rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of rightMotor1 to STOP_AND_RESET_ENCODER
-        rightMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //Set run mode of rightMotor1 to RUN_USING_ENCODER
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //while loop that is entered until rightMotor1 reaches its target encoder count
         while ((Math.abs(rightMotor1.getCurrentPosition())<counts)) {
@@ -216,7 +216,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER); //Set run mode of leftMotor1 to RUN_USING_ENCODER
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //Set timeOne and timeTwo to this.getRuntime();
         timeOne=this.getRuntime();
@@ -650,7 +650,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         timeOne = this.getRuntime();
         timeTwo= this.getRuntime();
@@ -688,7 +688,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         timeOne = this.getRuntime();
         timeTwo= this.getRuntime();
@@ -1061,7 +1061,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         while (leftMotor1.getCurrentPosition()<counts) {
 
@@ -1092,7 +1092,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
 
 
         leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         while (leftMotor1.getCurrentPosition()<counts) {
 
