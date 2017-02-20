@@ -19,7 +19,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FunctionsForLA extends LinearOpMode {
+public abstract class FuctionsForILTNew extends LinearOpMode {
 
     //Variable Declarations
 
