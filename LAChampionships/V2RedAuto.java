@@ -25,7 +25,7 @@ public class V2RedAuto extends FuctionsForILTNew {
         calibrateGyro();
 
         //public void drive (double distance, double speed, double targetHeading)
-        drive (18, .6, 0, true);
+        drive (12, .6, 0, true);
 
         //spinMove (double desiredHeading)
         spinMove(35);
@@ -34,16 +34,16 @@ public class V2RedAuto extends FuctionsForILTNew {
         spinMove(35);
 
         //public void drive (double distance, double speed, double targetHeading)
-        drive(14, .8, 35, false);
+        drive(16, .8, 35, false);
 
         //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
         driveToWhiteLineLeft(.3, false);
 
         //public void drive (double distance, double speed, double targetHeading), drive 4 inches at .2 power at -35 deg heading
-        drive (13, .2, 32, true);
+        drive (2, .2, 35, true);
 
         //spinMove (double desiredHeading) spin to 15 deg heading
-        spinMove (15);
+        spinMove (8);
 
         //public void driveNoGyro (double distance, double speed), hit the wall, drive without a gyro for 20 inches at .25 power
         driveNoGyro(20, .25);
