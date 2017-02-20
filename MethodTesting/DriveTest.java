@@ -24,7 +24,7 @@ public class DriveTest extends FuctionsForILTNew {
         //calibrateGyro
         calibrateGyro();
 
-        drive(30, .6, 0);
+        drive(30, .6, 0, true);
     }
 
 }

@@ -13,13 +13,24 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 //@Disabled
 public class BeaconPusherTest extends FuctionsForILTNew {
 
+
+
     public void runOpMode() throws InterruptedException {
 
+        //Configure motors, servos and sensors
+        Configure();
+
+        //Wait until play button is pressed
+        waitForStart();
+
+        //calibrateGyro
+        calibrateGyro();
+
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
         while (timeTwo - timeOne < 3) {
-            beaconPusherLeft.setPosition(beaconPusherLeftRetractPosition);
+            beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_RETRACT_POSITION);
             timeTwo = this.getRuntime();
         }
 
@@ -27,7 +38,7 @@ public class BeaconPusherTest extends FuctionsForILTNew {
         timeTwo = this.getRuntime();
 
         while (timeTwo - timeOne < 3) {
-            beaconPusherLeft.setPosition(beaconPusherLeftExtendPosition);
+            beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_EXTEND_POSITION);
             timeTwo = this.getRuntime();
         }
 
@@ -35,7 +46,7 @@ public class BeaconPusherTest extends FuctionsForILTNew {
         timeTwo = this.getRuntime();
 
         while (timeTwo - timeOne < 3) {
-            beaconPusherRight.setPosition(beaconPusherRightExtendPosition);
+            beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION);
             timeTwo = this.getRuntime();
         }
 
@@ -43,7 +54,7 @@ public class BeaconPusherTest extends FuctionsForILTNew {
         timeTwo = this.getRuntime();
 
         while (timeTwo - timeOne < 3) {
-            beaconPusherRight.setPosition(beaconPusherRightRetractPosition);
+            beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_EXTEND_POSITION);
             timeTwo = this.getRuntime();
         }
     }
