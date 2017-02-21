@@ -612,8 +612,8 @@ public class BigSurTeleopx2Drive extends OpMode {
                 capGrabValueRight = .5 - gamepad2.right_trigger / 2;
             }
 
-            capGrabValueLeft = Range.clip(capGrabValueLeft, 0, 1);
-            capGrabValueRight = Range.clip(capGrabValueRight, 0, 1);
+            capGrabValueLeft = Range.clip(capGrabValueLeft, 0.05, .95);
+            capGrabValueRight = Range.clip(capGrabValueRight, 0.05, .95);
 
 
             telemetry.addData("Cap Grab Value Left", capGrabValueLeft);
