@@ -436,16 +436,16 @@ public class BigSurTeleopx2Drive extends OpMode {
 //
 //        }
 
-            //.000000125
-            if (gamepad2.dpad_up) {
-                rpmGain += .0000000125;
-            } else if (gamepad2.dpad_down) {
-                rpmGain -= .0000000125;
-            } else if (gamepad2.dpad_right) {
-                rpmGain += .000000025;
-            } else if (gamepad2.dpad_left) {
-                rpmGain -= .000000025;
-            }
+            // //.000000125
+            // if (gamepad2.dpad_up) {
+            //     rpmGain += .0000000125;
+            // } else if (gamepad2.dpad_down) {
+            //     rpmGain -= .0000000125;
+            // } else if (gamepad2.dpad_right) {
+            //     rpmGain += .000000025;
+            // } else if (gamepad2.dpad_left) {
+            //     rpmGain -= .000000025;
+            // }
 
 
             //        //linear adjustment of RPM Gain
@@ -466,11 +466,11 @@ public class BigSurTeleopx2Drive extends OpMode {
 //        rpmGain = (desiredRPMGain/150)*deltaRPM + desiredRPMGain;
 
 
-            if (gamepad1.back) {
+            if (gamepad1.dpad_down) {
                 targetRPM -=50;
             }
-            else if (gamepad1.start) {
-                targetRPM += 05;
+            else if (gamepad1.dpad_up) {
+                targetRPM += 50;
             }
 
             telemetry.addData("Target RPM = ", targetRPM);
