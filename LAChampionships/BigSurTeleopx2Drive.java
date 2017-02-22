@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 
-@TeleOp(name = "TeleOpV7Variable", group = "LA Championships")
+@TeleOp(name = "TeleOpV7VariableGunnerIntake", group = "LA Championships")
 //@Disabled
 public class BigSurTeleopx2Drive extends OpMode {
 
