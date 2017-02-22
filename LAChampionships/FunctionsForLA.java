@@ -294,8 +294,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 turnSpeed = -headingError * GYRO_GAIN;
 
                 //Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.4) {
-                    turnSpeed = 0.4;
+                if (turnSpeed < 0.23) {
+                    turnSpeed = 0.23;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -330,8 +330,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 turnSpeed = headingError * GYRO_GAIN;
 
                 //Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.4) {
-                    turnSpeed = 0.4;
+                if (turnSpeed < 0.23) {
+                    turnSpeed = 0.23;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -522,7 +522,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
         while (gyro.isCalibrating())
         {
-            sleep(100);
+            sleep(500);
             telemetry.addLine("Gyro is not calibrated");
             telemetry.update();
         }
@@ -736,11 +736,13 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     }
 
     //Drive at a given speed until the left ods sees adequate white light
-    public void driveToWhiteLineLeft(double speed, boolean isStopAtEnd)
+    public void driveToWhiteLineLeft(double speed, double targetHeading, boolean isStopAtEnd)
     {
         whitesCount= 0;
 
         whiteLineNotDetected = true;
+
+        initialHeading = gyro.getIntegratedZValue();
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -754,6 +756,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
         //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
         do {
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
+
             loopCounter++;
 
             telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
@@ -777,10 +782,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 }
             }
 
-            leftMotor1.setPower(speed);
-            rightMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor2.setPower(speed);
+            leftMotor1.setPower(speed+straightDriveAdjust);
+            rightMotor1.setPower(speed-straightDriveAdjust);
+            leftMotor2.setPower(speed+straightDriveAdjust);
+            rightMotor2.setPower(speed-straightDriveAdjust);
 
 
 
@@ -888,11 +893,13 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     }
 
     //Drive at a given speed until the right ods sees adequate white light
-    public void driveToWhiteLineRight(double speed, boolean isStopAtEnd)
+    public void driveToWhiteLineRight(double speed, double targetHeading, boolean isStopAtEnd)
     {
         whitesCount = 0;
 
         whiteLineNotDetected = true;
+
+        initialHeading = gyro.getIntegratedZValue();
 
         leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -908,6 +915,9 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
         do {
             loopCounter++;
+
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
             telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
             //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
@@ -930,10 +940,10 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 }
             }
 
-            leftMotor1.setPower(speed);
-            rightMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor2.setPower(speed);
+            leftMotor1.setPower(speed+straightDriveAdjust);
+            rightMotor1.setPower(speed-straightDriveAdjust);
+            leftMotor2.setPower(speed+straightDriveAdjust);
+            rightMotor2.setPower(speed-straightDriveAdjust);
 
         }
         while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<3) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
