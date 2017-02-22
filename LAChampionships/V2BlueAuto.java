@@ -21,6 +21,14 @@ public class V2BlueAuto extends FuctionsForILTNew {
         //Wait until play button is pressed
         waitForStart();
 
+        timeOne=this.getRuntime();
+        timeTwo=this.getRuntime();
+
+        while (timeTwo-timeOne<1)
+        {
+            timeTwo=this.getRuntime();
+        }
+
         //calibrateGyro
         calibrateGyro();
 
@@ -28,22 +36,28 @@ public class V2BlueAuto extends FuctionsForILTNew {
         drive (14, .6, 0, true);
 
         //spinMove (double desiredHeading)
-        spinMove(-39);
+        spinMove(-37);
 
         //spinMove (double desiredHeading)
-        spinMove(-39);
+        spinMove(-37);
 
         //public void drive (double distance, double speed, double targetHeading)
-        drive(16, .8, -39, false);
+        drive(16, .8, -37, false);
 
         //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
-        driveToWhiteLineRight(.3, false);
+        driveToWhiteLineRight(.3, -37, true);
 
-        //public void drive (double distance, double speed, double targetHeading), drive 4 inches at .2 power at -35 deg heading
-        drive (2, .2, -39, true);
+
+        timeOne=this.getRuntime();
+        timeTwo=this.getRuntime();
+
+        while (timeTwo-timeOne<1)
+        {
+            timeTwo=this.getRuntime();
+        }
 
         //spinMove (double desiredHeading) spin to 15 deg heading
-        spinMove (-14);
+        spinMove (-17);
 
         //public void driveNoGyro (double distance, double speed), hit the wall, drive without a gyro for 20 inches at .25 power
         driveNoGyro(20, .25);
