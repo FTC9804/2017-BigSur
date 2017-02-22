@@ -66,7 +66,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     double tempWeightedAvg;
 
     //Gain to control rpm of shooter
-    double rpmGain = .000000125;
+    double rpmGain = .000000015;
     double desiredRPMGain = .000000125;
     double rpmGainExtremeValuesChange = .00000025;
     double rpmGainCloseValuesChange = .000000125;
@@ -545,7 +545,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             turretRotationValue = 0.5;
         }
 
-
+        turret.setPosition(turretRotationValue);
 
         //assign joystick values
         joystick1ValueLeft = gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
@@ -556,7 +556,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor2.setPower(.95 * joystick1ValueLeft);
         rightMotor1.setPower(.95 * joystick1ValueRight);
         rightMotor2.setPower(.95 * joystick1ValueRight);
-
 
         //*****************
         // B E A C O N @@
@@ -580,10 +579,6 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherLeft.setPosition(beaconPusherLeftPosition);
         beaconPusherRight.setPosition(beaconPusherRightPosition);
 
-
-
-
-
         //*****************
         // C A P   B A L L @@
         //*****************
@@ -599,21 +594,21 @@ public class BigSurTeleopx2Drive extends OpMode {
             cap2.setPower(capMotorValue);
 
             if (gamepad2.left_bumper ) {
-                capGrabValueLeft += .003;
+                capGrabValueLeft =.6;
             }
             else {
                 capGrabValueLeft = .5 - gamepad2.left_trigger / 2;
             }
 
             if (gamepad2.right_bumper) {
-                capGrabValueRight += .003;
+                capGrabValueRight =.6;
             }
             else {
                 capGrabValueRight = .5 - gamepad2.right_trigger / 2;
             }
 
-            capGrabValueLeft = Range.clip(capGrabValueLeft, 0.05, .95);
-            capGrabValueRight = Range.clip(capGrabValueRight, 0.05, .95);
+            capGrabValueLeft = Range.clip(capGrabValueLeft, 0.08, .95);
+            capGrabValueRight = Range.clip(capGrabValueRight, 0.08, .95);
 
 
             telemetry.addData("Cap Grab Value Left", capGrabValueLeft);
@@ -623,9 +618,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             capGrab2.setPosition(capGrabValueRight);
 
         }
-
         telemetry.update(); //update telemetry
-
     }
 
 
