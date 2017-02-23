@@ -482,7 +482,7 @@ public class BigSurTeleopx2DriveBothIntakes extends OpMode {
 
             shooterSpeed += rpmGain * (targetRPM - avgRpm);
 
-            shooterSpeed = Range.clip(shooterSpeed, 0, 1);
+            shooterSpeed = Range.clip(shooterSpeed, 0.1, 1);
 
             shooter.setPower(shooterSpeed);
 
