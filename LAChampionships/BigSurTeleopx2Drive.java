@@ -551,11 +551,11 @@ public class BigSurTeleopx2Drive extends OpMode {
         joystick1ValueLeft = gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
         joystick1ValueRight = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
 
-        //Set motor powers, multiplying by .95
-        leftMotor1.setPower(.95 * joystick1ValueLeft);
-        leftMotor2.setPower(.95 * joystick1ValueLeft);
-        rightMotor1.setPower(.95 * joystick1ValueRight);
-        rightMotor2.setPower(.95 * joystick1ValueRight);
+        //Set motor powers
+        leftMotor1.setPower(.95 * Math.abs(joystick1ValueLeft) * joystick1ValueLeft);
+        leftMotor2.setPower(.95 * Math.abs(joystick1ValueLeft) * joystick1ValueLeft);
+        rightMotor1.setPower(.95 * Math.abs(joystick1ValueRight) * joystick1ValueRight);
+        rightMotor2.setPower(.95 * Math.abs(joystick1ValueRight) * joystick1ValueRight);
 
         //*****************
         // B E A C O N @@
