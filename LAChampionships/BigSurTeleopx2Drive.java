@@ -66,7 +66,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     double tempWeightedAvg;
 
     //Gain to control rpm of shooter
-    double rpmGain = .000000015;
+    double rpmGain = .000001;
     double desiredRPMGain = .000000125;
     double rpmGainExtremeValuesChange = .00000025;
     double rpmGainCloseValuesChange = .000000125;
