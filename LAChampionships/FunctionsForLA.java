@@ -49,6 +49,8 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
     Servo beaconPusherRight;   //Servo on the right of the robot for beacon pushing
     Servo capGrab1; //Servo to extend and retract cap ball grabbing arms
     Servo capGrab2; //Servo to extend and retract cap ball grabbing arms
+    Servo leftSideWheels;
+    Servo rightSideWheels;
 
     //encoder variables to adequately sense the lines
     final static double ENCODER_CPR = 1120;    //encoder counts per rotation (CPR)
@@ -316,7 +318,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
 
 
             }
-            while (currentHeading > desiredHeading && (timeTwo-timeOne<6));
+            while (currentHeading > desiredHeading && (timeTwo-timeOne<8));
             //while current heading is greater than desired heading, and time elapsed in loop
             //is under 6 seconds
         }
@@ -348,7 +350,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
                 //Set timeTwo to this.getRuntime()
                 timeTwo=this.getRuntime();
             }
-            while (currentHeading < desiredHeading && (timeTwo-timeOne<6));
+            while (currentHeading < desiredHeading && (timeTwo-timeOne<8));
             //while current heading is less than desired heading, and time elapsed in loop
             //is under 6 seconds
         }
@@ -456,6 +458,12 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         capGrab1.setDirection(Servo.Direction.FORWARD); //Set capGrab1 motor to forward position
         capGrab2.setDirection(Servo.Direction.REVERSE); //Set capGrab2 motor to reverse position
 
+        leftSideWheels= hardwareMap.servo.get("s11"); //Servo Controller 1, port 6, VSI1;
+        rightSideWheels= hardwareMap.servo.get("s12"); //Servo Controller 1, port 5, VSI1;
+
+        leftSideWheels.setPosition(.5);
+        rightSideWheels.setPosition(.5);
+
         beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_RETRACT_POSITION); //Set beaconPusherLeft to beaconPusherLeftRetractPosition
         beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION); //Set beaconPusherRight to beaconPusherRightRetractPosition
         turret.setPosition(turretPosition); //Set turret to turretPosition
@@ -525,7 +533,13 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
             sleep(500);
             telemetry.addLine("Gyro is not calibrated");
             telemetry.update();
+            leftSideWheels.setPosition(.95);
+            rightSideWheels.setPosition(.95);
         }
+
+        leftSideWheels.setPosition(.5);
+        rightSideWheels.setPosition(.5);
+
     }
 
     //Runs the flywheel shooter, attempting to maintain a constant
