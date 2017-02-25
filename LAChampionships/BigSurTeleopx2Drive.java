@@ -36,6 +36,8 @@ public class BigSurTeleopx2Drive extends OpMode {
     boolean redLEDIsOn = true;
     boolean blueLEDIsOn = true;
 
+    double capGrabBase = .5;
+
 
     //Motors
     DcMotor rightMotor1;   //right drive motor front
@@ -57,8 +59,9 @@ public class BigSurTeleopx2Drive extends OpMode {
     Servo leftDrawbridge;
     Servo rightDrawbridge;
     Servo kicker;
-    Servo capGrab1;
-    Servo capGrab2;
+    Servo capGrab;
+    Servo leftSideWheels;
+    Servo rightSideWheels;
 
     ServoController servoControllerNoCap;
 
@@ -131,9 +134,6 @@ public class BigSurTeleopx2Drive extends OpMode {
     double countDelta; //the absolute value of the difference between currentEncoderPosition and initialEncoderCount
 
     double rotations; //the amount of 360 degree rotations the turret has completed since the beginning of the match
-
-    double capGrabValueLeft = .5;
-    double capGrabValueRight = .5;
 
 
     //rpm variables
@@ -225,11 +225,11 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftDrawbridge = hardwareMap.servo.get("s6");
         rightDrawbridge = hardwareMap.servo.get("s7");
         kicker = hardwareMap.servo.get("s8");
-        capGrab1 = hardwareMap.servo.get("s9");
-        capGrab2 = hardwareMap.servo.get("s10");
+        capGrab = hardwareMap.servo.get("s9"); //Port 5
+        leftSideWheels= hardwareMap.servo.get("s11"); //Servo Controller 1, port 6, VSI1;
+        rightSideWheels= hardwareMap.servo.get("s12"); //Servo Controller 1, port 5, VSI1;
 
-        capGrab1.setDirection(Servo.Direction.FORWARD);
-        capGrab2.setDirection(Servo.Direction.REVERSE);
+        capGrab.setDirection(Servo.Direction.FORWARD);
 
         servoControllerNoCap = hardwareMap.servoController.get("Servo Controller 1");
 
@@ -242,11 +242,13 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftDrawbridge.setPosition(.5);
         rightDrawbridge.setPosition(.5);
         kicker.setPosition(0);
-        capGrab1.setPosition(.5);
-        capGrab2.setPosition(.5);
+        capGrab.setPosition(1);
 
         //Shooter initially running at shooterSpeed power
         shooter.setPower(shooterSpeed);
+
+        leftSideWheels.setPosition(.5);
+        rightSideWheels.setPosition(.5);
     }
 
 
@@ -485,6 +487,8 @@ public class BigSurTeleopx2Drive extends OpMode {
             telemetry.addData("Shooter Motor Power: ", shooterSpeed);
             telemetry.addData("RPM Gain", rpmGain);
 
+            telemetry.addData("Hood pos", hood.getPosition());
+
             //***************************************************
             // L E D   N O T I F I C A T I O N S
             //***************************************************
@@ -593,29 +597,19 @@ public class BigSurTeleopx2Drive extends OpMode {
             cap1.setPower(capMotorValue);
             cap2.setPower(capMotorValue);
 
-            if (gamepad2.left_bumper ) {
-                capGrabValueLeft =.6;
+            if (gamepad2.left_bumper) {
+                capGrabBase+=.02;
             }
             else {
-                capGrabValueLeft = .5 - gamepad2.left_trigger / 2;
+                capGrabBase-=.02*gamepad2.left_trigger;
             }
 
-            if (gamepad2.right_bumper) {
-                capGrabValueRight =.6;
-            }
-            else {
-                capGrabValueRight = .5 - gamepad2.right_trigger / 2;
-            }
 
-            capGrabValueLeft = Range.clip(capGrabValueLeft, 0.08, .95);
-            capGrabValueRight = Range.clip(capGrabValueRight, 0.08, .95);
+            capGrabBase = Range.clip(capGrabBase, 0.08, .95);
 
+            telemetry.addData("Cap Grab Value", capGrabBase);
 
-            telemetry.addData("Cap Grab Value Left", capGrabValueLeft);
-            telemetry.addData("Cap Grab Value Right", capGrabValueRight);
-
-            capGrab1.setPosition(capGrabValueLeft);
-            capGrab2.setPosition(capGrabValueRight);
+            capGrab.setPosition(capGrabBase);
 
         }
         telemetry.update(); //update telemetry
