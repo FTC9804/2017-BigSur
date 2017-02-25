@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name = "V2RED", group = "AutoWithFunctions")
 
 //@Disabled
-public class V2RedAuto extends FuctionsForILTNew {
+public class V2RedAuto extends FunctionsForLA {
 
     public void runOpMode() throws InterruptedException {
 

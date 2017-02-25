@@ -8,10 +8,12 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.Func;
+
 @Autonomous(name = "V2BLUE", group = "AutoWithFunctions")
 
 //@Disabled
-public class V2BlueAuto extends FuctionsForILTNew {
+public class V2BlueAuto extends FunctionsForLA {
 
     public void runOpMode() throws InterruptedException {
 
