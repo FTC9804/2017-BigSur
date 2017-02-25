@@ -795,7 +795,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             rightMotor2.setPower(speed-straightDriveAdjust);
         }
 
-        //Repeat do loop until left ods have detected enough white light, and while op mode is active
+        //Repeat do loop until left ods has detected enough white light, and while op mode is active
         //whiteCount is under 3, and the loop has been running for less than three seconds
         while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<3) && whitesCount<3);
 
@@ -929,39 +929,39 @@ public abstract class FunctionsForLA extends LinearOpMode {
         // active and not enough white light
         // has been detected on the left ods
         do {
-
+            //Set current heading to gyro's integrated Z Value
             currentHeading = gyro.getIntegratedZValue();
+
+            //Calculate straightDriveAdjust using the robot's heading error
+            //And striaghtGyroGain
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
+            //Telemery for right ods' getRawLightDetected
             telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
             telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            //Set timeTwo to this.getRuntime()
             timeTwo = this.getRuntime();
 
-            //If enough white light has been detected, set the ods boolean to true
+            //If enough white light has been detected, set the ods boolean whiteLineNotDetected to true
+            //and increment variable whitesCount by 1
             if (whiteLineSensorRight.getRawLightDetected() >= WHITE_THRESHOLD) {
                 whiteLineNotDetected = false;
                 whitesCount++;
             }
 
-            if (timeTwo-timeOne>4)
-            {
-                stopDriving();
-                while (this.opModeIsActive())
-                {
-                    timeTwo=this.getRuntime();
-                }
-            }
-
+            //Set all motor powers using parameter speed and straightDriveAdjust
+            //to maintain appropriate heading
             leftMotor1.setPower(speed+straightDriveAdjust);
             rightMotor1.setPower(speed-straightDriveAdjust);
             leftMotor2.setPower(speed+straightDriveAdjust);
             rightMotor2.setPower(speed-straightDriveAdjust);
-
         }
+
+        //Repeat do loop until right ods has detected enough white light, and while op mode is active
+        //whiteCount is under 3, and the loop has been running for less than three seconds
         while (whiteLineNotDetected && this.opModeIsActive() && (timeTwo-timeOne<3) && whitesCount<3);  //Repeat do loop until both odss have detected enough white light
 
+        //Safety timeout
         if (timeTwo-timeOne>3)
         {
             stopDriving();
@@ -971,166 +971,11 @@ public abstract class FunctionsForLA extends LinearOpMode {
             }
         }
 
+        //If parameter isStopAtEnd is true, execute stopDriving() method
         if (isStopAtEnd)
         {
             stopDriving();
         }
-
-    }
-
-    //Drive forward or back, applying higher power to the right side until the left ods sees adequate white light
-    public void driveToWhiteLineRightLeftSideFaster(int plusOrNegative)
-    {
-        //for variable plusOrNegative put -1 for backwards and 1 for forwards
-        whiteLineNotDetected = true;
-
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftMotor1.setPower(plusOrNegative * .4);
-        leftMotor2.setPower(plusOrNegative * .4);
-        rightMotor1.setPower(plusOrNegative * .35);
-        rightMotor2.setPower(plusOrNegative * .35);
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
-        do {
-            loopCounter++;
-
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
-            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime();
-
-            //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorRight.getRawLightDetected() >= WHITE_THRESHOLD) {
-                whiteLineNotDetected = false;
-            }
-
-
-
-            leftMotor1.setPower(plusOrNegative * .4);
-            leftMotor2.setPower(plusOrNegative * .4);
-            rightMotor1.setPower(plusOrNegative * .35);
-            rightMotor2.setPower(plusOrNegative * .35);
-
-
-        }
-        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-    }
-
-    //Drive forward or back, applying higher power to the left side until the right ods sees adequate white light
-    public void driveToWhiteLineLeftRightSideFaster(int plusOrNegative)
-    {
-        //for variable plusOrNegative put -1 for backwards and 1 for forwards
-        whiteLineNotDetected = true;
-
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftMotor1.setPower(plusOrNegative * .35);
-        leftMotor2.setPower(plusOrNegative * .35);
-        rightMotor1.setPower(plusOrNegative * .4);
-        rightMotor2.setPower(plusOrNegative * .4);
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
-        do {
-            loopCounter++;
-
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
-            //telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime();
-
-            //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorLeft.getRawLightDetected() >= WHITE_THRESHOLD) {
-                whiteLineNotDetected = false;
-            }
-
-
-
-            leftMotor1.setPower(plusOrNegative * .35);
-            leftMotor2.setPower(plusOrNegative * .35);
-            rightMotor1.setPower(plusOrNegative * .4);
-            rightMotor2.setPower(plusOrNegative * .4);
-
-
-        }
-        while (whiteLineNotDetected && this.opModeIsActive());  //Repeat do loop until both odss have detected enough white light
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-    }
-
-    //Drive forward for a given distance and speed, but adjusting to give the left side
-    //of the drive train more power
-    public void driveMoreLeft (double distance, double speed)
-    {
-        inches = distance;
-        rotations = distance/ (Math.PI*WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
-
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        while (leftMotor1.getCurrentPosition()<counts) {
-
-            leftMotor1.setPower(speed+.05);
-            leftMotor2.setPower(speed+.05);
-            rightMotor1.setPower(speed);
-            rightMotor2.setPower(speed);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
-            telemetry.update();
-
-
-        }
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-
-    }
-
-    //Drive forward for a given distance and speed, but adjusting to give the right side
-    //of the drive train more power
-    public void driveMoreRight (double distance, double speed)
-    {
-
-        inches = distance;
-        rotations = inches / (Math.PI * WHEEL_DIAMETER);
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
-
-
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        while (leftMotor1.getCurrentPosition()<counts) {
-
-            leftMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor1.setPower(speed+.05);
-            rightMotor2.setPower(speed+.05);
-            telemetry.addData("Current", leftMotor1.getCurrentPosition());
-            telemetry.update();
-
-
-        }
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
 
     }
 
@@ -1203,6 +1048,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         }
 
     }
+
 
     //Run method to drive at a given speed until adequate red light is detected
     //at which time the appropriate beacon pusher extends and retracts to push
