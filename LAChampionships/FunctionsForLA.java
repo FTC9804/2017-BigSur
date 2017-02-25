@@ -19,7 +19,7 @@ import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
-public abstract class FuctionsForILTNew extends LinearOpMode {
+public abstract class FunctionsForLA extends LinearOpMode {
 
     //Variable Declarations
 
@@ -429,7 +429,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         shooter.setDirection(DcMotor.Direction.FORWARD); //Set shooter motor to forward direction
 
         intake = hardwareMap.dcMotor.get("m6"); //Motor Controller 2, port 2, 9PCE
-        intake.setDirection(DcMotorSimple.Direction.FORWARD); //Set intake motor to forward direction
+        intake.setDirection(DcMotorSimple.Direction.REVERSE); //Set intake motor to forward direction
 
         turret = hardwareMap.servo.get("s1"); //Servo Controller 1, port 2, VSI1
         hood = hardwareMap.servo.get("s2"); //Servo Controller 1, port 1, VSI1
@@ -443,7 +443,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         cap2 = hardwareMap.dcMotor.get("m8"); //Motor Controller 3, port 2, VF7F
 
         cap1.setDirection(DcMotor.Direction.FORWARD); //Set cap1 motor to forward setting
-        cap2.setDirection(DcMotor.Direction.REVERSE); //Set cap2 motor to reverse setting
+        cap2.setDirection(DcMotor.Direction.FORWARD); //Set cap2 motor to reverse setting
 
         ballControl = hardwareMap.servo.get("s5"); //Servo Controller 1, port 4, VSI1
 
@@ -468,7 +468,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION); //Set beaconPusherRight to beaconPusherRightRetractPosition
         turret.setPosition(turretPosition); //Set turret to turretPosition
         kicker.setPosition(0); //Set kicker to 0
-        ballControl.setPosition(.75); //Set ballControl to .75
+        ballControl.setPosition(.24); //Set ballControl to .24, used to be .75
         hood.setPosition(1); //Set hood to 1
         leftDrawbridge.setPosition(.5); //Set leftDrawbridge to .5
         rightDrawbridge.setPosition(.5); //Set rightDrawbridge to .5
@@ -639,7 +639,7 @@ public abstract class FuctionsForILTNew extends LinearOpMode {
         {
             timeTwo = this.getRuntime();
             intake.setPower(.95);
-            kicker.setPosition(1);
+            kicker.setPosition(.7);
             shooter.setPower (shooterPower);
         }
 

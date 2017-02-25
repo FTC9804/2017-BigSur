@@ -116,7 +116,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     //hood variables
     final double HOOD_INITIAL = 1;          //initial hood position all the way at the bottom
     double hoodPositionFar = .25;
-    double hoodPositionMid = .125;
+    double hoodPositionMid = .6;  //used to be .125
     double hoodPositionNear = 1;
     double hoodPositioning = hoodPositionMid;  //hood positioning initially set
 
@@ -347,14 +347,14 @@ public class BigSurTeleopx2Drive extends OpMode {
 
             //Ball control positions
             if (gamepad2.left_bumper) {
-                ballControl.setPosition(.95);
+                ballControl.setPosition(.24);
             } else {
                 ballControl.setPosition(0);
             }
 
             //Kicker positions
             if (gamepad2.right_bumper) {
-                kicker.setPosition(.95);
+                kicker.setPosition(.7);
             } else {
                 kicker.setPosition(0);
             }
@@ -519,7 +519,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             }
             //If the hoodPositioning is out of the possible servo range limits (both logically and physically), correct the values to
             //ensure the hoodPositioning value is in the correct range
-            hoodPositioning = Range.clip(hoodPositioning, 0.04, 1);
+            hoodPositioning = Range.clip(hoodPositioning, 0.6, 1);
 
             //Set the position of the hood to hoodPositioning
             hood.setPosition(hoodPositioning);
