@@ -70,28 +70,15 @@ public class BigSurTeleopx2Drive extends OpMode {
 
     //Gain to control rpm of shooter
     double rpmGain = .000001;
-    double desiredRPMGain = .000000125;
-    double rpmGainExtremeValuesChange = .00000025;
-    double rpmGainCloseValuesChange = .000000125;
-    double rpmGainFarSteady = .000000125;
-    double rpmGainMidSteady = .00000015;
-    double rpmGainNearSteady = .000000175;
 
+    //Target rpm of shooter to be maintained -- gotten from driver practice
+    double targetRPM = 2700;
 
-    //Target rpm of shooter to be maintained
-    double shootRPMFar = 3000;
-    double shootRPMMid = 2700;
-    double shootRPMNear = 2500;
-    double targetRPM = shootRPMMid;
-    double deltaRPM;
-    boolean farModeEngaged = false;
-    boolean midModeEngaged = true;
-    boolean nearModeEngaged = false;
-
-    double pastShootingRPM;
-
+    //initial value given to the cap motors -- manipulated during teleop
     double capMotorValue = 0;
 
+    //booleans to choose what state you are in: cap or regular mode,
+    // this is a toggle for the drivers
     boolean capBallState = false;
     boolean previousStatus = false;
     boolean currentStatus = false;
@@ -114,15 +101,13 @@ public class BigSurTeleopx2Drive extends OpMode {
     double intakeSpeed;          //power given to the intake system
 
     //values for the gears of the turret
-    final double SMALL_GEAR_TEETH = 32.0;
-    final double BIG_GEAR_TEETH = 89.0;
-    final double GEAR_RATIO = SMALL_GEAR_TEETH / BIG_GEAR_TEETH;
+    final double SMALL_GEAR_TEETH = 32.0;   //small gear of the turret used to drive the larger gear
+    final double BIG_GEAR_TEETH = 89.0;     //large gear of the turret (lazy susan apparatus) being driven
+    final double GEAR_RATIO = SMALL_GEAR_TEETH / BIG_GEAR_TEETH;    //because it is small driving large, we divide small by large
 
     //hood variables
     final double HOOD_INITIAL = 1;          //initial hood position all the way at the bottom
-    double hoodPositionFar = .25;
-    double hoodPositionMid = .6;  //used to be .125
-    double hoodPositionNear = 1;
+    double hoodPositionMid = .6;  //hood used for longer range shots
     double hoodPositioning = hoodPositionMid;  //hood positioning initially set
 
     double joystick1ValueLeft;  //the raw value taken from the left joystick
@@ -170,32 +155,30 @@ public class BigSurTeleopx2Drive extends OpMode {
         //configuration of the LED indicators
         //These LEDs are placed on the outside of the robot in the view of the drivers so that they accurately know
         //if the RPM is within an acceptable range
-        ledShootGreen = hardwareMap.digitalChannel.get("led2");
         ledDontShootRed = hardwareMap.digitalChannel.get("led1");
+        ledShootGreen = hardwareMap.digitalChannel.get("led2");
         ledBallBlue = hardwareMap.digitalChannel.get("led3");
+        ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);
         ledShootGreen.setMode(DigitalChannelController.Mode.OUTPUT);        //the LEDs will be given a logical
-        ledDontShootRed.setMode(DigitalChannelController.Mode.OUTPUT);       //output signal to turn on/off
-        ledBallBlue.setMode(DigitalChannelController.Mode.OUTPUT);
-        ledShootGreen.setState(greenLEDIsOn);          //LEDs are initialized to "ON"
+        ledBallBlue.setMode(DigitalChannelController.Mode.OUTPUT);          //output signal to turn on/off
         ledDontShootRed.setState(redLEDIsOn);
+        ledShootGreen.setState(greenLEDIsOn);                               //LEDs are initialized to "ON"
         ledBallBlue.setState(blueLEDIsOn);
 
         //beamBreak initialization
         beamBreak = hardwareMap.touchSensor.get("bb");
 
         //motor configurations in the hardware map
-        rightMotor1 = hardwareMap.dcMotor.get("m3");//port 1 on robot and in the hardwaremap
-        rightMotor2 = hardwareMap.dcMotor.get("m4");//port 2
-        leftMotor1 = hardwareMap.dcMotor.get("m1");
-        leftMotor2 = hardwareMap.dcMotor.get("m2");
-        shooter = hardwareMap.dcMotor.get("m5");
-        intake = hardwareMap.dcMotor.get("m6");
-        cap1 = hardwareMap.dcMotor.get("m7");
-        cap2 = hardwareMap.dcMotor.get("m8");
+        leftMotor1 = hardwareMap.dcMotor.get("m1"); //Motor Controller 1, port 2, UVQF
+        leftMotor2 = hardwareMap.dcMotor.get("m2"); //Motor Controller 1, port 1, UVQF
+        rightMotor1 = hardwareMap.dcMotor.get("m3"); //Motor Controller 4, port 2, XV78
+        rightMotor2 = hardwareMap.dcMotor.get("m4"); //Motor Controller 4, port 1, XV78
+        shooter = hardwareMap.dcMotor.get("m5"); //Motor Controller 2, port 1, 9PCE
+        intake = hardwareMap.dcMotor.get("m6"); //Motor Controller 2, port 2, 9PCE
+        cap1 = hardwareMap.dcMotor.get("m7"); //Motor Controller 3, port 1, VF7F
+        cap2 = hardwareMap.dcMotor.get("m8"); //Motor Controller 3, port 2, VF7F
 
-
-
-        //Stop and reset encoder, declare intention to run using encoder
+        //Stop and reset encoder, declare intention to run without encoder PID control
         cap2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         cap2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -206,7 +189,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         encoderClicksOne = shooter.getCurrentPosition();
         encoderClicksTwo = shooter.getCurrentPosition();
 
-        //Motor directions
+        //Motor directions: set forward/reverse
         rightMotor1.setDirection(DcMotor.Direction.REVERSE);
         rightMotor2.setDirection(DcMotor.Direction.REVERSE);
         leftMotor1.setDirection(DcMotor.Direction.FORWARD);
@@ -216,56 +199,63 @@ public class BigSurTeleopx2Drive extends OpMode {
         cap1.setDirection(DcMotor.Direction.FORWARD);
         cap2.setDirection(DcMotor.Direction.FORWARD);
 
-
-
         //Servo configurations
-        turret = hardwareMap.servo.get("s1");
-        hood = hardwareMap.servo.get("s2");
-        beaconPusherRight = hardwareMap.servo.get("s3");
-        beaconPusherLeft = hardwareMap.servo.get("s4");
-        ballControl = hardwareMap.servo.get("s5");
-        leftDrawbridge = hardwareMap.servo.get("s6");
-        rightDrawbridge = hardwareMap.servo.get("s7");
-        kicker = hardwareMap.servo.get("s8");
-        capGrab = hardwareMap.servo.get("s9"); //Port 5
+        turret = hardwareMap.servo.get("s1"); //Servo Controller 1, port 2, VSI1
+        hood = hardwareMap.servo.get("s2"); //Servo Controller 1, port 1, VSI1
+        beaconPusherRight = hardwareMap.servo.get("s3"); //Servo Controller 3, port 1, VCT7
+        beaconPusherLeft = hardwareMap.servo.get("s4"); //Servo Controller 3, port 2, VCT7
+        ballControl = hardwareMap.servo.get("s5"); //Servo Controller 1, port 4, VSI1
+        leftDrawbridge = hardwareMap.servo.get("s6"); //Servo Controller 3, port 3, VCT7
+        rightDrawbridge = hardwareMap.servo.get("s7"); //Servo Controller 3, port 4, VCT7
+        kicker = hardwareMap.servo.get("s8"); //Servo Controller 1, port 3, VSI1
+        capGrab = hardwareMap.servo.get("s9"); //Servo Controller 3, Port 5, VCT7
         leftSideWheels= hardwareMap.servo.get("s11"); //Servo Controller 1, port 6, VSI1;
         rightSideWheels= hardwareMap.servo.get("s12"); //Servo Controller 1, port 5, VSI1;
 
-        capGrab.setDirection(Servo.Direction.FORWARD);
-
+        //servo controller named so we can
         servoControllerNoCap = hardwareMap.servoController.get("Servo Controller 1");
-
-        //Servo initial positions
+        //Servo initial positions based on individual tunings for every servo
         turret.setPosition(TURRET_INITIAL);
         hood.setPosition(HOOD_INITIAL);
         beaconPusherRight.setPosition(1);
         beaconPusherLeft.setPosition(0);
         ballControl.setPosition(0);
-        leftDrawbridge.setPosition(.5);
-        rightDrawbridge.setPosition(.5);
+        leftDrawbridge.setPosition(.5); //drawbridges and side wheels are continuous rotation servos,
+        rightDrawbridge.setPosition(.5);// so we init them to 0.5 so they do not immediately start moving
+        leftSideWheels.setPosition(.5);
+        rightSideWheels.setPosition(.5);
         kicker.setPosition(0);
+        capGrab.setDirection(Servo.Direction.FORWARD);
         capGrab.setPosition(1);
 
         //Shooter initially running at shooterSpeed power
         shooter.setPower(shooterSpeed);
 
-        leftSideWheels.setPosition(.5);
-        rightSideWheels.setPosition(.5);
+
     }
 
 
     @Override
     public void loop() {
 
+        //code for toggling the use of the cap ball mode.
+        // To prevent accidental activation during Start-A and Start-B,
+        // the gunner has to hold down both the start and back buttons.
+        // This has the added benefit of forcing the gunner to be very
+        // intentional in his application of the mode
         previousStatus = currentStatus;
-        currentStatus = (gamepad2.start&&gamepad2.back);
+        currentStatus = (gamepad2.start && gamepad2.back);
 
+        //switching cap ball state
         if (currentStatus && !previousStatus)
         {
             capBallState=!capBallState;
         }
 
         if (!capBallState) {
+
+            //we disable this pwm during cap ball mode, so we always make sure
+            // it is enabled during the standard mode
             servoControllerNoCap.pwmEnable();
 
 
@@ -320,7 +310,8 @@ public class BigSurTeleopx2Drive extends OpMode {
                 totalRpm = 0;
             }
 
-            //telemetry for rpm
+            //telemetry for rpm: we use Avg RPM for calculations to RPM proportional control,
+            // but we aso
             telemetry.addData("RPM : ", rpm);
             telemetry.addData("AvgRPM : ", avgRpm);
 
@@ -360,7 +351,7 @@ public class BigSurTeleopx2Drive extends OpMode {
 
             //Kicker positions
             if (gamepad2.right_bumper) {
-                kicker.setPosition(.7);
+                kicker.setPosition(.72);
             } else {
                 kicker.setPosition(0);
             }
