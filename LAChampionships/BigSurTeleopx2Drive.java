@@ -36,7 +36,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     boolean redLEDIsOn = true;
     boolean blueLEDIsOn = true;
 
-    double capGrabBase = .5;
+    double capGrabBase = .1;
 
 
     //Motors
@@ -93,6 +93,8 @@ public class BigSurTeleopx2Drive extends OpMode {
     double capMotorValue = 0;
 
     boolean capBallState = false;
+    boolean previousStatus = false;
+    boolean currentStatus = false;
 
     //Positions relating to the beacon pushers
     double beaconPusherRightPosition;
@@ -255,15 +257,17 @@ public class BigSurTeleopx2Drive extends OpMode {
     @Override
     public void loop() {
 
-        if (gamepad2.start) {
-            capBallState = true;
-        }
-        if (gamepad2.back) {
-            capBallState = false;
+        previousStatus = currentStatus;
+        currentStatus = (gamepad2.start&&gamepad2.back);
+
+        if (currentStatus && !previousStatus)
+        {
+            capBallState=!capBallState;
         }
 
         if (!capBallState) {
             servoControllerNoCap.pwmEnable();
+
 
             //*****************
             // S H O O T I N G **
@@ -598,10 +602,10 @@ public class BigSurTeleopx2Drive extends OpMode {
             cap2.setPower(capMotorValue);
 
             if (gamepad2.left_bumper) {
-                capGrabBase+=.02;
+                capGrabBase-=.04;
             }
             else {
-                capGrabBase-=.02*gamepad2.left_trigger;
+                capGrabBase+=.04*gamepad2.left_trigger;
             }
 
 
