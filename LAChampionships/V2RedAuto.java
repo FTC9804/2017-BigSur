@@ -28,6 +28,8 @@ public class V2RedAuto extends FuctionsForILTNew {
         while (timeTwo-timeOne<1)
         {
             timeTwo=this.getRuntime();
+            leftSideWheels.setPosition(.95);
+            rightSideWheels.setPosition(.95);
         }
 
 
@@ -74,6 +76,10 @@ public class V2RedAuto extends FuctionsForILTNew {
         //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -4 deg
         driveBack(32, .3, -4);
 
+        shooter.setPower(shooterPower);
+
+        hood.setPosition(.6);
+
         //public void driveToWhiteLine (double speed, double targetHeading), drive at -.3 power and -3 heading
         driveToWhiteLine(-.3, -4);
 
@@ -83,6 +89,7 @@ public class V2RedAuto extends FuctionsForILTNew {
         //public void pressBeaconSideBlue (double speed) find and press red beacon at .2 power and 4 heading
         pressBeaconSideRed (.2, 4);
 
+        shootAndLift(2700, .95);
 
 
     }
