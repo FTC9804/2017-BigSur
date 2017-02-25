@@ -36,7 +36,7 @@ public class V2RedAuto extends FunctionsForLA {
         calibrateGyro();
 
         //public void drive (double distance, double speed, double targetHeading)
-        drive (14, .6, 0, true);
+        drive (12, .6, 0, true);
 
         //spinMove (double desiredHeading)
         spinMove(37);
@@ -76,6 +76,9 @@ public class V2RedAuto extends FunctionsForLA {
         //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -4 deg
         driveBack(32, .3, -4);
 
+        leftDrawbridge.setPosition(1);
+        rightDrawbridge.setPosition(1);
+
         shooter.setPower(shooterPower);
 
         hood.setPosition(.6);
@@ -90,7 +93,6 @@ public class V2RedAuto extends FunctionsForLA {
         pressBeaconSideRed (.2, 4);
 
         shootAndLift(2700, .95);
-
 
     }
 
