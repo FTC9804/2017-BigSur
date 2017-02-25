@@ -220,6 +220,3 @@ public class TuneCapBall extends FunctionsForLA {
     }
 
 }
-
-
-

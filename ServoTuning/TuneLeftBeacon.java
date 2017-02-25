@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.Range;
 
 /**
- * Created by stevecox on 2/11/17.
+ * Created by stevecox on 2/24/17.
  * Purpose of the code is to allow the ability to tune left beacon pusher servo
  */
 
@@ -225,6 +225,3 @@ public class TuneLeftBeacon extends FunctionsForLA {
     }
 
 }
-
-
-
