@@ -439,6 +439,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
         rightDrawbridge.setPosition(.5); //Set rightDrawbridge to .5
         capGrab.setPosition(1);
 
+        leftDrawbridge.setDirection(Servo.Direction.FORWARD);
+        rightDrawbridge.setDirection(Servo.Direction.FORWARD);
+
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
 
         whiteLineSensorRight= hardwareMap.opticalDistanceSensor.get("ods2");    //Analog import port 0
