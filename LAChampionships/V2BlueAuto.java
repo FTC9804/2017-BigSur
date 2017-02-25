@@ -8,8 +8,6 @@ package org.firstinspires.ftc.teamcode;
 //import statement
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.robotcore.external.Func;
-
 @Autonomous(name = "V2BLUE", group = "AutoWithFunctions")
 
 //@Disabled
@@ -37,7 +35,7 @@ public class V2BlueAuto extends FunctionsForLA {
         calibrateGyro();
 
         //public void drive (double distance, double speed, double targetHeading)
-        drive (14, .6, 0, true);
+        drive (12, .6, 0, true);
 
         //spinMove (double desiredHeading)
         spinMove(-37);
@@ -77,6 +75,9 @@ public class V2BlueAuto extends FunctionsForLA {
 
         //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -4 deg
         driveBack(32, .3, 4);
+
+        leftDrawbridge.setPosition(1);
+        rightDrawbridge.setPosition(1);
 
         shooter.setPower(shooterPower);
 
