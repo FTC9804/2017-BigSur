@@ -210,8 +210,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         leftMotor1.setDirection(DcMotor.Direction.FORWARD);
         leftMotor2.setDirection(DcMotor.Direction.FORWARD);
         shooter.setDirection(DcMotor.Direction.FORWARD);
-        intake.setDirection(DcMotor.Direction.FORWARD);
-        cap1.setDirection(DcMotor.Direction.REVERSE);
+        intake.setDirection(DcMotor.Direction.REVERSE);
+        cap1.setDirection(DcMotor.Direction.FORWARD);
         cap2.setDirection(DcMotor.Direction.FORWARD);
 
 
