@@ -1,8 +1,6 @@
-//Version 1.0 coded Feb. 4, 2017 by Steve, Etienne and Marcus.
+//Version 2.0 coded Feb. 25, 2017 by Steve, Etienne and Marcus.
 //Designed to provide methods for the autonomous concept
 //of shooting two balls and pressing two beacons
-
-
 
 //package declaration
 package org.firstinspires.ftc.teamcode;
@@ -148,60 +146,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //Adjustment factor for motor powers when driving straight based on straightGyroGain
     double straightDriveAdjust = 0;
 
-    // F U N C T I O N S   F O R   A U T O   &   T E L E O P
-
-    //Given a number of wheel rotations and target motor speed,
-    //the robot spins clockwise at the given speed for the given
-    //amount of wheel rotations
-    public void encoderTurnClockwise (double rotations, double speed)
-    {
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
-
-        leftMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of leftMotor1 to STOP_AND_RESET_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //while loop that is entered until leftMotor1 reaches its target encoder count
-        while (leftMotor1.getCurrentPosition()<counts) {
-            //Set all driving powers
-            leftMotor1.setPower(speed);
-            leftMotor2.setPower(speed);
-            rightMotor1.setPower(-speed);
-            rightMotor2.setPower(-speed);
-            //Telemetry for robot rotations executed and encoder position
-            telemetry.addData("Current encoder position = ", leftMotor1.getCurrentPosition());
-            telemetry.addData("Current rotations travelled = ", (leftMotor1.getCurrentPosition())/(ENCODER_CPR*GEAR_RATIO));
-            telemetry.update();
-        }
-        //Execute stopDriving method
-        stopDriving();
-    }
-
-    //Given a number of wheel rotations and target motor speed,
-    //the robot spins counter-clockwise at the given speed for the given
-    //amount of wheel rotations
-    public void encoderTurnCounterClockwise (double rotations, double speed)
-    {
-        counts = ENCODER_CPR * rotations * GEAR_RATIO;  //math to calculate total counts robot should travel
-
-        rightMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); //Set run mode of rightMotor1 to STOP_AND_RESET_ENCODER
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //while loop that is entered until rightMotor1 reaches its target encoder count
-        while ((Math.abs(rightMotor1.getCurrentPosition())<counts)) {
-            //Set all driving powers
-            leftMotor1.setPower(-speed);
-            leftMotor2.setPower(-speed);
-            rightMotor1.setPower(speed);
-            rightMotor2.setPower(speed);
-            //Telemetry for robot rotations executed and encoder position
-            telemetry.addData("Current encoder position = ", rightMotor1.getCurrentPosition());
-            telemetry.addData("Current rotations travelled = ", (rightMotor1.getCurrentPosition())/(ENCODER_CPR*GEAR_RATIO));
-            telemetry.update();
-        }
-        //Execute stopDriving method
-        stopDriving();
-    }
-
+    // F U N C T I O N S   F O R   A U T O
+    
+    
     //Drives straight and backwards for a provided distance, in inches
     //and at a given speed and a given gyro heading
     public void driveBack (double distance, double speed, double targetHeading)
@@ -247,6 +194,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
             {
                 stopDriving();
                 timeTwo=this.getRuntime();
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
             }
         }
         //Execute stopDriving method
@@ -681,6 +631,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
             while (this.opModeIsActive())
             {
                 timeTwo=this.getRuntime();
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
             }
         }
         //if parameter isStopAtEnd is true,
@@ -730,6 +683,114 @@ public abstract class FunctionsForLA extends LinearOpMode {
             while (this.opModeIsActive())
             {
                 timeTwo=this.getRuntime();
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
+            }
+        }
+
+        //Execute stopDriving() method
+        stopDriving();
+    }
+    
+    //Drive at a given speed until both ods sensors see adequate white light
+    public void driveToWhiteLine (double speed, double targetHeading)
+    {
+        //Set whitesCountLeft and whitesCountRight to 0
+        whiteCountLeft=0;
+        whiteCountRight=0;
+
+        //Set wlsRightlight and wlsLeftlight to false
+        wlsRightlight = false;
+        wlsLeftlight = false;
+
+        //Set initial heading to gyro's integrated Z value
+        initialHeading = gyro.getIntegratedZValue();
+
+        //Set RunMode of leftMotor1 to RUN_WITHOUT_ENCODER
+        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //set all drivetrain motor powers to parameter speed
+        leftMotor1.setPower(speed);
+        rightMotor1.setPower(speed);
+        leftMotor2.setPower(speed);
+        rightMotor2.setPower(speed);
+
+        //Set timeOne and timeTwo to this.getRuntime()
+        timeOne = this.getRuntime();
+        timeTwo = this.getRuntime();
+
+        //Keep the drivetrain motors running while op mode is
+        // active and not enough white light
+        // has been detected on both ods sensors
+        do {
+            //Set current heading to gyro's integrated Z Value
+            currentHeading = gyro.getIntegratedZValue();
+            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
+
+            //Telemetry for left and rightods' getRawLightDetected
+            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
+            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
+            telemetry.update();
+            //updating time2 to prevent infinite running of this loop if game conditions are not met
+            timeTwo = this.getRuntime();
+
+            //If enough white light has been detected, set the left ods boolean to true,
+            //increment whiteCounterLeft by 1, and set wlsLeftlight to true
+            if (whiteLineSensorLeft.getRawLightDetected() >= WHITE_THRESHOLD) {
+                wlsLeftlight = true;
+                whiteCountLeft++;
+            }
+
+            //If enough white light has been detected, set the right ods boolean to true,
+            //increment whiteCounterRight by 1, and set wlsRightlight to true
+            if (whiteLineSensorRight.getRawLightDetected() >= WHITE_THRESHOLD) {
+                wlsRightlight = true;
+                whiteCountRight++;
+            }
+
+            //If enough white light has not been detected, set right motor powers
+            //according to parameter speed and straightDriveAdjust,
+            //to maintain an appropriate heading.  If enough white light has
+            //been detected, set the right motor powers to 0
+            if (wlsRightlight == false) {
+                rightMotor1.setPower(speed - straightDriveAdjust);
+                rightMotor2.setPower(speed - straightDriveAdjust);
+            } else {
+                rightMotor1.setPower(0);
+                rightMotor2.setPower(0);
+            }
+
+            //If enough white light has not been detected, set left motor powers
+            //according to parameter speed and straightDriveAdjust,
+            //to maintain an appropriate heading.  If enough white light has
+            //been detected, set the left motor powers to 0
+            if (wlsLeftlight == false) {
+                leftMotor1.setPower(speed + straightDriveAdjust);
+                leftMotor2.setPower(speed + straightDriveAdjust);
+            } else {
+                leftMotor1.setPower(0);
+                leftMotor2.setPower(0);
+            }
+        }
+
+        //execute do loop while either wlsRightlight or wlsLeftlight, and while op mode is active,
+        //and the loop has been executing for less than eight seconds
+        while ( (wlsRightlight == false
+                || wlsLeftlight == false)
+                && this.opModeIsActive()
+                && (timeTwo-timeOne < 8));  //Repeat do loop until both odss have detected enough white light
+
+        //Safety timeout
+        if (timeTwo-timeOne>8)
+        {
+            stopDriving();
+            while (this.opModeIsActive())
+            {
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
+                timeTwo=this.getRuntime();
             }
         }
 
@@ -737,11 +798,10 @@ public abstract class FunctionsForLA extends LinearOpMode {
         stopDriving();
     }
 
-
     //Drive at a given speed until the left ods sees adequate white light
     public void driveToWhiteLineLeft(double speed, double targetHeading, boolean isStopAtEnd)
     {
-        //Set whites count to 0
+        //Set whitesCount to 0
         whitesCount= 0;
 
         //Set whiteLineNotDetected to false
@@ -771,13 +831,13 @@ public abstract class FunctionsForLA extends LinearOpMode {
             currentHeading = gyro.getIntegratedZValue();
 
             //Calculate straightDriveAdjust using the robot's heading error
-            //And striaghtGyroGain
+            //And straightGyroGain
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
             //Increment loopCounter by 1
             loopCounter++;
 
-            //Telemery for left ods' getRawLightDetected
+            //Telemetry for left ods' getRawLightDetected
             telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
             telemetry.update();
             //Set timeTwo to this.getRuntime()
@@ -808,6 +868,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
             stopDriving();
             while (this.opModeIsActive())
             {
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
                 timeTwo=this.getRuntime();
             }
         }
@@ -818,95 +881,11 @@ public abstract class FunctionsForLA extends LinearOpMode {
             stopDriving();
         }
     }
-
-    //Drive at a given speed until both ods sensors see adequate white light
-    public void driveToWhiteLine (double speed, double targetHeading)
-    {
-        whiteCountLeft=0;
-        whiteCountRight=0;
-
-        wlsRightlight = false;
-        wlsLeftlight = false;
-
-        initialHeading = gyro.getIntegratedZValue();
-
-        leftMotor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftMotor1.setPower(speed);
-        rightMotor1.setPower(speed);
-        leftMotor2.setPower(speed);
-        rightMotor2.setPower(speed);
-
-        timeOne = this.getRuntime();
-        timeTwo = this.getRuntime();
-
-        //Keep the motor(s) at .25 while op mode is active and not enough white light has been detected on a motor's ods
-        do {
-            currentHeading = gyro.getIntegratedZValue();
-            straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
-
-            telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
-            telemetry.addData("White Value Left: ", whiteLineSensorLeft.getRawLightDetected());
-            telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
-            timeTwo = this.getRuntime();
-
-            //If enough white light has been detected, set the ods boolean to true
-            if (whiteLineSensorLeft.getRawLightDetected() >= WHITE_THRESHOLD) {
-                wlsLeftlight = true;
-                whiteCountLeft++;
-            }
-            if (whiteLineSensorRight.getRawLightDetected() >= WHITE_THRESHOLD) {
-                wlsRightlight = true;
-                whiteCountRight++;
-            }
-
-            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
-            if (wlsRightlight == false) {
-                rightMotor1.setPower(speed - straightDriveAdjust);
-                rightMotor2.setPower(speed - straightDriveAdjust);
-            } else {
-                rightMotor1.setPower(0);
-                rightMotor2.setPower(0);
-            }
-
-
-            //If enough white light has not been detected, keep the power of the motor at .25; else set it to 0
-            if (wlsLeftlight == false) {
-                leftMotor1.setPower(speed + straightDriveAdjust);
-                leftMotor2.setPower(speed + straightDriveAdjust);
-            } else {
-                leftMotor1.setPower(0);
-                leftMotor2.setPower(0);
-            }
-
-        }
-        while ( (wlsRightlight == false
-                || wlsLeftlight == false)
-                && this.opModeIsActive()
-                && (timeTwo-timeOne < 8));  //Repeat do loop until both odss have detected enough white light
-
-        if (timeTwo-timeOne>8)
-        {
-            stopDriving();
-            while (this.opModeIsActive())
-            {
-                timeTwo=this.getRuntime();
-            }
-        }
-
-        leftMotor1.setPower(0);
-        leftMotor2.setPower(0);
-        rightMotor1.setPower(0);
-        rightMotor2.setPower(0);
-
-
-    }
-
+    
     //Drive at a given speed until the right ods sees adequate white light
     public void driveToWhiteLineRight(double speed, double targetHeading, boolean isStopAtEnd)
     {
-        //Set whites count to 0
+        //Set whitesCount to 0
         whitesCount = 0;
 
         //Set whiteLineNotDetected to false
@@ -936,10 +915,10 @@ public abstract class FunctionsForLA extends LinearOpMode {
             currentHeading = gyro.getIntegratedZValue();
 
             //Calculate straightDriveAdjust using the robot's heading error
-            //And striaghtGyroGain
+            //And straightGyroGain
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
-            //Telemery for right ods' getRawLightDetected
+            //Telemetry for right ods' getRawLightDetected
             telemetry.addData("White Value Right: ", whiteLineSensorRight.getRawLightDetected());
             telemetry.update();
             //Set timeTwo to this.getRuntime()
@@ -970,6 +949,9 @@ public abstract class FunctionsForLA extends LinearOpMode {
             stopDriving();
             while (this.opModeIsActive())
             {
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
                 timeTwo=this.getRuntime();
             }
         }
@@ -979,7 +961,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         {
             stopDriving();
         }
-
     }
 
     //Run method to drive at a given speed until adequate blue light is detected
@@ -987,69 +968,92 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //the beacon
     public void pressBeaconSideBlue (double speed, double targetHeading)
     {
+        //Set initial heading to gyro's integrated Z value
         initialHeading = gyro.getIntegratedZValue();
 
+        //set all drivetrain motor powers to parameter speed
         leftMotor1.setPower(speed);
         rightMotor1.setPower(speed);
         leftMotor2.setPower(speed);
         rightMotor2.setPower(speed);
 
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+        //Set beaconNotDetected to true
         beaconNotDetected = true;
+
+        //Set beaconPusherRight to variable BEACON_PUSHER_RIGHT_RETRACT_POSITION
         beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION);
 
         do {
+            //Set current heading to gyro's integrated Z Value
             currentHeading = gyro.getIntegratedZValue();
+
+            //Calculate straightDriveAdjust using the robot's heading error
+            //And straightGyroGain
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
+            //Telemetry for blue value of colorSensorRight
             telemetry.addData("Blue Value: ", colorSensorRight.blue());
             telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
 
-            //If enough white light has been detected, set the ods boolean to true
+            //If enough blue light has been detected, and there is a small amount of red light
+            // set the beacon boolean to true
             if (colorSensorRight.blue() >= 2 && colorSensorRight.red() < 2) {
                 beaconNotDetected = false;
             }
 
+            //Set all motor powers using parameter speed and straightDriveAdjust
+            //to maintain appropriate heading
             leftMotor1.setPower(speed + straightDriveAdjust);
             leftMotor2.setPower(speed + straightDriveAdjust);
             rightMotor1.setPower(speed - straightDriveAdjust);
             rightMotor2.setPower(speed - straightDriveAdjust);
 
+            //Set timeTwo to this.getRuntime()
             timeTwo=this.getRuntime();
 
+          //Repeat do loop while beaconNotDetected is true, op mode is active
+          //and loop has been running for less than 12 secons
         } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 12));
 
+        //Execute stopDriving() method
         stopDriving();
 
+        //Safety timeout
         if (timeTwo-timeOne>12)
         {
             stopDriving();
             while (this.opModeIsActive())
             {
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
                 timeTwo=this.getRuntime();
             }
         }
 
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+        //Extend right beacon pusher for three seconds
         while (timeTwo - timeOne < 3) {
             beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_EXTEND_POSITION);
             timeTwo = this.getRuntime();
         }
 
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
-
+        //Retract right beacon pusher for one second
         while (timeTwo - timeOne < 1) {
             beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION);
             timeTwo = this.getRuntime();
         }
-
     }
 
 
@@ -1058,69 +1062,94 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //the beacon
     public void pressBeaconSideRed (double speed, double targetHeading)
     {
+
+        //Set initial heading to gyro's integrated Z value
         initialHeading = gyro.getIntegratedZValue();
 
+        //set all drivetrain motor powers to parameter speed
         leftMotor1.setPower(speed);
         rightMotor1.setPower(speed);
         leftMotor2.setPower(speed);
         rightMotor2.setPower(speed);
 
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+        //Set beaconNotDetected to true
         beaconNotDetected = true;
+
+        //Set beaconPusherLeft to variable BEACON_PUSHER_LEFT_RETRACT_POSITION
         beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_RETRACT_POSITION);
 
         do {
+            //Set current heading to gyro's integrated Z Value
             currentHeading = gyro.getIntegratedZValue();
+
+            //Calculate straightDriveAdjust using the robot's heading error
+            //And straightGyroGain
             straightDriveAdjust = (currentHeading - targetHeading) * straightGyroGain;
 
+            //Telemetry for red value of colorSensorLeft
             telemetry.addData("Red Value: ", colorSensorLeft.red());
             telemetry.update();
-            //updating time2 to prevent infinite running of this loop if game conditions are not met
 
-            //If enough white light has been detected, set the ods boolean to true
-            if (colorSensorLeft.red() >= 2 && colorSensorLeft.blue() < 2) { //change csensor to left
+            //If enough red light has been detected, and there is a small amount of blue light
+            // set the beacon boolean to true
+            if (colorSensorLeft.red() >= 2 && colorSensorLeft.blue() < 2) {
                 beaconNotDetected = false;
             }
 
+            //Set all motor powers using parameter speed and straightDriveAdjust
+            //to maintain appropriate heading
             leftMotor1.setPower(speed + straightDriveAdjust);
             leftMotor2.setPower(speed + straightDriveAdjust);
             rightMotor1.setPower(speed - straightDriveAdjust);
             rightMotor2.setPower(speed - straightDriveAdjust);
 
+            //Set timeTwo to this.getRuntime()
             timeTwo=this.getRuntime();
 
+            //Repeat do loop while beaconNotDetected is true, op mode is active
+            //and loop has been running for less than 12 secons
         } while (beaconNotDetected && this.opModeIsActive() && (timeTwo-timeOne < 12));
 
+        //Execute stopDriving() method
         stopDriving();
 
+        //Safety timeout
         if (timeTwo-timeOne>12)
         {
             stopDriving();
             while (this.opModeIsActive())
             {
+                //Telemetry alerting drive team of safety timeout
+                telemetry.addLine("Timed out");
+                telemetry.update();
                 timeTwo=this.getRuntime();
             }
         }
 
-
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+        //Extend left beacon pusher for three seconds
         while (timeTwo - timeOne < 3) {
             beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_EXTEND_POSITION);
             timeTwo = this.getRuntime();
         }
 
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne = this.getRuntime();
         timeTwo = this.getRuntime();
 
+        //Retract left beacon pusher for one second
         while (timeTwo - timeOne < 1) {
             beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_RETRACT_POSITION);
             timeTwo = this.getRuntime();
         }
-
+        
     }
 
 }
