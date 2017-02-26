@@ -17,7 +17,7 @@ import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name = "Auto Shoot Options", group = "AutoWithFunctions")
 //@Disabled
-public class AutoShootOptions extends FunctionsForLA {
+public class AutoShooterOptions extends FunctionsForLA {
 
     //OVERALL VARIABLES
     double timeOne, timeTwo, wait, distance1, distance2, power;
@@ -112,13 +112,14 @@ public class AutoShootOptions extends FunctionsForLA {
         //calibrateGyro
         calibrateGyro();
 
+        //shooter given power to get the motor up to speed
+        shooter.setPower(shooterPower);
+
         //the wait loop to prevent the code starting until the specified delay is finished
         while (timeTwo - timeOne < wait) {
             timeTwo = this.getRuntime();
         }
 
-        //shooter given power to get the motor up to speed
-        shooter.setPower(shooterPower);
 
         //hood set to scoring position desired for shooting
         hood.setPosition(.6);
@@ -425,5 +426,4 @@ public class AutoShootOptions extends FunctionsForLA {
 
 
 }
-
 
