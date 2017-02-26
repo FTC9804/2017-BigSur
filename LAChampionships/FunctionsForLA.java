@@ -245,8 +245,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 turnSpeed = -headingError * GYRO_GAIN;
 
                 //Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.37) {
-                    turnSpeed = 0.37;
+                if (turnSpeed < 0.32) {
+                    turnSpeed = 0.32;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -277,8 +277,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 turnSpeed = headingError * GYRO_GAIN;
 
                 //Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.37) {
-                    turnSpeed = 0.37;
+                if (turnSpeed < 0.32) {
+                    turnSpeed = 0.32;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -391,8 +391,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
         rightDrawbridge.setPosition(.5); //Set rightDrawbridge to .5
         capGrab.setPosition(1);
 
-        leftDrawbridge.setDirection(Servo.Direction.FORWARD);
-        rightDrawbridge.setDirection(Servo.Direction.FORWARD);
+        leftDrawbridge.setDirection(Servo.Direction.REVERSE);
+        rightDrawbridge.setDirection(Servo.Direction.REVERSE);
 
         gyro = (ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"); //I2C port 0
 
@@ -633,7 +633,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             telemetry.update();
         }
 
-        
+
         //Execute stopShooting method
         stopShooting();
 
@@ -1120,7 +1120,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //the beacon
     public void pressBeaconSideRed (double speed, double targetHeading)
     {
-
         //Set initial heading to gyro's integrated Z value
         initialHeading = gyro.getIntegratedZValue();
 
