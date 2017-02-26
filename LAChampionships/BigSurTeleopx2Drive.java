@@ -36,7 +36,7 @@ public class BigSurTeleopx2Drive extends OpMode {
     boolean redLEDIsOn = true;
     boolean blueLEDIsOn = true;
 
-    //base capGrab servo position value, which capGrab is set to 
+    //base capGrab servo position value, which capGrab is set to
     //during end game
     double capGrabValue = .1;
 
@@ -231,7 +231,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         hood.setPosition(HOOD_INITIAL);
         beaconPusherRight.setPosition(1);
         beaconPusherLeft.setPosition(0);
-        ballControl.setPosition(0);
+        ballControl.setPosition(.3);
         leftDrawbridge.setPosition(.5); //drawbridges and side wheels are continuous rotation servos,
         rightDrawbridge.setPosition(.5);// so we init them to 0.5 so they do not immediately start moving
         leftSideWheels.setPosition(.5);
@@ -362,9 +362,9 @@ public class BigSurTeleopx2Drive extends OpMode {
             //Ball control positions: tuned from individual testing
             //Meant to always be blocking until gunner allows clear passage of particles
             if (gamepad2.left_bumper) {
-                ballControl.setPosition(.24);
+                ballControl.setPosition(.6);
             } else {
-                ballControl.setPosition(0);
+                ballControl.setPosition(.3);
             }
 
             //Kicker positions: tuned from individual testing
@@ -532,7 +532,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         //*****************
 
         //cap ball is only operational when the state is activated so that we do not
-        // entangle with other robots.  we also have specific power allocations during this time, in order 
+        // entangle with other robots.  we also have specific power allocations during this time, in order
         // to conserve power to operate our continuous lift system
 
         if (capBallState) {
@@ -567,7 +567,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             capGrab.setPosition(capGrabValue);
 
         }
-        
+
         //sending telemetry to the phones at the end of every cycle so that all
         // information is available at the same time. This is the only time in the
         // looping code that it is updated so the drivers can see everything at once
