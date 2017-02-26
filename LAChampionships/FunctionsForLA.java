@@ -245,8 +245,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 turnSpeed = -headingError * GYRO_GAIN;
 
                 //Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.23) {
-                    turnSpeed = 0.23;
+                if (turnSpeed < 0.37) {
+                    turnSpeed = 0.37;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -277,8 +277,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 turnSpeed = headingError * GYRO_GAIN;
 
                 //Clip turnSpeed to be .4 through .8
-                if (turnSpeed < 0.23) {
-                    turnSpeed = 0.23;
+                if (turnSpeed < 0.37) {
+                    turnSpeed = 0.37;
                 }
                 if (turnSpeed > .8) {
                     turnSpeed = .8;
@@ -331,6 +331,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //WRITE IN ENCODER PORTS
     public void Configure ()
     {
+        //Set variable turretPosition to .5
+        turretPosition=.5;
 
         rightMotor1 = hardwareMap.dcMotor.get("m3"); //Motor Controller 4, port 2, XV78
         rightMotor2 = hardwareMap.dcMotor.get("m4"); //Motor Controller 4, port 1, XV78
@@ -383,7 +385,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         beaconPusherRight.setPosition(BEACON_PUSHER_RIGHT_RETRACT_POSITION); //Set beaconPusherRight to beaconPusherRightRetractPosition
         turret.setPosition(turretPosition); //Set turret to turretPosition
         kicker.setPosition(0); //Set kicker to 0
-        ballControl.setPosition(0); //Set ballControl to .75
+        ballControl.setPosition(.6); //Set ballControl to .75
         hood.setPosition(1); //Set hood to 1
         leftDrawbridge.setPosition(.5); //Set leftDrawbridge to .5
         rightDrawbridge.setPosition(.5); //Set rightDrawbridge to .5
@@ -425,9 +427,6 @@ public abstract class FunctionsForLA extends LinearOpMode {
         //Set initial shooterPower to .95
         shooterPower = .95;
 
-        //Set variable turretPosition to .5
-        turretPosition=.5;
-
         //Initialize encoder variables to 0
         inches=0;
         rotations=0;
@@ -467,7 +466,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
     //motor.  If the rpm is not close enough to the target value,
     //the intake will not run as too ensure balls are given the
     //best opportunity to score.
-    public void shootAndLift (double targetRPM, double intakeSpeed) throws InterruptedException
+    public void shootAndLift (double targetRPM, double intakeSpeed, double initialWaitTime) throws InterruptedException
     {
         //Set shooter power to variable shooterPower
         shooter.setPower(shooterPower);
@@ -477,7 +476,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         timeTwo = this.getRuntime();
 
         //1 second wait
-        while (timeTwo - timeOne < 1) {
+        while (timeTwo - timeOne < initialWaitTime) {
             timeTwo = this.getRuntime();
         }
 
@@ -524,7 +523,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
                 //set intake power to 0
                 if (avgRpm > targetRPM) {
                     intake.setPower(intakeSpeed);
-                    ballControl.setPosition(.24);
+                    ballControl.setPosition(.6);
                 } else {
                     intake.setPower(0);
                 }
