@@ -165,8 +165,10 @@ public class BigSurTeleopx2Drive extends OpMode {
         ledShootGreen.setState(greenLEDIsOn);                               //LEDs are initialized to "ON"
         ledBallBlue.setState(blueLEDIsOn);
 
+
         //beamBreak initialization
         beamBreak = hardwareMap.touchSensor.get("bb");
+
 
         //motor configurations in the hardware map
         leftMotor1 = hardwareMap.dcMotor.get("m1"); //Motor Controller 1, port 2, UVQF
@@ -178,16 +180,20 @@ public class BigSurTeleopx2Drive extends OpMode {
         cap1 = hardwareMap.dcMotor.get("m7"); //Motor Controller 3, port 1, VF7F
         cap2 = hardwareMap.dcMotor.get("m8"); //Motor Controller 3, port 2, VF7F
 
+
         //Stop and reset encoder, declare intention to run without encoder PID control
         cap2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         cap2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+
         //encoder count for turret at the init phase
         //initialEncoderCount = cap2.getCurrentPosition();
+
 
         //encoder counts for shooter at init phase
         encoderClicksOne = shooter.getCurrentPosition();
         encoderClicksTwo = shooter.getCurrentPosition();
+
 
         //Motor directions: set forward/reverse
         rightMotor1.setDirection(DcMotor.Direction.REVERSE);
@@ -198,6 +204,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         intake.setDirection(DcMotor.Direction.REVERSE);
         cap1.setDirection(DcMotor.Direction.FORWARD);
         cap2.setDirection(DcMotor.Direction.FORWARD);
+
 
         //Servo configurations
         turret = hardwareMap.servo.get("s1"); //Servo Controller 1, port 2, VSI1
@@ -211,6 +218,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         capGrab = hardwareMap.servo.get("s9"); //Servo Controller 3, Port 5, VCT7
         leftSideWheels= hardwareMap.servo.get("s11"); //Servo Controller 1, port 6, VSI1;
         rightSideWheels= hardwareMap.servo.get("s12"); //Servo Controller 1, port 5, VSI1;
+
 
         //servo controller named so we can
         servoControllerNoCap = hardwareMap.servoController.get("Servo Controller 1");
@@ -227,6 +235,7 @@ public class BigSurTeleopx2Drive extends OpMode {
         kicker.setPosition(0);
         capGrab.setDirection(Servo.Direction.FORWARD);
         capGrab.setPosition(1);
+
 
         //Shooter initially running at shooterSpeed power
         shooter.setPower(shooterSpeed);
@@ -257,6 +266,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             //we disable this pwm during cap ball mode, so we always make sure
             // it is enabled during the standard mode
             servoControllerNoCap.pwmEnable();
+
 
 
             //*****************
@@ -311,19 +321,21 @@ public class BigSurTeleopx2Drive extends OpMode {
             }
 
             //telemetry for rpm: we use Avg RPM for calculations to RPM proportional control,
-            // but we aso
+            // but we also want to show the cycle by cycle RPM for troubleshooting
             telemetry.addData("RPM : ", rpm);
             telemetry.addData("AvgRPM : ", avgRpm);
+
+
 
             //***************************************************
             //E L E V A T O R  L O A D E R  &  I N T A K E **
             //***************************************************
 
-            //set intake servo powers
-            if (gamepad2.x) {
+            //set drawbridge servo powers: CR servos so we default to .5 and then move
+            if (gamepad2.x) {           //raise intake using drawbridge
                 rightDrawbridge.setPosition(.95);
                 leftDrawbridge.setPosition(.05);
-            } else if (gamepad2.b) {
+            } else if (gamepad2.b) {    //lowers intake using drawbridge
                 leftDrawbridge.setPosition(.95);
                 rightDrawbridge.setPosition(.05);
             } else {
@@ -332,9 +344,10 @@ public class BigSurTeleopx2Drive extends OpMode {
             }
 
             //set intake speeds
-            if (gamepad2.right_trigger > 0.6) { //triggers act like an axis, so to make them behave like buttons
-                // we set them to active when they reach beyond a certain value: .6.  If the right trigger's
-                //value is above .6, activate elevator (going up) and intake (coming in)
+            //Triggers act like an axis from 0->1, so to make them behave like buttons
+            // we set them to active when they reach beyond a certain value: .6.  If the right trigger's
+            // value is above .6, activate elevator (going up) and intake (coming in)
+            if (gamepad2.right_trigger > 0.6) {
                 intakeSpeed = 1.0;
             } else if (gamepad2.left_trigger > .6) {
                 intakeSpeed = -1;
@@ -342,153 +355,64 @@ public class BigSurTeleopx2Drive extends OpMode {
                 intakeSpeed = 0;
             }
 
-            //Ball control positions
+            //Ball control positions: tuned from individual testing
+            //Meant to always be blocking until gunner allows clear passage of particles
             if (gamepad2.left_bumper) {
                 ballControl.setPosition(.24);
             } else {
                 ballControl.setPosition(0);
             }
 
-            //Kicker positions
+            //Kicker positions: tuned from individual testing
+            //Meant to always be down until gunner enables kicker to shoot last particle
             if (gamepad2.right_bumper) {
                 kicker.setPosition(.72);
             } else {
                 kicker.setPosition(0);
             }
 
+
+
             //******************
-            //SET ALL POWERS @@
+            //S E T  P O W E R S @@
             //*****************/
 
 
-            //        //Set the elevator and intake's speed to the values specified above
-//        if (gamepad2.dpad_up) {
-//            pastShootingRPM = targetRPM;
-//            targetRPM = shootRPMFar;
-//            hoodPositioning = hoodPositionFar;
-//            farModeEngaged = true;
-//            midModeEngaged = false;
-//            nearModeEngaged = false;
-//        }
-//        else if (gamepad2.dpad_left) {
-//            pastShootingRPM = targetRPM;
-//            targetRPM = shootRPMMid;
-//            hoodPositioning = hoodPositionMid;
-//            farModeEngaged = false;
-//            midModeEngaged = true;
-//            nearModeEngaged = false;
-//        }
-//        else if (gamepad2.dpad_down) {
-//            pastShootingRPM = targetRPM;
-//            targetRPM = shootRPMNear;
-//            hoodPositioning = hoodPositionNear;
-//            farModeEngaged = false;
-//            midModeEngaged = false;
-//            nearModeEngaged = true;
-//        }
-//
-//
-//        if (pastShootingRPM != targetRPM){
-//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMMid) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//            if (pastShootingRPM == shootRPMNear && targetRPM == shootRPMFar) {
-//                rpmGain = rpmGainExtremeValuesChange;
-//                telemetry.addLine("RPM Extreme Change");
-//            }
-//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMNear) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//            if (pastShootingRPM == shootRPMMid && targetRPM == shootRPMFar) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMNear) {
-//                rpmGain = rpmGainExtremeValuesChange;
-//                telemetry.addLine("RPM Extreme Change");
-//            }
-//            if (pastShootingRPM == shootRPMFar && targetRPM == shootRPMMid) {
-//                rpmGain = rpmGainCloseValuesChange;
-//                telemetry.addLine("RPM Close Change");
-//            }
-//        }
-//
-//        if (avgRpm < targetRPM + 50 && avgRpm > targetRPM - 50) {
-//            pastShootingRPM = targetRPM;
-//
-//            if (farModeEngaged) {
-//                rpmGain = rpmGainFarSteady;
-//                telemetry.addLine("RPM Far Steady");
-//            }
-//            if (midModeEngaged) {
-//                rpmGain = rpmGainMidSteady;
-//                telemetry.addLine("RPM Mid Steady");
-//            }
-//            if (nearModeEngaged) {
-//                rpmGain = rpmGainNearSteady;
-//                telemetry.addLine("RPM Near Steady");
-//            }
-//
-//        }
-
-            // //.000000125
-            // if (gamepad2.dpad_up) {
-            //     rpmGain += .0000000125;
-            // } else if (gamepad2.dpad_down) {
-            //     rpmGain -= .0000000125;
-            // } else if (gamepad2.dpad_right) {
-            //     rpmGain += .000000025;
-            // } else if (gamepad2.dpad_left) {
-            //     rpmGain -= .000000025;
-            // }
-
-
-            //        //linear adjustment of RPM Gain
-//        if (gamepad2.dpad_up) {
-//            targetRPM = shootRPMFar;
-//            hoodPositioning = hoodPositionFar;
-//        }
-//        else if (gamepad2.dpad_left) {
-//            targetRPM = shootRPMMid;
-//            hoodPositioning = hoodPositionMid;
-//        }
-//        else if (gamepad2.dpad_down) {
-//            targetRPM = shootRPMNear;
-//            hoodPositioning = hoodPositionNear;
-//        }
-//
-//        deltaRPM = Math.abs(avgRpm - targetRPM);
-//        rpmGain = (desiredRPMGain/150)*deltaRPM + desiredRPMGain;
-
-
-            if (gamepad1.dpad_down) {
-                targetRPM -=50;
+            //The ability to adjust RPM is essential so that we don't
+            if (gamepad2.dpad_down) {
+                targetRPM -= 1;
             }
-            else if (gamepad1.dpad_up) {
-                targetRPM += 50;
+            else if (gamepad2.dpad_up) {
+                targetRPM += 1;
             }
 
+            //display RPM to phones so that the drive coach can give the shooting command
             telemetry.addData("Target RPM = ", targetRPM);
 
+            //proportional control to correct shooting power based on the current error
             shooterSpeed += rpmGain * (targetRPM - avgRpm);
 
+            //clip the range from .1->1 because we don't want the motor to go to 0 until the cap ball mode
             shooterSpeed = Range.clip(shooterSpeed, 0.1, 1);
 
+            //set shooter and intake power
             shooter.setPower(shooterSpeed);
-
             intake.setPower(intakeSpeed);
+
+            //show relevant values for shooting: power, gain, hood angle
             telemetry.addData("Shooter Motor Power: ", shooterSpeed);
             telemetry.addData("RPM Gain", rpmGain);
-
             telemetry.addData("Hood pos", hood.getPosition());
+
+
 
             //***************************************************
             // L E D   N O T I F I C A T I O N S
             //***************************************************
 
-            //LED Notifications
+            //LED Notifications for shooting
+
+            //if the RPM is within +/- 100 of target, we want the green light to tell drivers to shoot
             if (avgRpm < (targetRPM + 100) && avgRpm > (targetRPM - 100)) {
                 ledDontShootRed.setState(!redLEDIsOn);
                 ledShootGreen.setState(greenLEDIsOn);
@@ -496,6 +420,9 @@ public class BigSurTeleopx2Drive extends OpMode {
                 ledDontShootRed.setState(redLEDIsOn);
                 ledShootGreen.setState(!greenLEDIsOn);
             }
+
+            //blue LED activated when our beam break sensor (acting as a touch sensor) is
+            // tripped to show a ball is present
             if (beamBreak.isPressed()) {
                 telemetry.addLine("No Ball");
                 ledBallBlue.setState(!blueLEDIsOn);
@@ -503,6 +430,8 @@ public class BigSurTeleopx2Drive extends OpMode {
                 telemetry.addLine("Ball");
                 ledBallBlue.setState(blueLEDIsOn);
             }
+
+
 
             //*****************
             // H O O D @@
@@ -527,9 +456,14 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         }
 
+
+
         //*****************
         // T U R R E T  @@
         //*****************
+
+        //we want turret control throughout the match regardless of state
+        // we want to have the turret for shooting and for moving out of the way of cap ball mechanism
 
         //set turretAxis to the raw value of gamepad2.left_stick_x
         turretAxis = gamepad2.left_stick_x;
@@ -544,17 +478,26 @@ public class BigSurTeleopx2Drive extends OpMode {
             turretRotationValue = 0.5;
         }
 
+        //set position of turret
         turret.setPosition(turretRotationValue);
+
+
+
+        //*****************
+        // D R I V I N G  @@
+        //*****************
 
         //assign joystick values
         joystick1ValueLeft = gamepad1.left_stick_y; //set joystick1ValueLeft to the raw value of gamepad1.left_stick_y
         joystick1ValueRight = gamepad1.right_stick_y; //set joystick1ValueRight to the raw value of gamepad1.right_stick_y
 
-        //Set motor powers
+        //we use x^2 adjustment for code, and we cut down by 95% so that we don't overdo the motor control
         leftMotor1.setPower(.95 * Math.abs(joystick1ValueLeft) * joystick1ValueLeft);
         leftMotor2.setPower(.95 * Math.abs(joystick1ValueLeft) * joystick1ValueLeft);
         rightMotor1.setPower(.95 * Math.abs(joystick1ValueRight) * joystick1ValueRight);
         rightMotor2.setPower(.95 * Math.abs(joystick1ValueRight) * joystick1ValueRight);
+
+
 
         //*****************
         // B E A C O N @@
@@ -562,12 +505,12 @@ public class BigSurTeleopx2Drive extends OpMode {
 
         //Move both port side and battery side beacons based on actions on the driver gamepad
         //.1 and .9  for testing
+        //default is that they stay inside before being pushed outwards
         if (gamepad1.x) {
             beaconPusherLeftPosition = .9;
         } else {
             beaconPusherLeftPosition = .1;
         }
-
         if (gamepad1.b) {
             beaconPusherRightPosition = .1;
         } else {
@@ -578,20 +521,30 @@ public class BigSurTeleopx2Drive extends OpMode {
         beaconPusherLeft.setPosition(beaconPusherLeftPosition);
         beaconPusherRight.setPosition(beaconPusherRightPosition);
 
+
+
         //*****************
         // C A P   B A L L @@
         //*****************
 
+        //cap ball is only operational when the state is activated so that we do not
+        // entangle with other robots.  we also have specific power allocations during this time
+
         if (capBallState) {
 
+            //disable whole servo controller that is not used during the cap ball period
             servoControllerNoCap.pwmDisable();
+
+            //shooter and intake are cut to 0 power to save power
             shooter.setPower(0);
             intake.setPower(0);
 
+            //cap motor is controlled by the gunner joystick for fine control movement
             capMotorValue = gamepad2.right_stick_y;
             cap1.setPower(capMotorValue);
             cap2.setPower(capMotorValue);
 
+            //used to secure the cap ball on the rising mechanism to prevent slipping out
             if (gamepad2.left_bumper) {
                 capGrabBase-=.04;
             }
@@ -599,15 +552,23 @@ public class BigSurTeleopx2Drive extends OpMode {
                 capGrabBase+=.04*gamepad2.left_trigger;
             }
 
-
+            //clipping servo to relevant and tuned values
             capGrabBase = Range.clip(capGrabBase, 0.08, .95);
 
-            telemetry.addData("Cap Grab Value", capGrabBase);
+            //telemetry to show drivers the value of the servo
+            telemetry.addData("Cap Grab Servo Value", capGrabBase);
 
+            //set the servo position for holding cap ball
             capGrab.setPosition(capGrabBase);
 
         }
+
+
+        //sending telemetry to the phones at the end of every cycle so that all
+        // information is available at the same time. This is the only time in the
+        // looping code that it is updated so the drivers can see everything at once
         telemetry.update(); //update telemetry
+
     }
 
 
