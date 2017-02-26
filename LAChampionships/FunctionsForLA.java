@@ -571,7 +571,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             timeTwo = this.getRuntime();
             //Set intake and shooter powers, and kicker position
             intake.setPower(.95);
-            kicker.setPosition(.7);
+            kicker.setPosition(.75);
             shooter.setPower (shooterPower);
         }
 
