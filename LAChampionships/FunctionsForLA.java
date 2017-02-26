@@ -567,14 +567,73 @@ public abstract class FunctionsForLA extends LinearOpMode {
         //while timeTwo < timeRunningLoop + 6
         while (timeTwo<(timeRunningLoop+6))
         {
-            //Set timeTwo to this.getRuntime
+            //Current Run Time
             timeTwo = this.getRuntime();
-            //Set intake and shooter powers, and kicker position
-            intake.setPower(.95);
-            kicker.setPosition(.75);
-            shooter.setPower (shooterPower);
+            //Current Encoder Clicks
+            encoderClicksTwo = shooter.getCurrentPosition();
+
+            //telemetry for shooting speed
+            if (timeTwo - timeOne >= 0.1) {//if timeTwo and timeOne are more than .1 sec apart
+                timeTwo = this.getRuntime();//set time Two to curret runtime
+                encoderClicksTwo = shooter.getCurrentPosition();//set encoderClicksTwo to the current position of the shooter motor
+                rpm = (int) ((encoderClicksTwo - encoderClicksOne) / (timeTwo - timeOne) * (60 / 28)); //(clicks/seconds)(60seconds/1min)(1rev/28clicks)
+                averageRpmArray[arrayCount] = rpm; //Set position arrayCount of averageRpmArray to current rpm
+                timeOne = this.getRuntime(); //set timeOne to current run time
+                encoderClicksOne = shooter.getCurrentPosition(); //set encoderClicksOne to the current position of the shooter motor
+                arrayCount++;//increment arrayCount by 1
+            }
+
+
+            if (arrayCount == 5) //if arrayCount equals 5
+            {
+                for (int i = 0; i < 5; i++) { //loop 5 times
+                    totalRpm += averageRpmArray[i]; //increment totalRpm by the value at position i of averageRpmArray
+                }
+                avgRpm = (int) totalRpm / 5; //set avgRpm to totalRpm divided by five casted as an int
+                baseWeight = .1; //Set base weight to .1
+                for (int i = 0; i < 5; i++) { //Loop 5 times
+                    weightedAvg += (int) averageRpmArray[i] * baseWeight; //Increment weightedAvg by the value of averageRpmArray at position i times baseWeight casted as an int
+                    baseWeight += .05; //Increment base weight by .05
+                }
+                //Set tempWeightedAvg to weightedAvg
+                tempWeightedAvg = weightedAvg;
+
+                //If avgRpm>targetRPM, set intake powerto intakeSpeed, otherwise
+                //set intake power to 0
+                if (avgRpm > targetRPM) {
+                    intake.setPower(intakeSpeed);
+                    kicker.setPosition(.75);
+                } else {
+                    intake.setPower(0);
+                }
+
+                //Adjust shooter speed based on RPM_GAIN, and difference between
+                //targetRPM and weightedAvg
+                shooterPower += RPM_GAIN * (targetRPM - weightedAvg);
+
+                //Telemetry
+                weightedAvg = 0; //set weightedAvg to 0
+                arrayCount = 0; //set arrayCount to 0
+                //set each value in averageRpmArray to 0
+                averageRpmArray[0] = 0;
+                averageRpmArray[1] = 0;
+                averageRpmArray[2] = 0;
+                averageRpmArray[3] = 0;
+                averageRpmArray[4] = 0;
+                //set totalRpm to 0;
+                totalRpm = 0;
+                //Set shooter power to variable shooterPower
+                shooter.setPower(shooterPower);
+            }
+
+            //telemetry for rpm and averages
+            telemetry.addData("WeightedRPM: ", tempWeightedAvg);
+            telemetry.addData("RPM : ", rpm);
+            telemetry.addData("AvgRPM : ", avgRpm);
+            telemetry.update();
         }
 
+        
         //Execute stopShooting method
         stopShooting();
 
