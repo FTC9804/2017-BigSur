@@ -39,7 +39,7 @@ public class V2BlueAuto extends FunctionsForLA {
         calibrateGyro();
 
         //public void drive (double distance, double speed, double targetHeading, boolean isStopAtEnd)
-        drive (12, .6, 0, true);
+        drive (2, .6, 0, true);
 
         //public void spinMove (double desiredHeading)
         spinMove(-37);
@@ -101,7 +101,7 @@ public class V2BlueAuto extends FunctionsForLA {
         pressBeaconSideBlue (.2, -4);
 
         //public void shootAndLift (double targetRPM, double intakeSpeed)
-        shootAndLift(2700, .95);
+        shootAndLift(2700, .95, 5);
 
     }
 
