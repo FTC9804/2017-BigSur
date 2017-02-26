@@ -147,8 +147,8 @@ public abstract class FunctionsForLA extends LinearOpMode {
     double straightDriveAdjust = 0;
 
     // F U N C T I O N S   F O R   A U T O
-    
-    
+
+
     //Drives straight and backwards for a provided distance, in inches
     //and at a given speed and a given gyro heading
     public void driveBack (double distance, double speed, double targetHeading)
@@ -692,7 +692,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
         //Execute stopDriving() method
         stopDriving();
     }
-    
+
     //Drive at a given speed until both ods sensors see adequate white light
     public void driveToWhiteLine (double speed, double targetHeading)
     {
@@ -881,7 +881,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             stopDriving();
         }
     }
-    
+
     //Drive at a given speed until the right ods sees adequate white light
     public void driveToWhiteLineRight(double speed, double targetHeading, boolean isStopAtEnd)
     {
@@ -1149,7 +1149,7 @@ public abstract class FunctionsForLA extends LinearOpMode {
             beaconPusherLeft.setPosition(BEACON_PUSHER_LEFT_RETRACT_POSITION);
             timeTwo = this.getRuntime();
         }
-        
+
     }
 
 }
