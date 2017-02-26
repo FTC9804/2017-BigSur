@@ -1,6 +1,7 @@
-//Version 1.0 coded Feb. 4, 2017 by Steve, Etienne and Marcus.
-//Designed to test the autonomous concept
-//of shooting two balls and pressing two beacons
+//Version 2.0 coded Feb. 25, 2017 by Steve, Etienne and Marcus.
+//Designed to execute the autonomous concept
+//of pressing two beacons and shooting two balls
+//When on the red alliance
 
 //package declaration
 package org.firstinspires.ftc.teamcode;
@@ -21,10 +22,12 @@ public class V2RedAuto extends FunctionsForLA {
         //Wait until play button is pressed
         waitForStart();
 
-
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne=this.getRuntime();
         timeTwo=this.getRuntime();
 
+        //For 1 second, bring down leftSideWheels
+        //and rightSideWheels to .95 position
         while (timeTwo-timeOne<1)
         {
             timeTwo=this.getRuntime();
@@ -32,67 +35,74 @@ public class V2RedAuto extends FunctionsForLA {
             rightSideWheels.setPosition(.95);
         }
 
-
+        //public void calibrateGyro()
         calibrateGyro();
 
-        //public void drive (double distance, double speed, double targetHeading)
+        //public void drive (double distance, double speed, double targetHeading, boolean isStopAtEnd)
         drive (12, .6, 0, true);
 
-        //spinMove (double desiredHeading)
+        //public void spinMove (double desiredHeading)
         spinMove(37);
 
-        //spinMove (double desiredHeading)
+        //public void spinMove (double desiredHeading)
         spinMove(37);
 
-        //public void drive (double distance, double speed, double targetHeading)
+        //public void drive (double distance, double speed, double targetHeading, boolean isStopAtEnd)
         drive(16, .8, 37, false);
 
-        //public void driveToWhiteLineRight(double speed), .4 speed until right ods sees white light
+        //public void driveToWhiteLineLeft (double speed, double targetHeading, boolean isStopAtEnd)
         driveToWhiteLineLeft(.3, 37, true);
 
+        //Set timeOne and timeTwo to this.getRuntime()
         timeOne=this.getRuntime();
         timeTwo=this.getRuntime();
 
+        //1 second wait
         while (timeTwo-timeOne<1)
         {
             timeTwo=this.getRuntime();
         }
 
-        //spinMove (double desiredHeading) spin to 15 deg heading
+        //spinMove (double desiredHeading)
         spinMove (17);
 
-        //public void driveNoGyro (double distance, double speed), hit the wall, drive without a gyro for 20 inches at .25 power
+        //public void driveNoGyro (double distance, double speed)
         driveNoGyro(20, .25);
 
-        //public void driveToWhiteLine (double speed, double targetHeading) drive at .3 power and -3 deg
+        //public void driveToWhiteLine (double speed, double targetHeading)
         driveToWhiteLine(.3, 4);
 
-        //public void drive (double distance, double speed, double targetHeading)
+        //public void drive (double distance, double speed, double targetHeading, boolean isStopAtEnd)
         drive (3, .2, 4, true);
 
-        //public void pressBeaconSideBlue (double speed) find and press blue beacon at -.1 power
+        //public void pressBeaconSideRed (double speed, double targetHeading)
         pressBeaconSideRed(-.2, -4);
 
-        //public void driveBack (double distance, double speed, double targetHeading), drive back 32 in. at .3 power and -4 deg
+        //public void driveBack (double distance, double speed, double targetHeading)
         driveBack(32, .3, -4);
 
+        //Set position of left and right Drawbridge to 1
         leftDrawbridge.setPosition(1);
         rightDrawbridge.setPosition(1);
 
+        //Set shooter motor's power to variable shooterPower
         shooter.setPower(shooterPower);
 
+        //Set position of hood to .6
         hood.setPosition(.6);
 
-        //public void driveToWhiteLine (double speed, double targetHeading), drive at -.3 power and -3 heading
+        //public void driveToWhiteLine (double speed, double targetHeading)
         driveToWhiteLine(-.3, -4);
 
-        //public void driveBack (double distance, double speed, double targetHeading), drive back 2 in. at .2 power and -4 deg
+        //public void driveBack (double distance, double speed, double targetHeading)
         driveBack(2, .2, -4);
 
-        //public void pressBeaconSideBlue (double speed) find and press red beacon at .2 power and 4 heading
+        //public void pressBeaconSideRed (double speed, double target heading)
         pressBeaconSideRed (.2, 4);
 
+        //public void shootAndLift (double targetRPM, double intakeSpeed)
         shootAndLift(2700, .95);
+
 
     }
 
