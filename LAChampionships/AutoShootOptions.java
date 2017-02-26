@@ -20,14 +20,30 @@ import com.qualcomm.robotcore.util.Range;
 public class AutoShootOptions extends FunctionsForLA {
 
     //OVERALL VARIABLES
-    double timeOne, timeTwo, wait = 0, distance1 = 0, distance2 = 0, power = 0;
-    int stepInMenu = 1, heading = 0;
-    boolean notAllChosen = true, choiceNotSelected = true, goBack = false,
-            waitTimeNotSelected = true, distance1NotSelected = true,
-            distance2NotSelected = true, motorPowerNotSelected = true;
+    double timeOne, timeTwo, wait, distance1, distance2, power;
+    int stepInMenu, heading;
+    boolean notAllChosen, choiceNotSelected, goBack,
+            waitTimeNotSelected, distance1NotSelected,
+            distance2NotSelected , motorPowerNotSelected;
 
     public void runOpMode() throws InterruptedException
     {
+        timeOne = 0;
+        timeTwo =0;
+        wait = 0;
+        distance1 = 0;
+        distance2 = 0;
+        power = 0;
+        stepInMenu = 1;
+        heading = 0;
+        notAllChosen = true;
+        choiceNotSelected = true;
+        goBack = false;
+        waitTimeNotSelected = true;
+        distance1NotSelected = true;
+        distance2NotSelected = true;
+        motorPowerNotSelected = true;
+
 
         /**
          *
@@ -51,13 +67,11 @@ public class AutoShootOptions extends FunctionsForLA {
             }
             delayShort();
 
-
             goBack = false;
             if (stepInMenu == 2) {
                 setDistance1ToTravel();
             }
             delayShort();
-
 
             goBack = false;
             if (stepInMenu == 3) {
@@ -70,13 +84,11 @@ public class AutoShootOptions extends FunctionsForLA {
                 setMotorPower();
             }
 
-
-            if (!waitTimeNotSelected && !distance1NotSelected && !distance2NotSelected) {
+            if (!waitTimeNotSelected && !distance1NotSelected && !distance2NotSelected && !motorPowerNotSelected) {
                 notAllChosen = false;
             } else {
                 notAllChosen = true;
             }
-
         }
 
         telemetry.addLine("GET READY TO START");
@@ -87,9 +99,11 @@ public class AutoShootOptions extends FunctionsForLA {
         telemetry.addData("DrivePower = ", "%.2f", power);
         telemetry.update();
 
-
         //Wait until play button is pressed
         waitForStart();
+
+        telemetry.addLine("Code starting");
+        telemetry.update();
 
         //allows the wait time to include the gyro calibration to prevent any excess time wasted
         timeOne = this.getRuntime();
@@ -115,7 +129,7 @@ public class AutoShootOptions extends FunctionsForLA {
 
         //shoot using tested values of 2700 RPM
         // shootAndLift(double targetRPM, double intakeSpeed)
-        shootAndLift(2700, .95);
+        shootAndLift(2700, .95, 5);
 
         //drive back 2 using parameters specified by driver
         // driveBack (double distance, double speed, double targetHeading)
@@ -237,7 +251,7 @@ public class AutoShootOptions extends FunctionsForLA {
                 }
 
             }
-                telemetry.update();
+            telemetry.update();
         }
 
         if (goBack){
@@ -411,6 +425,5 @@ public class AutoShootOptions extends FunctionsForLA {
 
 
 }
-
 
 
