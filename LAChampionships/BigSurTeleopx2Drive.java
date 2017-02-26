@@ -370,7 +370,7 @@ public class BigSurTeleopx2Drive extends OpMode {
             //Kicker positions: tuned from individual testing
             //Meant to always be down until gunner enables kicker to shoot last particle
             if (gamepad2.right_bumper) {
-                kicker.setPosition(.72);
+                kicker.setPosition(.75);
             } else {
                 kicker.setPosition(0);
             }
