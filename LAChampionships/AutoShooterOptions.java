@@ -130,7 +130,7 @@ public class AutoShooterOptions extends FunctionsForLA {
 
         //shoot using tested values of 2700 RPM
         // shootAndLift(double targetRPM, double intakeSpeed)
-        shootAndLift(2700, .95, 5);
+        shootAndLift(3000, .95, 5);
 
         //drive back 2 using parameters specified by driver
         // driveBack (double distance, double speed, double targetHeading)
