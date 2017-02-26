@@ -31,12 +31,14 @@ public class BigSurTeleopx2Drive extends OpMode {
     DigitalChannel ledDontShootRed; //led to shine red light if rpm is not adequate
     DigitalChannel ledBallBlue; //led to shine blue light if beamBreak detects a ball in the robot
 
-    //booleans to detect whether led lights are on
+    //booleans to detect whether led lights are on, initially set to true
     boolean greenLEDIsOn = true;
     boolean redLEDIsOn = true;
     boolean blueLEDIsOn = true;
 
-    double capGrabBase = .1;
+    //base capGrab servo position value, which capGrab is set to 
+    //during end game
+    double capGrabValue = .1;
 
 
     //Motors
@@ -46,23 +48,25 @@ public class BigSurTeleopx2Drive extends OpMode {
     DcMotor leftMotor2;    //left drive motor back
     DcMotor shooter;      //shooting flywheel
     DcMotor intake;       //intake system
-    DcMotor cap1;
-    DcMotor cap2;
+    DcMotor cap1;         //cap ball lift motor
+    DcMotor cap2;         //cap ball lift motor
 
 
     //Servos
-    Servo turret;
-    Servo hood;
-    Servo beaconPusherLeft;
-    Servo beaconPusherRight;
-    Servo ballControl;
-    Servo leftDrawbridge;
-    Servo rightDrawbridge;
-    Servo kicker;
-    Servo capGrab;
-    Servo leftSideWheels;
-    Servo rightSideWheels;
+    Servo turret;               //Servo to change direction of shooting
+    Servo hood;                 //Servo to adjust angle of ball departure
+    Servo beaconPusherLeft;     //Servo to push beacons from robot side left
+    Servo beaconPusherRight;    //Servo to push beacons from robot side right
+    Servo ballControl;          //Servo to prevent balls from shooting if unwanted
+    Servo leftDrawbridge;       //Servo on robot side left to lift and raise intake
+    Servo rightDrawbridge;      //Servo on robot side right to lift and raise intake
+    Servo kicker;               //Servo to lift the last particle in a series of shots
+    Servo capGrab;              //Servo to stabilize control of the cap ball during lift
+    Servo leftSideWheels;       //Servo to bring down wheels on the left side of the robot
+    Servo rightSideWheels;      //Servo to bring down wheels on the right side of the robot
 
+    //ServoController involving the Servos that are not used during cap ball phase
+    //and are thus deactivated during cap ball phase to save battery power
     ServoController servoControllerNoCap;
 
     //Variable to temporarily store the weighted average of the rpm of the shooter
@@ -528,7 +532,8 @@ public class BigSurTeleopx2Drive extends OpMode {
         //*****************
 
         //cap ball is only operational when the state is activated so that we do not
-        // entangle with other robots.  we also have specific power allocations during this time
+        // entangle with other robots.  we also have specific power allocations during this time, in order 
+        // to conserve power to operate our continuous lift system
 
         if (capBallState) {
 
@@ -546,24 +551,23 @@ public class BigSurTeleopx2Drive extends OpMode {
 
             //used to secure the cap ball on the rising mechanism to prevent slipping out
             if (gamepad2.left_bumper) {
-                capGrabBase-=.04;
+                capGrabValue-=.04;
             }
             else {
-                capGrabBase+=.04*gamepad2.left_trigger;
+                capGrabValue+=.04*gamepad2.left_trigger;
             }
 
             //clipping servo to relevant and tuned values
-            capGrabBase = Range.clip(capGrabBase, 0.08, .95);
+            capGrabValue = Range.clip(capGrabValue, 0.08, .95);
 
             //telemetry to show drivers the value of the servo
-            telemetry.addData("Cap Grab Servo Value", capGrabBase);
+            telemetry.addData("Cap Grab Servo Value", capGrabValue);
 
             //set the servo position for holding cap ball
-            capGrab.setPosition(capGrabBase);
+            capGrab.setPosition(capGrabValue);
 
         }
-
-
+        
         //sending telemetry to the phones at the end of every cycle so that all
         // information is available at the same time. This is the only time in the
         // looping code that it is updated so the drivers can see everything at once
